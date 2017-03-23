@@ -1,0 +1,7 @@
+*.o
+*.a
+*.lib
+*.so
+*.pyc
+*.pyd
+build/
