@@ -1,7 +1,8 @@
-#ifndef ID3__H_
-#define ID3__H_
+#ifndef ID3_HPP_
+#define ID3_HPP_
 
 #include <stddef.h>
+#include <queue>
 
 #define NO_FEATURE       -1
 #define NO_INSTANCE       0
@@ -9,10 +10,17 @@
 #define NUM_SPLIT_LABELS  3
 #define COST_OF_EMPTINESS INFINITY
 
-#define QUARTILE_PARTITIONING       1
-#define DECILE_PARTITIONING         2
-#define PERCENTILE_PARTITIONING     3
 
+namespace gbdf_part {
+    const int QUARTILE_PARTITIONING   = 0xB23A40;
+    const int DECILE_PARTITIONING     = 0xB23A41;
+    const int PERCENTILE_PARTITIONING = 0xB23A42;
+}
+
+namespace gbdf_task {
+    const int CLASSIFICATION_TASK = 0xF55A90;
+    const int REGRESSION_TASK     = 0xF55A91;
+}
 
 typedef double data_t;
 typedef int target_t;
@@ -69,6 +77,11 @@ struct Tree {
     struct TreeConfig* config;
 };
 
+
+inline float log_2(float value);
+
+inline size_t sum_counts(size_t* counters, size_t n_counters);
+
 struct Node* newNode(size_t n_classes);
 
 extern inline float ShannonEntropy(float probability);
@@ -92,4 +105,4 @@ struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_f
 float* classify(data_t* data, size_t n_instances, size_t n_features,
                 struct Tree* tree, struct TreeConfig* config);
 
-#endif // ID3__H_
+#endif // ID3_HPP_

@@ -1,14 +1,11 @@
-#ifndef SCYTHE_H_
-#define SCYTHE_H_
+#ifndef SCYTHE_HPP_
+#define SCYTHE_HPP_
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <string>
 
-#include "Forest/forest.hpp"
+#include "forest.hpp"
 
-
-
-
-#endif // SCYTHE_H_
+#endif // SCYTHE_HPP_

@@ -9,8 +9,5 @@ CFLAGS  :=  -ansi -pedantic -Wall -Werror -W -g3
 LDFLAGS :=  -L.
 LDLIBS  :=  -l$(...)
 
-scythe.lib: scythe.o
-	$(CXX) -shared $^ -o $@ -Wl,--whole-archive -Wl,--no-whole-archive
-
-tree.lib: tree.o
+scythe.lib: scythe.o id3.o metrics.o forest.o
 	$(CXX) -shared $^ -o $@ -Wl,--whole-archive -Wl,--no-whole-archive

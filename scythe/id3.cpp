@@ -3,17 +3,20 @@
 #include <math.h>
 #include <string.h>
 
-#include "id3_.h"
+#include "id3.hpp"
 
-#define NO_FEATURE       -1
-#define NO_INSTANCE       0
-#define NO_SPLIT_VALUE    INFINITY
-#define NUM_SPLIT_LABELS  3
-#define COST_OF_EMPTINESS INFINITY
 
-#define QUARTILE_PARTITIONING       1
-#define DECILE_PARTITIONING         2
-#define PERCENTILE_PARTITIONING     3
+inline float log_2(float value) {  
+    return log(value) / log(2);
+}
+
+inline size_t sum_counts(size_t* counters, size_t n_counters) {
+    size_t total = 0;
+    for (int i = 0; i < n_counters; i++) {
+        total += counters[i];
+    }
+    return total;
+}
 
 struct Node* newNode(size_t n_classes) {
     struct Node* node = (struct Node*) malloc(sizeof(struct Node));
@@ -40,7 +43,7 @@ struct Density* computeDensities(data_t* data, size_t n_instances, size_t n_feat
         densities[f].counters_right = (size_t*) malloc(n_classes * sizeof(size_t));
         densities[f].counters_nan = (size_t*) malloc(n_classes * sizeof(size_t));
         // Putting nan values aside
-        bint is_categorical = TRUE;
+        bool is_categorical = true;
         size_t n_acceptable = 0;
         data_t data_point;
         for (int i = 0; i < n_instances; i++) {
@@ -49,7 +52,7 @@ struct Density* computeDensities(data_t* data, size_t n_instances, size_t n_feat
                 sorted_values[n_acceptable] = data_point;
                 n_acceptable++;
                 if (is_categorical && !(round(data_point) == data_point)) {
-                    is_categorical = FALSE;
+                    is_categorical = false;
                 }
             }
         }
@@ -163,15 +166,15 @@ double evaluateByThreshold(struct Splitter* splitter, struct Density* density,
     double cost;
     size_t n_partition_values;
     switch(partition_value_type) {
-        case QUARTILE_PARTITIONING:
+        case gbdf_part::QUARTILE_PARTITIONING:
             splitter->partition_values = density->quartiles;
             n_partition_values = 4;
             break;
-        case DECILE_PARTITIONING:
+        case gbdf_part::DECILE_PARTITIONING:
             splitter->partition_values = density->deciles;
             n_partition_values = 10;
             break;
-        case PERCENTILE_PARTITIONING:
+        case gbdf_part::PERCENTILE_PARTITIONING:
             splitter->partition_values = density->percentiles;
             n_partition_values = 100;
             break;
@@ -211,7 +214,7 @@ struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_f
     tree->n_nodes = 1;
     tree->n_classes = config->n_classes;
     tree->n_features = n_features;
-    bint still_going = 1;
+    bool still_going = 1;
     size_t* belongs_to = (size_t*) calloc(n_instances, sizeof(size_t));
     size_t** split_sides = (size_t**) malloc(2 * sizeof(size_t*));
     struct Splitter splitter = { 
@@ -264,7 +267,7 @@ struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_f
                 split_sides[1] = next_density->counters_right;
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < n_instances; j++) {
-                        bint is_on_the_left = (data[j * n_features + best_feature] < split_value) ? 1 : 0;
+                        bool is_on_the_left = (data[j * n_features + best_feature] < split_value) ? 1 : 0;
                         if (belongs_to[j] == current_node->id) {
                             if (is_on_the_left * (1 - i) + (1 - is_on_the_left) * i) {
                                 belongs_to[j] = tree->n_nodes;
@@ -301,7 +304,7 @@ float* classify(data_t* data, size_t n_instances, size_t n_features,
     size_t n_classes = config->n_classes;
     float* predictions = (float*) malloc(n_instances * n_classes * sizeof(float));
     for (int k = 0; k < n_instances; k++) {
-        bint improving = TRUE;
+        bool improving = true;
         current_node = tree->root;
         while (improving) {
             feature = current_node->feature_id;
@@ -314,7 +317,7 @@ float* classify(data_t* data, size_t n_instances, size_t n_features,
                 }
             }
             else {
-                improving = FALSE;
+                improving = false;
             }
         }
         size_t node_instances = current_node->n_instances;
