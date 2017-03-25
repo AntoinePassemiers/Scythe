@@ -11,3 +11,6 @@ LDLIBS  :=  -l$(...)
 
 scythe.lib: scythe.o
 	$(CXX) -shared $^ -o $@ -Wl,--whole-archive -Wl,--no-whole-archive
+
+tree.lib: tree.o
+	$(CXX) -shared $^ -o $@ -Wl,--whole-archive -Wl,--no-whole-archive
