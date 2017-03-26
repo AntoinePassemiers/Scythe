@@ -129,8 +129,9 @@ inline double getFeatureCost(struct Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
+template <typename T>
 inline double evaluatePartitions(data_t* data, struct Density* density,
-                                 struct Splitter* splitter, size_t k) {
+                                 struct Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
     data_t data_point;
@@ -159,7 +160,56 @@ inline double evaluatePartitions(data_t* data, struct Density* density,
     return getFeatureCost(density, splitter->n_classes);
 }
 
-double evaluateByThreshold(struct Splitter* splitter, struct Density* density, 
+template <typename T>
+inline double evaluatePartitionsWithRegression(data_t* data, struct Density* density,
+                                 struct Splitter<T>* splitter, size_t k) {
+
+    size_t i = splitter->feature_id;
+    size_t n_features = splitter->n_features;
+    data_t data_point;
+    T y;
+    size_t id = splitter->node->id;
+    size_t n_left = 0, n_right = 0;
+    density->split_value = splitter->partition_values[k];
+    data_t split_value = density->split_value;
+    T mean_left = 0, mean_right = 0;
+    double cost = 0.0;
+    for (int j = 0; j < splitter->n_instances; j++) {
+        if (splitter->belongs_to[j] == id) {
+            data_point = data[j * n_features + i];
+            y = splitter->targets[j];
+            if (data_point == splitter->nan_value) {}
+            else if (data_point >= split_value) {
+                mean_right += y;
+                n_right++;
+            }
+            else {
+                mean_left += y;
+                n_left++;
+            }
+        }
+    }
+    if ((n_left == 0) or (n_right == 0)) { return INFINITY; }
+    mean_left /= n_left;
+    mean_right /= n_right;
+    for (int j = 0; j < splitter->n_instances; j++) {
+        if (splitter->belongs_to[j] == id) {
+            data_point = data[j * n_features + i];
+            y = splitter->targets[j];
+            if (data_point == splitter->nan_value) {}
+            else if (data_point >= split_value) {
+                cost += std::abs(mean_right - y); // TODO : use squared error ?
+            }
+            else {
+                cost += std::abs(mean_right - y); // TODO : use squared error ?
+            }
+        }
+    }
+    return cost;
+}
+
+template <typename T>
+double evaluateByThreshold(struct Splitter<T>* splitter, struct Density* density, 
                            data_t* data, int partition_value_type) {
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;
@@ -183,13 +233,23 @@ double evaluateByThreshold(struct Splitter* splitter, struct Density* density,
             n_partition_values = 100;
     }
     for (int k = 1; k < n_partition_values - 1; k++) {
-        cost = evaluatePartitions(data, density, splitter, k);
+        if (splitter->task == gbdf_task::CLASSIFICATION_TASK) {
+            cost = evaluatePartitions(data, density, splitter, k);
+        }
+        else {
+            cost = evaluatePartitionsWithRegression(data, density, splitter, k);
+        }
         if (cost < lowest_cost) {
             lowest_cost = cost;
             best_split_id = k;
         }
     }
-    evaluatePartitions(data, density, splitter, best_split_id);
+    if (splitter->task == gbdf_task::CLASSIFICATION_TASK) {
+        evaluatePartitions(data, density, splitter, best_split_id);
+    }
+    else {
+        evaluatePartitionsWithRegression(data, density, splitter, best_split_id);
+    }
     return lowest_cost;
 }
 
@@ -217,7 +277,8 @@ struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_f
     bool still_going = 1;
     size_t* belongs_to = (size_t*) calloc(n_instances, sizeof(size_t));
     size_t** split_sides = (size_t**) malloc(2 * sizeof(size_t*));
-    struct Splitter splitter = { 
+    struct Splitter<target_t> splitter = {
+        config->task,
         current_node, 
         n_instances,
         NULL,
@@ -284,7 +345,7 @@ struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_f
                     child_node->right_child = NULL;
                     child_node->counters = (size_t*) malloc(config->n_classes * sizeof(size_t));
                     memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
-                    if (lowest_e_cost > config->    ) {
+                    if (lowest_e_cost > config->min_threshold) {
                         queue.push(child_node);
                     }
                     ++tree->n_nodes;
@@ -324,6 +385,35 @@ float* classify(data_t* data, size_t n_instances, size_t n_features,
         for (int c = 0; c < n_classes; c++) {
             predictions[k * n_classes + c] = (float) current_node->counters[c] / node_instances;
         }
+    }
+    return predictions;
+}
+
+data_t* regress(data_t* data, size_t n_instances, size_t n_features,
+                struct Tree* tree, struct TreeConfig* config) {
+    struct Node *current_node, *temp_node;
+    size_t feature;
+    data_t* predictions = (float*) malloc(n_instances * sizeof(data_t));
+
+    for (int k = 0; k < n_instances; k++) {
+        bool improving = true;
+        current_node = tree->root;
+        while (improving) {
+            feature = current_node->feature_id;
+            if (current_node->left_child != NULL) {
+                if (data[k * n_features + feature] >= current_node->split_value) {
+                    current_node = current_node->right_child;
+                }
+                else {
+                    current_node = current_node->left_child;
+                }
+            }
+            else {
+                improving = false;
+            }
+        }
+        // predictions[k] = stuff... -> TODO 
+        // TODO : define a new type of struct
     }
     return predictions;
 }

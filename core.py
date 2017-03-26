@@ -8,6 +8,13 @@ scythe = ctypes.cdll.LoadLibrary("scythe/scythe.lib")
 
 c_float_p = ctypes.POINTER(ctypes.c_float)
 
+CLASSIFICATION_TASK = 0xF55A90
+REGRESSION_TASK     = 0xF55A91
+
+QUARTILE_PARTITIONING   = 0xB23A40
+DECILE_PARTITIONING     = 0xB23A41
+PERCENTILE_PARTITIONING = 0xB23A42
+
 class Dataset(ctypes.Structure):
     _fields_ = [
         ("data", ctypes.POINTER(ctypes.c_double)),
@@ -39,6 +46,7 @@ class Labels(ctypes.Structure):
 
 class TreeConfig(ctypes.Structure):
     _fields_ = [
+        ("task", ctypes.c_int),
         ("is_incremental", ctypes.c_int),
         ("min_threshold", ctypes.c_double),
         ("max_height", ctypes.c_size_t),
@@ -47,11 +55,19 @@ class TreeConfig(ctypes.Structure):
         ("partitioning", ctypes.c_int),
         ("nan_value", ctypes.c_double)
     ]
-    def __init__(self):
-        pass # TODO
 
 
 if __name__ == "__main__":
+    config = TreeConfig()
+    config.task = CLASSIFICATION_TASK
+    config.is_incremental = False
+    config.threshold = 1e-06
+    config.max_height = 50
+    config.n_classes = 3
+    config.max_nodes = 1500
+    config.partitioning = PERCENTILE_PARTITIONING
+    config.nan_value = -1.0
+
     X_train = np.asarray(np.array([
         [0, 0, 0], # 0
         [0, 0, 1], # 0
@@ -74,8 +90,8 @@ if __name__ == "__main__":
     dataset = Dataset(X_train)
     labels  = Labels(y_train)
     testset = Dataset(X_test)
-    tree_addr = scythe.fit(ctypes.byref(dataset), ctypes.byref(labels))
-    preds_addr = scythe.predict(ctypes.byref(testset), ctypes.c_void_p(tree_addr))
+    tree_addr = scythe.fit(ctypes.byref(dataset), ctypes.byref(labels), ctypes.byref(config))
+    preds_addr = scythe.predict(ctypes.byref(testset), ctypes.c_void_p(tree_addr), ctypes.byref(config))
     preds_p = ctypes.cast(preds_addr, c_float_p)
     preds = np.ctypeslib.as_array(preds_p, shape = (14, 3))
     print(preds)

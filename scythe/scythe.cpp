@@ -18,41 +18,13 @@ typedef struct _GroundTruth {
 } GroundTruth;
 
 extern "C" {
-    void printArray(Dataset* dataset) {
-        for (int i = 0; i < dataset->n_rows; i++) {
-            for (int j = 0; j < dataset->n_cols; j++) {
-                std::cout << dataset->data[i * dataset->n_cols + j] << ", ";
-            }
-        }
-        std::cout << std::endl;
-    }
-
-    void* fit(Dataset* dataset, Labels* labels) {
-
-        struct TreeConfig* config = (struct TreeConfig*) malloc(sizeof(struct TreeConfig));
-        config->is_incremental = false;
-        config->min_threshold  = 1e-6;
-        config->max_height = 50;
-        config->n_classes = 3;
-        config->max_nodes = 4500;
-        config->partitioning = gbdf_part::PERCENTILE_PARTITIONING;
-        config->nan_value = -1.0;
-
+    void* fit(Dataset* dataset, Labels* labels, TreeConfig* config) {
         struct Tree* tree = ID3(dataset->data, labels->data, dataset->n_rows, 
             dataset->n_cols, config);
         return (void*) tree;
     }
 
-    float* predict(Dataset* dataset, void* tree_p) {
-        struct TreeConfig* config = (struct TreeConfig*) malloc(sizeof(struct TreeConfig));
-        config->is_incremental = false;
-        config->min_threshold  = 1e-6;
-        config->max_height = 50;
-        config->n_classes = 3;
-        config->max_nodes = 4500;
-        config->partitioning = gbdf_part::PERCENTILE_PARTITIONING;
-        config->nan_value = -1.0;
-
+    float* predict(Dataset* dataset, void* tree_p, TreeConfig* config) {
         struct Tree* tree = static_cast<struct Tree*>(tree_p);
         float* predictions = classify(dataset->data, dataset->n_rows, dataset->n_cols,
             tree, config);

@@ -1,6 +1,7 @@
 #ifndef ID3_HPP_
 #define ID3_HPP_
 
+#include <cmath>    
 #include <stddef.h>
 #include <queue>
 
@@ -10,6 +11,9 @@
 #define NUM_SPLIT_LABELS  3
 #define COST_OF_EMPTINESS INFINITY
 
+
+typedef double data_t;
+typedef int target_t;
 
 namespace gbdf_part {
     const int QUARTILE_PARTITIONING   = 0xB23A40;
@@ -22,27 +26,25 @@ namespace gbdf_task {
     const int REGRESSION_TASK     = 0xF55A91;
 }
 
-typedef double data_t;
-typedef int target_t;
-
 struct Node {
-    int id;
-    int feature_id;
+    int     id;
+    int     feature_id;
     size_t* counters;
-    size_t n_instances;
-    double score;
-    double split_value;
-    struct Node* left_child;
-    struct Node* right_child;
+    size_t  n_instances;
+    double  score;
+    double  split_value;
+    struct  Node* left_child;
+    struct  Node* right_child;
 };
 
 struct TreeConfig {
+    int    task;
     bool   is_incremental;
     double min_threshold;
     size_t max_height;
     size_t n_classes;
     size_t max_nodes;
-    int partitioning;
+    int    partitioning;
     data_t nan_value;
 };
 
@@ -57,16 +59,18 @@ struct Density {
     size_t* counters_nan;
 };
 
+template <typename T>
 struct Splitter {
-    struct Node* node;
-    size_t n_instances;
+    int     task;
+    struct  Node* node;
+    size_t  n_instances;
     data_t* partition_values;
-    size_t n_classes;
+    size_t  n_classes;
     size_t* belongs_to;
-    size_t feature_id;
-    size_t n_features;
-    target_t* targets; 
-    data_t nan_value;
+    size_t  feature_id;
+    size_t  n_features;
+    T*      targets; 
+    data_t  nan_value;
 };
 
 struct Tree {
@@ -91,18 +95,27 @@ extern inline float GiniCoefficient(float probability);
 struct Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value);
 
+template <typename T>
 double evaluatePartitions(data_t* data, struct Density* density,
-                          struct Splitter* splitter, size_t k);
+                          struct Splitter<T>* splitter, size_t k);
+
+template <typename T>
+double evaluatePartitionsWithRegression(data_t* data, struct Density* density,
+                          struct Splitter<T>* splitter, size_t k);
 
 extern inline double getFeatureCost(struct Density* density, size_t n_classes);
 
-double evaluateByThreshold(struct Splitter* splitter, struct Density* density, 
+template <typename T>
+double evaluateByThreshold(struct Splitter<T>* splitter, struct Density* density, 
                            data_t* data, int partition_value_type);
 
 struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_features,
                  struct TreeConfig* config);
 
 float* classify(data_t* data, size_t n_instances, size_t n_features,
+                struct Tree* tree, struct TreeConfig* config);
+
+data_t* regress(data_t* data, size_t n_instances, size_t n_features,
                 struct Tree* tree, struct TreeConfig* config);
 
 #endif // ID3_HPP_
