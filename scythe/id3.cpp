@@ -284,7 +284,7 @@ struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_f
                     child_node->right_child = NULL;
                     child_node->counters = (size_t*) malloc(config->n_classes * sizeof(size_t));
                     memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
-                    if (lowest_e_cost > config->min_threshold) {
+                    if (lowest_e_cost > config->    ) {
                         queue.push(child_node);
                     }
                     ++tree->n_nodes;

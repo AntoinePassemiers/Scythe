@@ -1,5 +1,5 @@
 CC      :=  g++
-CFLAGS  :=  -fPIC -Wall -Wextra -O2 -g
+CFLAGS  :=  -fPIC -Wall -Wextra -O2 -g -std=c++14 -ggdb3 -Wpedantic -Wall -Wextra -Wconversion -Weffc++ -Wstrict-null-sentinel -Wold-style-cast -Wnoexcept -Wctor-dtor-privacy -Woverloaded-virtual -Wsign-promo -Wzero-as-null-pointer-constant -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-overridec -pthread
 LDFLAGS :=  -shared
 NAME    :=  scythe
 DNAME   :=  $(NAME).lib # TODO : manage .so files
@@ -10,4 +10,4 @@ LDFLAGS :=  -L.
 LDLIBS  :=  -l$(...)
 
 scythe.lib: scythe.o id3.o metrics.o forest.o
-	$(CXX) -shared $^ -o $@ -Wl,--whole-archive -Wl,--no-whole-archive
+	$(CXX) -shared $^ -o $@ $(CFLAGS)
