@@ -64,10 +64,11 @@ if __name__ == "__main__":
     config.threshold = 1e-06
     config.max_height = 50
     config.n_classes = 3
-    config.max_nodes = 1500
+    config.max_nodes = 30
     config.partitioning = PERCENTILE_PARTITIONING
     config.nan_value = -1.0
 
+    """
     X_train = np.asarray(np.array([
         [0, 0, 0], # 0
         [0, 0, 1], # 0
@@ -84,6 +85,10 @@ if __name__ == "__main__":
         [1, 1, 0], # 1
         [2, 0, 1]  # 0
     ]), dtype = np.double)
+    """
+    X_train = np.random.rand(14, 3) * 10
+
+
     y_train = np.array([0, 0, 1, 1, 2, 0, 1, 2, 2, 1, 1, 1, 1, 0])
     X_test = X_train
 
@@ -94,6 +99,7 @@ if __name__ == "__main__":
     preds_addr = scythe.predict(ctypes.byref(testset), ctypes.c_void_p(tree_addr), ctypes.byref(config))
     preds_p = ctypes.cast(preds_addr, c_float_p)
     preds = np.ctypeslib.as_array(preds_p, shape = (14, 3))
+    print("\n")
     print(preds)
 
     print("Finished")

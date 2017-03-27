@@ -1,9 +1,14 @@
 #ifndef ID3_HPP_
 #define ID3_HPP_
 
-#include <cmath>    
+#include <assert.h>
+#include <cmath>
+#include <math.h>
+#include <queue>  
 #include <stddef.h>
-#include <queue>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define NO_FEATURE       -1
 #define NO_INSTANCE       0
@@ -11,7 +16,7 @@
 #define NUM_SPLIT_LABELS  3
 #define COST_OF_EMPTINESS INFINITY
 
-
+typedef unsigned int uint;
 typedef double data_t;
 typedef int target_t;
 
@@ -32,7 +37,7 @@ struct Node {
     size_t* counters;
     size_t  n_instances;
     double  score;
-    double  split_value;
+    data_t  split_value;
     struct  Node* left_child;
     struct  Node* right_child;
 };
@@ -82,8 +87,6 @@ struct Tree {
 };
 
 
-inline float log_2(float value);
-
 inline size_t sum_counts(size_t* counters, size_t n_counters);
 
 struct Node* newNode(size_t n_classes);
@@ -107,15 +110,15 @@ extern inline double getFeatureCost(struct Density* density, size_t n_classes);
 
 template <typename T>
 double evaluateByThreshold(struct Splitter<T>* splitter, struct Density* density, 
-                           data_t* data, int partition_value_type);
+                           data_t* const data, int partition_value_type);
 
-struct Tree* ID3(data_t* data, target_t* targets, size_t n_instances, size_t n_features,
-                 struct TreeConfig* config);
+struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances, 
+                 size_t n_features, struct TreeConfig* config);
 
-float* classify(data_t* data, size_t n_instances, size_t n_features,
-                struct Tree* tree, struct TreeConfig* config);
+float* classify(data_t* const data, size_t n_instances, size_t n_features,
+                struct Tree* const tree, struct TreeConfig* config);
 
-data_t* regress(data_t* data, size_t n_instances, size_t n_features,
-                struct Tree* tree, struct TreeConfig* config);
+data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
+                struct Tree* const tree, struct TreeConfig* config);
 
 #endif // ID3_HPP_
