@@ -68,7 +68,7 @@ if __name__ == "__main__":
     config.partitioning = PERCENTILE_PARTITIONING
     config.nan_value = -1.0
 
-    """
+    
     X_train = np.asarray(np.array([
         [0, 0, 0], # 0
         [0, 0, 1], # 0
@@ -85,8 +85,8 @@ if __name__ == "__main__":
         [1, 1, 0], # 1
         [2, 0, 1]  # 0
     ]), dtype = np.double)
-    """
-    X_train = np.random.rand(14, 3) * 10
+    
+    #X_train = np.random.rand(14, 3)
 
 
     y_train = np.array([0, 0, 1, 1, 2, 0, 1, 2, 2, 1, 1, 1, 1, 0])

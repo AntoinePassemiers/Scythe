@@ -13,10 +13,14 @@
 class Forest {
 private:
     size_t max_n_trees;
+
+    struct Tree* base_tree;
     std::vector<struct Tree*> trees;
 
 public:
     Forest() : max_n_trees(0), trees() {}
+    virtual void initForest() = 0;
+    virtual ~Forest() {}
 };
 
 #endif // FOREST_HPP_
