@@ -6,9 +6,9 @@ inline double evaluatePartitions(data_t* data, struct Density* density,
     data_t data_point;
     target_t target_value;
     size_t id = splitter->node->id;
-    memset((void*) density->counters_left, 0x00, splitter->n_classes * sizeof(size_t));
-    memset((void*) density->counters_right, 0x00, splitter->n_classes * sizeof(size_t));
-    memset((void*) density->counters_nan, 0x00, splitter->n_classes * sizeof(size_t));
+    memset(static_cast<void*>(density->counters_left), 0x00, splitter->n_classes * sizeof(size_t));
+    memset(static_cast<void*>(density->counters_right), 0x00, splitter->n_classes * sizeof(size_t));
+    memset(static_cast<void*>(density->counters_nan), 0x00, splitter->n_classes * sizeof(size_t));
     density->split_value = splitter->partition_values[k];
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
