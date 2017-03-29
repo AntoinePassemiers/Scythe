@@ -8,8 +8,8 @@ inline size_t sum_counts(size_t* counters, size_t n_counters) {
     return total;
 }
 
-struct Node* newNode(size_t n_classes) {
-    struct Node* node = static_cast<struct Node*>(malloc(sizeof(struct Node)));
+Node* newNode(size_t n_classes) {
+    Node* node = static_cast<Node*>(malloc(sizeof(Node)));
     node->feature_id = NO_FEATURE;
     node->counters = static_cast<size_t*>(malloc(n_classes * sizeof(size_t)));
     node->n_instances = NO_INSTANCE;
@@ -20,10 +20,10 @@ struct Node* newNode(size_t n_classes) {
     return node;
 }
 
-struct Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
+Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value) {
     size_t s = sizeof(data_t);
-    struct Density* densities = static_cast<struct Density*>(malloc(n_features * sizeof(struct Density)));
+    Density* densities = static_cast<Density*>(malloc(n_features * sizeof(Density)));
     data_t* sorted_values = static_cast<data_t*>(malloc(n_instances * s));
     for (uint f = 0; f < n_features; f++) {
         densities[f].quartiles = static_cast<data_t*>(malloc(4 * s));
@@ -84,7 +84,7 @@ inline float GiniCoefficient(float probability) {
     return 1.0 - probability * probability;
 }
 
-inline double getFeatureCost(struct Density* density, size_t n_classes) {
+inline double getFeatureCost(Density* density, size_t n_classes) {
     size_t n_left = sum_counts(density->counters_left, n_classes);
     size_t n_right = sum_counts(density->counters_right, n_classes);
     size_t total = n_left + n_right;
@@ -119,22 +119,22 @@ inline double getFeatureCost(struct Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-void initRoot(struct Node* root, target_t* const targets, size_t n_instances, size_t n_classes) {
+void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes) {
     memset(root->counters, 0x00, n_classes * sizeof(size_t));
     for (uint i = 0; i < n_instances; i++) {
         root->counters[targets[i]]++;
     }
 }
 
-struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
-                 size_t n_features, struct TreeConfig* config) {
-    struct Node* current_node = newNode(config->n_classes);
+Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
+                 size_t n_features, TreeConfig* config) {
+    Node* current_node = newNode(config->n_classes);
     current_node->id = 0;
     current_node->n_instances = n_instances;
     current_node->score = 0.0;
     initRoot(current_node, targets, n_instances, config->n_classes);
-    struct Node* child_node;
-    struct Tree* tree = static_cast<struct Tree*>(malloc(sizeof(struct Tree)));
+    Node* child_node;
+    Tree* tree = static_cast<Tree*>(malloc(sizeof(Tree)));
     tree->root = current_node;
     tree->config = config;
     tree->n_nodes = 1;
@@ -143,7 +143,7 @@ struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances
     bool still_going = 1;
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     size_t** split_sides = static_cast<size_t**>(malloc(2 * sizeof(size_t*)));
-    struct Splitter<target_t> splitter = {
+    Splitter<target_t> splitter = {
         config->task,
         current_node,
         n_instances,
@@ -155,9 +155,9 @@ struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances
         targets,
         config->nan_value
     };
-    struct Density* densities = computeDensities(data, n_instances, n_features,
+    Density* densities = computeDensities(data, n_instances, n_features,
         config->n_classes, config->nan_value);
-    struct Density* next_density;
+    Density* next_density;
     size_t best_feature = 0;
     std::queue<Node*> queue;
     queue.push(current_node);
@@ -183,7 +183,7 @@ struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances
                 sum_counts(next_density->counters_right, config->n_classes)
             };
             if (split_totals[0] && split_totals[1]) {
-                struct Node* new_children = static_cast<struct Node*>(malloc(2 * sizeof(struct Node)));
+                Node* new_children = static_cast<Node*>(malloc(2 * sizeof(Node)));
                 data_t split_value = next_density->split_value;
                 current_node->score = lowest_e_cost;
                 current_node->feature_id = best_feature;
@@ -226,9 +226,9 @@ struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances
 }
 
 float* classify(data_t* const data, size_t n_instances, size_t n_features,
-                struct Tree* const tree, struct TreeConfig* config) {
+                Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf_task::CLASSIFICATION_TASK);
-    struct Node *current_node;
+    Node *current_node;
     size_t feature;
     size_t n_classes = config->n_classes;
     float* predictions = static_cast<float*>(malloc(n_instances * n_classes * sizeof(float)));
@@ -258,9 +258,9 @@ float* classify(data_t* const data, size_t n_instances, size_t n_features,
 }
 
 data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
-                struct Tree* const tree, struct TreeConfig* config) {
+                Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf_task::REGRESSION_TASK);
-    struct Node *current_node;
+    Node *current_node;
     size_t feature;
     data_t* predictions = static_cast<data_t*>(malloc(n_instances * sizeof(data_t)));
 
