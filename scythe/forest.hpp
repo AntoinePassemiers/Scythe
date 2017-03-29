@@ -14,8 +14,8 @@ class Forest {
 private:
     size_t max_n_trees;
 
-    struct Tree* base_tree;
-    std::vector<struct Tree*> trees;
+    Tree* base_tree;
+    std::vector<Tree*> trees;
 
 public:
     Forest();

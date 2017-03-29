@@ -1,6 +1,6 @@
 template <typename T>
-inline double evaluatePartitions(data_t* data, struct Density* density,
-                                 struct Splitter<T>* splitter, size_t k) {
+inline double evaluatePartitions(data_t* data, Density* density,
+                                 Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
     data_t data_point;
@@ -29,8 +29,8 @@ inline double evaluatePartitions(data_t* data, struct Density* density,
 }
 
 template <typename T>
-inline double evaluatePartitionsWithRegression(data_t* data, struct Density* density,
-                                 struct Splitter<T>* splitter, size_t k) {
+inline double evaluatePartitionsWithRegression(data_t* data, Density* density,
+                                 Splitter<T>* splitter, size_t k) {
 
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
@@ -58,8 +58,8 @@ inline double evaluatePartitionsWithRegression(data_t* data, struct Density* den
         }
     }
     if ((n_left == 0) or (n_right == 0)) { return INFINITY; }
-    mean_left /= n_left;
-    mean_right /= n_right;
+    mean_left /= static_cast<T>(n_left);
+    mean_right /= static_cast<T>(n_right);
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = data[j * n_features + i];
@@ -77,7 +77,7 @@ inline double evaluatePartitionsWithRegression(data_t* data, struct Density* den
 }
 
 template <typename T>
-double evaluateByThreshold(struct Splitter<T>* splitter, struct Density* density,
+double evaluateByThreshold(Splitter<T>* splitter, Density* density,
                            data_t* const data, int partition_value_type) {
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;

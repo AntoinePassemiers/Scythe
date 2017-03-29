@@ -81,15 +81,15 @@ inline float ShannonEntropy(float probability) {
 }
 
 inline float GiniCoefficient(float probability) {
-    return 1.0 - probability * probability;
+    return 1.f - probability * probability;
 }
 
 inline double getFeatureCost(Density* density, size_t n_classes) {
     size_t n_left = sum_counts(density->counters_left, n_classes);
     size_t n_right = sum_counts(density->counters_right, n_classes);
     size_t total = n_left + n_right;
-    float left_rate = (float) n_left / total;
-    float right_rate = (float) n_right / total;
+    float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
+    float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
     if (n_left == 0 || n_right == 0) {
         return COST_OF_EMPTINESS;
     }
@@ -101,7 +101,7 @@ inline double getFeatureCost(Density* density, size_t n_classes) {
         for (uint i = 0; i < n_classes; i++) {
             n_p = counters_left[i];
             if (n_p > 0) {
-                left_cost += ShannonEntropy((float) n_p / n_left);
+                left_cost += ShannonEntropy(static_cast<float>(n_p) / static_cast<float>(n_left));
             }
         }
         left_cost *= left_rate;
@@ -111,7 +111,7 @@ inline double getFeatureCost(Density* density, size_t n_classes) {
         for (uint i = 0; i < n_classes; i++) {
             n_n = counters_right[i];
             if (n_n > 0) {
-                right_cost += ShannonEntropy((float) n_n / n_right);
+                right_cost += ShannonEntropy(static_cast<float>(n_n) / static_cast<float>(n_right));
             }
         }
         right_cost *= right_rate;
@@ -175,7 +175,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
             }
         }
         next_density = &densities[best_feature];
-        if ((best_feature != (size_t) current_node->feature_id)
+        if ((best_feature != static_cast<size_t>(current_node->feature_id))
             || (next_density->split_value != current_node->split_value)) { // TO REMOVE ?
             next_density = &densities[best_feature];
             size_t split_totals[2] = {
@@ -186,7 +186,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 Node* new_children = static_cast<Node*>(malloc(2 * sizeof(Node)));
                 data_t split_value = next_density->split_value;
                 current_node->score = lowest_e_cost;
-                current_node->feature_id = best_feature;
+                current_node->feature_id = static_cast<int>(best_feature);
                 current_node->split_value = split_value;
                 current_node->left_child = &new_children[0];
                 current_node->right_child = &new_children[1];
@@ -196,18 +196,18 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 for (uint i = 0; i < 2; i++) {
                     for (uint j = 0; j < n_instances; j++) {
                         bool is_on_the_left = (data[j * n_features + best_feature] < split_value) ? 1 : 0;
-                        if (belongs_to[j] == (size_t) current_node->id) {
+                        if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
                             if (is_on_the_left * (1 - i) + (1 - is_on_the_left) * i) {
                                 belongs_to[j] = tree->n_nodes;
                             }
                         }
                     }
                     child_node = &new_children[i];
-                    child_node->id = tree->n_nodes;
+                    child_node->id = static_cast<int>(tree->n_nodes);
                     child_node->split_value = split_value;
                     child_node->n_instances = split_totals[i];
                     child_node->score = COST_OF_EMPTINESS;
-                    child_node->feature_id = best_feature;
+                    child_node->feature_id = static_cast<int>(best_feature);
                     child_node->left_child = nullptr;
                     child_node->right_child = nullptr;
                     child_node->counters = static_cast<size_t*>(malloc(config->n_classes * sizeof(size_t)));
@@ -251,7 +251,7 @@ float* classify(data_t* const data, size_t n_instances, size_t n_features,
         }
         size_t node_instances = current_node->n_instances;
         for (uint c = 0; c < n_classes; c++) {
-            predictions[k * n_classes + c] = (float) current_node->counters[c] / node_instances;
+            predictions[k * n_classes + c] = static_cast<float>(current_node->counters[c]) / static_cast<float>(node_instances);
         }
     }
     return predictions;

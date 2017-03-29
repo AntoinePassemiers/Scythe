@@ -39,8 +39,8 @@ struct Node {
     size_t  n_instances;
     double  score;
     data_t  split_value;
-    struct  Node* left_child;
-    struct  Node* right_child;
+    Node*   left_child;
+    Node*   right_child;
 };
 
 struct TreeConfig {
@@ -68,7 +68,7 @@ struct Density {
 template <typename T>
 struct Splitter {
     int     task;
-    struct  Node* node;
+    Node*   node;
     size_t  n_instances;
     data_t* partition_values;
     size_t  n_classes;
@@ -80,11 +80,11 @@ struct Splitter {
 };
 
 struct Tree {
-    struct Node* root;
-    size_t n_nodes;
-    size_t n_classes;
-    size_t n_features;
-    struct TreeConfig* config;
+    Node*       root;
+    size_t      n_nodes;
+    size_t      n_classes;
+    size_t      n_features;
+    TreeConfig* config;
 };
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);
@@ -98,7 +98,7 @@ inline float ShannonEntropy(float probability);
 
 inline float GiniCoefficient(float probability);
 
-inline double getFeatureCost(struct Density* density, size_t n_classes);
+inline double getFeatureCost(Density* density, size_t n_classes);
 
 void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
 
