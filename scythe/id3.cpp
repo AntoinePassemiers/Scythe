@@ -9,9 +9,9 @@ inline size_t sum_counts(size_t* counters, size_t n_counters) {
 }
 
 Node* newNode(size_t n_classes) {
-    Node* node = static_cast<Node*>(malloc(sizeof(Node)));
+    Node* node = new Node;
     node->feature_id = NO_FEATURE;
-    node->counters = static_cast<size_t*>(malloc(n_classes * sizeof(size_t)));
+    node->counters = new size_t[n_classes];
     node->n_instances = NO_INSTANCE;
     node->score = INFINITY;
     node->split_value = NO_SPLIT_VALUE;
@@ -22,16 +22,15 @@ Node* newNode(size_t n_classes) {
 
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value) {
-    size_t s = sizeof(data_t);
-    Density* densities = static_cast<Density*>(malloc(n_features * sizeof(Density)));
-    data_t* sorted_values = static_cast<data_t*>(malloc(n_instances * s));
+    Density* densities = new Density[n_features];
+    data_t* sorted_values = new data_t[n_instances];
     for (uint f = 0; f < n_features; f++) {
-        densities[f].quartiles = static_cast<data_t*>(malloc(4 * s));
-        densities[f].deciles = static_cast<data_t*>(malloc(10 * s));
-        densities[f].percentiles = static_cast<data_t*>(malloc(100 * s));
-        densities[f].counters_left = static_cast<size_t*>(malloc(n_classes * sizeof(size_t)));
-        densities[f].counters_right = static_cast<size_t*>(malloc(n_classes * sizeof(size_t)));
-        densities[f].counters_nan = static_cast<size_t*>(malloc(n_classes * sizeof(size_t)));
+        densities[f].quartiles = new data_t[4];
+        densities[f].deciles = new data_t[10];
+        densities[f].percentiles = new data_t[100];
+        densities[f].counters_left = new size_t[n_classes];
+        densities[f].counters_right = new size_t[n_classes];
+        densities[f].counters_nan = new size_t[n_classes];
         // Putting nan values aside
         bool is_categorical = true;
         size_t n_acceptable = 0;
@@ -134,15 +133,15 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
     current_node->score = 0.0;
     initRoot(current_node, targets, n_instances, config->n_classes);
     Node* child_node;
-    Tree* tree = static_cast<Tree*>(malloc(sizeof(Tree)));
+    Tree* tree = new Tree;
     tree->root = current_node;
     tree->config = config;
     tree->n_nodes = 1;
     tree->n_classes = config->n_classes;
     tree->n_features = n_features;
     bool still_going = 1;
-    size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
-    size_t** split_sides = static_cast<size_t**>(malloc(2 * sizeof(size_t*)));
+    size_t* belongs_to = new size_t[n_instances];
+    size_t** split_sides = new size_t*[2];
     Splitter<target_t> splitter = {
         config->task,
         current_node,
@@ -183,7 +182,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 sum_counts(next_density->counters_right, config->n_classes)
             };
             if (split_totals[0] && split_totals[1]) {
-                Node* new_children = static_cast<Node*>(malloc(2 * sizeof(Node)));
+                Node* new_children = new Node[2];
                 data_t split_value = next_density->split_value;
                 current_node->score = lowest_e_cost;
                 current_node->feature_id = static_cast<int>(best_feature);
@@ -231,7 +230,7 @@ float* classify(data_t* const data, size_t n_instances, size_t n_features,
     Node *current_node;
     size_t feature;
     size_t n_classes = config->n_classes;
-    float* predictions = static_cast<float*>(malloc(n_instances * n_classes * sizeof(float)));
+    float* predictions = new float[n_instances * n_classes];
     for (uint k = 0; k < n_instances; k++) {
         bool improving = true;
         current_node = tree->root;
@@ -262,7 +261,7 @@ data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
     assert(config->task == gbdf_task::REGRESSION_TASK);
     Node *current_node;
     size_t feature;
-    data_t* predictions = static_cast<data_t*>(malloc(n_instances * sizeof(data_t)));
+    data_t* predictions = new data_t[n_instances];
 
     for (uint k = 0; k < n_instances; k++) {
         bool improving = true;
