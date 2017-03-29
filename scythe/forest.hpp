@@ -18,9 +18,9 @@ private:
     std::vector<struct Tree*> trees;
 
 public:
-    Forest() : max_n_trees(0), trees() {}
+    Forest();
     virtual void initForest() = 0;
-    virtual ~Forest() {}
+    virtual ~Forest() = default;
 };
 
 #endif // FOREST_HPP_

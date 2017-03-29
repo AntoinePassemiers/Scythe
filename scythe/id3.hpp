@@ -4,31 +4,32 @@
 #include <assert.h>
 #include <cmath>
 #include <math.h>
-#include <queue>  
-#include <stddef.h>
+#include <queue>
+#include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits>
 
-#define NO_FEATURE       -1
-#define NO_INSTANCE       0
-#define NO_SPLIT_VALUE    INFINITY
-#define NUM_SPLIT_LABELS  3
-#define COST_OF_EMPTINESS INFINITY
+constexpr int NO_FEATURE = -1;
+constexpr int NO_INSTANCE = 0;
+constexpr int NO_SPLIT_VALUE = std::numeric_limits<int>::max();
+constexpr int NUM_SPLIT_LABELS = 3;
+constexpr int COST_OF_EMPTINESS = std::numeric_limits<int>::max();
 
 typedef unsigned int uint;
 typedef double data_t;
 typedef int target_t;
 
 namespace gbdf_part {
-    const int QUARTILE_PARTITIONING   = 0xB23A40;
-    const int DECILE_PARTITIONING     = 0xB23A41;
-    const int PERCENTILE_PARTITIONING = 0xB23A42;
+    constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
+    constexpr int DECILE_PARTITIONING     = 0xB23A41;
+    constexpr int PERCENTILE_PARTITIONING = 0xB23A42;
 }
 
 namespace gbdf_task {
-    const int CLASSIFICATION_TASK = 0xF55A90;
-    const int REGRESSION_TASK     = 0xF55A91;
+    constexpr int CLASSIFICATION_TASK = 0xF55A90;
+    constexpr int REGRESSION_TASK     = 0xF55A91;
 }
 
 struct Node {
@@ -74,7 +75,7 @@ struct Splitter {
     size_t* belongs_to;
     size_t  feature_id;
     size_t  n_features;
-    T*      targets; 
+    T*      targets;
     data_t  nan_value;
 };
 
@@ -85,6 +86,41 @@ struct Tree {
     size_t n_features;
     struct TreeConfig* config;
 };
+
+inline size_t sum_counts(size_t* counters, size_t n_counters);
+
+Node* newNode(size_t n_classes);
+
+Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
+                                 size_t n_classes, data_t nan_value);
+
+inline float ShannonEntropy(float probability);
+
+inline float GiniCoefficient(float probability);
+
+inline double getFeatureCost(struct Density* density, size_t n_classes);
+
+void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
+
+Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
+                 size_t n_features, TreeConfig* config);
+
+float* classify(data_t* const data, size_t n_instances, size_t n_features,
+                Tree* const tree, TreeConfig* config);
+
+data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
+                Tree* const tree, TreeConfig* config);
+template <typename T>
+inline double evaluatePartitions(data_t* data, Density* density,
+                                 Splitter<T>* splitter, size_t k);
+
+template <typename T>
+inline double evaluatePartitionsWithRegression(data_t* data, Density* density,
+                                 Splitter<T>* splitter, size_t k);
+
+template <typename T>
+double evaluateByThreshold(Splitter<T>* splitter, Density* density,
+                           data_t* const data, int partition_value_type);
 
 #include "id3.tpp"
 
