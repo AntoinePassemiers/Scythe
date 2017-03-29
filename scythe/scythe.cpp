@@ -1,6 +1,5 @@
 #include "scythe.hpp"
 
-
 struct Dataset {
     data_t* data;
     size_t n_rows;

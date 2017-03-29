@@ -5,7 +5,7 @@
 #include <cmath>
 #include <math.h>
 #include <queue>
-#include <stddef.h>
+#include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,6 +86,41 @@ struct Tree {
     size_t n_features;
     struct TreeConfig* config;
 };
+
+inline size_t sum_counts(size_t* counters, size_t n_counters);
+
+struct Node* newNode(size_t n_classes);
+
+struct Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
+                                 size_t n_classes, data_t nan_value);
+
+inline float ShannonEntropy(float probability);
+
+inline float GiniCoefficient(float probability);
+
+inline double getFeatureCost(struct Density* density, size_t n_classes);
+
+void initRoot(struct Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
+
+struct Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
+                 size_t n_features, struct TreeConfig* config);
+
+float* classify(data_t* const data, size_t n_instances, size_t n_features,
+                struct Tree* const tree, struct TreeConfig* config);
+
+data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
+                struct Tree* const tree, struct TreeConfig* config);
+template <typename T>
+inline double evaluatePartitions(data_t* data, struct Density* density,
+                                 struct Splitter<T>* splitter, size_t k);
+
+template <typename T>
+inline double evaluatePartitionsWithRegression(data_t* data, struct Density* density,
+                                 struct Splitter<T>* splitter, size_t k);
+
+template <typename T>
+double evaluateByThreshold(struct Splitter<T>* splitter, struct Density* density,
+                           data_t* const data, int partition_value_type);
 
 #include "id3.tpp"
 
