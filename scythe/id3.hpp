@@ -1,9 +1,10 @@
 #ifndef ID3_HPP_
 #define ID3_HPP_
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <math.h>
+#include <numeric>
 #include <queue>
 #include <cstddef>
 #include <stdio.h>
@@ -34,13 +35,15 @@ namespace gbdf_task {
 
 struct Node {
     int     id;
-    int     feature_id;
+    int     feature_id = NO_FEATURE;
     size_t* counters;
-    size_t  n_instances;
-    double  score;
-    data_t  split_value;
-    Node*   left_child;
-    Node*   right_child;
+    size_t  n_instances = NO_INSTANCE;
+    double  score = INFINITY;
+    data_t  split_value = NO_SPLIT_VALUE;
+    Node*   left_child = nullptr;
+    Node*   right_child = nullptr;
+
+    Node(size_t n_classes = 0);
 };
 
 struct TreeConfig {

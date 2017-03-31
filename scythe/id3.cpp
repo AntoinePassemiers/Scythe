@@ -1,12 +1,7 @@
 #include "id3.hpp"
 
-inline size_t sum_counts(size_t* counters, size_t n_counters) {
-    size_t total = 0;
-    for (uint i = 0; i < n_counters; i++) {
-        total += counters[i];
-    }
-    return total;
-}
+Node::Node(size_t n_classes):
+    counters(n_classes > 0 ? new size_t[n_classes] : nullptr) {}
 
 Node* newNode(size_t n_classes) {
     Node* node = new Node;
@@ -71,19 +66,11 @@ Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
             }
         }
     }
-    free(sorted_values);
+    delete[] sorted_values;
     return densities;
 }
 
-inline float ShannonEntropy(float probability) {
-    return -probability * log2(probability);
-}
-
-inline float GiniCoefficient(float probability) {
-    return 1.f - probability * probability;
-}
-
-inline double getFeatureCost(Density* density, size_t n_classes) {
+double getFeatureCost(Density* density, size_t n_classes) {
     size_t n_left = sum_counts(density->counters_left, n_classes);
     size_t n_right = sum_counts(density->counters_right, n_classes);
     size_t total = n_left + n_right;
@@ -127,7 +114,7 @@ void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_
 
 Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                  size_t n_features, TreeConfig* config) {
-    Node* current_node = newNode(config->n_classes);
+    Node* current_node = new Node(config->n_classes);
     current_node->id = 0;
     current_node->n_instances = n_instances;
     current_node->score = 0.0;
@@ -140,7 +127,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
     tree->n_classes = config->n_classes;
     tree->n_features = n_features;
     bool still_going = 1;
-    size_t* belongs_to = new size_t[n_instances];
+    size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     size_t** split_sides = new size_t*[2];
     Splitter<target_t> splitter = {
         config->task,
@@ -209,7 +196,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                     child_node->feature_id = static_cast<int>(best_feature);
                     child_node->left_child = nullptr;
                     child_node->right_child = nullptr;
-                    child_node->counters = static_cast<size_t*>(malloc(config->n_classes * sizeof(size_t)));
+                    child_node->counters = new size_t[config->n_classes];
                     memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
                     if (lowest_e_cost > config->min_threshold) {
                         queue.push(child_node);
@@ -219,8 +206,8 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
             }
         }
     }
-    free(belongs_to);
-    free(split_sides);
+    delete[] belongs_to;
+    delete[] split_sides;
     return tree;
 }
 

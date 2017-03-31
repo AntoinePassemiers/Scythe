@@ -1,14 +1,26 @@
+inline size_t sum_counts(size_t* counters, size_t n_counters) {
+    return std::accumulate(counters, counters + n_counters, 0);
+}
+
+inline float ShannonEntropy(float probability) {
+    return -probability * std::log2(probability);
+}
+
+inline float GiniCoefficient(float probability) {
+    return 1.f - probability * probability;
+}
+
 template <typename T>
-inline double evaluatePartitions(data_t* data, Density* density,
+double evaluatePartitions(data_t* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
     data_t data_point;
     target_t target_value;
     size_t id = splitter->node->id;
-    memset(static_cast<void*>(density->counters_left), 0x00, splitter->n_classes * sizeof(size_t));
-    memset(static_cast<void*>(density->counters_right), 0x00, splitter->n_classes * sizeof(size_t));
-    memset(static_cast<void*>(density->counters_nan), 0x00, splitter->n_classes * sizeof(size_t));
+    std::fill(density->counters_left, density->counters_left + splitter->n_classes, 0);
+    std::fill(density->counters_right, density->counters_right + splitter->n_classes, 0);
+    std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     density->split_value = splitter->partition_values[k];
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
@@ -29,7 +41,7 @@ inline double evaluatePartitions(data_t* data, Density* density,
 }
 
 template <typename T>
-inline double evaluatePartitionsWithRegression(data_t* data, Density* density,
+double evaluatePartitionsWithRegression(data_t* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
 
     size_t i = splitter->feature_id;
