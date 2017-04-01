@@ -14,8 +14,9 @@ struct Dataset {
     size_t n_cols;
 };
 
+template <typename T>
 struct Labels {
-    target_t* data;
+    T* data;
     size_t n_rows;
 };
 
@@ -25,9 +26,13 @@ struct GroundTruth {
 };
 
 extern "C" {
-    void* fit(Dataset* dataset, Labels* labels, TreeConfig* config);
+    void* fit_classification_tree(Dataset*, Labels<target_t>*, TreeConfig*);
 
-    float* predict(Dataset* dataset, void* tree_p, TreeConfig* config);
+    void* fit_regression_tree(Dataset*, Labels<data_t>*, TreeConfig*);
+
+    float* tree_classify(Dataset*, void*, TreeConfig*);
+
+    data_t* tree_predict(Dataset*, void*, TreeConfig*);
 }
 
 #endif // SCYTHE_HPP_

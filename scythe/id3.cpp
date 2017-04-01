@@ -3,18 +3,6 @@
 Node::Node(size_t n_classes):
     counters(n_classes > 0 ? new size_t[n_classes] : nullptr) {}
 
-Node* newNode(size_t n_classes) {
-    Node* node = new Node;
-    node->feature_id = NO_FEATURE;
-    node->counters = new size_t[n_classes];
-    node->n_instances = NO_INSTANCE;
-    node->score = INFINITY;
-    node->split_value = NO_SPLIT_VALUE;
-    node->left_child = nullptr;
-    node->right_child = nullptr;
-    return node;
-}
-
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value) {
     Density* densities = new Density[n_features];
@@ -105,20 +93,18 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes) {
-    memset(root->counters, 0x00, n_classes * sizeof(size_t));
-    for (uint i = 0; i < n_instances; i++) {
-        root->counters[targets[i]]++;
-    }
-}
-
 Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                  size_t n_features, TreeConfig* config) {
     Node* current_node = new Node(config->n_classes);
     current_node->id = 0;
     current_node->n_instances = n_instances;
-    current_node->score = 0.0;
-    initRoot(current_node, targets, n_instances, config->n_classes);
+    current_node->mean = 0.0; // TODO : mean of all thr samples
+    if (config->task == gbdf_task::CLASSIFICATION_TASK) {
+        memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
+        for (uint i = 0; i < n_instances; i++) {
+            current_node->counters[static_cast<size_t>(targets[i])]++;
+        }
+    }
     Node* child_node;
     Tree* tree = new Tree;
     tree->root = current_node;
@@ -135,6 +121,8 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
         n_instances,
         nullptr,
         config->n_classes,
+        0.0, 0.0,
+        0, 0,
         belongs_to,
         static_cast<size_t>(NO_FEATURE),
         n_features,
@@ -168,10 +156,11 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 sum_counts(next_density->counters_left, config->n_classes),
                 sum_counts(next_density->counters_right, config->n_classes)
             };
-            if (split_totals[0] && split_totals[1]) {
+            if (((split_totals[0] && split_totals[1])
+                    && (config->task == gbdf_task::CLASSIFICATION_TASK))
+                    || ((config->task == gbdf_task::REGRESSION_TASK))) { 
                 Node* new_children = new Node[2];
                 data_t split_value = next_density->split_value;
-                current_node->score = lowest_e_cost;
                 current_node->feature_id = static_cast<int>(best_feature);
                 current_node->split_value = split_value;
                 current_node->left_child = &new_children[0];
@@ -202,6 +191,16 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                         queue.push(child_node);
                     }
                     ++tree->n_nodes;
+                }
+                if (!std::isnan(splitter.mean_left)) {
+                    new_children[0].mean = splitter.mean_left;
+                } else {
+                    new_children[0].mean = current_node->mean;
+                }
+                if (!std::isnan(splitter.mean_right)) {
+                    new_children[1].mean = splitter.mean_right;
+                } else {
+                    new_children[1].mean = current_node->mean;
                 }
             }
         }
@@ -243,7 +242,7 @@ float* classify(data_t* const data, size_t n_instances, size_t n_features,
     return predictions;
 }
 
-data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
+data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf_task::REGRESSION_TASK);
     Node *current_node;
@@ -267,7 +266,7 @@ data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
                 improving = false;
             }
         }
-        // predictions[k] = stuff... -> TODO
+        predictions[k] = current_node->mean;
         // TODO : define a new type of struct
     }
     return predictions;

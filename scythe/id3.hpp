@@ -20,7 +20,7 @@ constexpr int COST_OF_EMPTINESS = std::numeric_limits<int>::max();
 
 typedef unsigned int uint;
 typedef double data_t;
-typedef int target_t;
+typedef double target_t;
 
 namespace gbdf_part {
     constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
@@ -40,6 +40,7 @@ struct Node {
     size_t  n_instances = NO_INSTANCE;
     double  score = INFINITY;
     data_t  split_value = NO_SPLIT_VALUE;
+    data_t  mean;
     Node*   left_child = nullptr;
     Node*   right_child = nullptr;
 
@@ -75,6 +76,10 @@ struct Splitter {
     size_t  n_instances;
     data_t* partition_values;
     size_t  n_classes;
+    double  mean_left;
+    double  mean_right;
+    size_t  n_left;
+    size_t  n_right;
     size_t* belongs_to;
     size_t  feature_id;
     size_t  n_features;
@@ -92,8 +97,6 @@ struct Tree {
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);
 
-Node* newNode(size_t n_classes);
-
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value);
 
@@ -101,7 +104,7 @@ inline float ShannonEntropy(float probability);
 
 inline float GiniCoefficient(float probability);
 
-inline double getFeatureCost(Density* density, size_t n_classes);
+double getFeatureCost(Density* density, size_t n_classes);
 
 void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
 
@@ -111,7 +114,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
 float* classify(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
 
-data_t* regress(data_t* const data, size_t n_instances, size_t n_features,
+data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
 template <typename T>
 inline double evaluatePartitions(data_t* data, Density* density,

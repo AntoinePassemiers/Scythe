@@ -27,13 +27,13 @@ double evaluatePartitions(data_t* data, Density* density,
             target_value = splitter->targets[j];
             data_point = data[j * n_features + i];
             if (data_point == splitter->nan_value) {
-                density->counters_nan[target_value]++;
+                density->counters_nan[static_cast<size_t>(target_value)]++;
             }
             else if (data_point >= density->split_value) {
-                density->counters_right[target_value]++;
+                density->counters_right[static_cast<size_t>(target_value)]++;
             }
             else {
-                density->counters_left[target_value]++;
+                density->counters_left[static_cast<size_t>(target_value)]++;
             }
         }
     }
@@ -47,17 +47,17 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
     data_t data_point;
-    T y;
+    double y;
     size_t id = splitter->node->id;
     size_t n_left = 0, n_right = 0;
     density->split_value = splitter->partition_values[k];
     data_t split_value = density->split_value;
-    T mean_left = 0, mean_right = 0;
+    double mean_left = 0, mean_right = 0;
     double cost = 0.0;
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = data[j * n_features + i];
-            y = splitter->targets[j];
+            y = static_cast<double>(splitter->targets[j]);
             if (data_point == splitter->nan_value) {}
             else if (data_point >= split_value) {
                 mean_right += y;
@@ -69,9 +69,13 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
             }
         }
     }
+    mean_left /= static_cast<double>(n_left);
+    mean_right /= static_cast<double>(n_right);
+    splitter->mean_left  = mean_left;
+    splitter->mean_right = mean_right;
+    splitter->n_left = n_left;
+    splitter->n_right = n_right;
     if ((n_left == 0) or (n_right == 0)) { return INFINITY; }
-    mean_left /= static_cast<T>(n_left);
-    mean_right /= static_cast<T>(n_right);
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = data[j * n_features + i];
@@ -81,7 +85,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
                 cost += std::abs(mean_right - y); // TODO : use squared error ?
             }
             else {
-                cost += std::abs(mean_right - y); // TODO : use squared error ?
+                cost += std::abs(mean_left - y); // TODO : use squared error ?
             }
         }
     }
