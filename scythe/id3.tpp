@@ -34,7 +34,7 @@ double evaluatePartitions(data_t* data, Density* density,
             }
             else {
                 density->counters_left[static_cast<size_t>(target_value)]++;
-            }
+            }   
         }
     }
     return getFeatureCost(density, splitter->n_classes);

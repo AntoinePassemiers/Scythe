@@ -17,6 +17,7 @@ constexpr int NO_INSTANCE = 0;
 constexpr int NO_SPLIT_VALUE = std::numeric_limits<int>::max();
 constexpr int NUM_SPLIT_LABELS = 3;
 constexpr int COST_OF_EMPTINESS = std::numeric_limits<int>::max();
+constexpr int INFINITE_DEPTH = -1;
 
 typedef unsigned int uint;
 typedef double data_t;
