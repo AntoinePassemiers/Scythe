@@ -7,6 +7,7 @@ scythe = ctypes.cdll.LoadLibrary("scythe/scythe.lib")
 
 c_double_p = ctypes.POINTER(ctypes.c_double)
 c_float_p  = ctypes.POINTER(ctypes.c_float)
+c_int_p    = ctypes.POINTER(ctypes.c_int)
 
 CLASSIFICATION_TASK = 0xF55A90
 REGRESSION_TASK     = 0xF55A91
@@ -33,8 +34,7 @@ class Dataset(ctypes.Structure):
 class Labels(ctypes.Structure):
     _fields_ = [
         ("data", ctypes.POINTER(ctypes.c_double)),
-        ("n_rows", ctypes.c_size_t)
-    ]
+        ("n_rows", ctypes.c_size_t)]
 
     def __init__(self, data):
         data = np.asarray(data, dtype = np.double)
@@ -52,8 +52,26 @@ class TreeConfig(ctypes.Structure):
         ("n_classes", ctypes.c_size_t),
         ("max_nodes", ctypes.c_size_t),
         ("partitioning", ctypes.c_int),
-        ("nan_value", ctypes.c_double)
-    ]
+        ("nan_value", ctypes.c_double)]
+
+class ForestConfig(ctypes.Structure):
+    _fields_ = [
+        ("task", ctypes.c_int),
+        ("n_classes", ctypes.c_size_t),
+        ("n_iter", ctypes.c_size_t),
+        ("learning_rate", ctypes.c_float),
+        ("n_leaves", ctypes.c_size_t),
+        ("n_jobs", ctypes.c_size_t),
+        ("n_samples_per_leaf", ctypes.c_size_t),
+        ("regularization", ctypes.c_int),
+        ("bagging_fraction", ctypes.c_float),
+        ("early_stopping_round", ctypes.c_size_t),
+        ("boosting_method", ctypes.c_int),
+        ("max_depth", ctypes.c_int),
+        ("l1_lambda", ctypes.c_float),
+        ("l2_lambda", ctypes.c_float),
+        ("seed", ctypes.c_float),
+        ("verbose", ctypes.c_int)]
 
 
 if __name__ == "__main__":

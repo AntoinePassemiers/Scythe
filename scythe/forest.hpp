@@ -31,7 +31,7 @@ struct ForestConfig {
     int       regularization       = reg::REG_L1;
     float     bagging_fraction     = 0.1f;
     size_t    early_stopping_round = 300;
-    size_t    boosting_method      = boost::GRADIENT_BOOSTING;
+    int       boosting_method      = boost::GRADIENT_BOOSTING;
     int       max_depth            = INFINITE_DEPTH;
     float     l1_lambda            = 0.1f;
     float     l2_lambda            = 0.1f;
