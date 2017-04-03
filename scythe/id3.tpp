@@ -54,16 +54,19 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
     data_t split_value = density->split_value;
     double mean_left = 0, mean_right = 0;
     double cost = 0.0;
+    // printf("\nID : %i | %f |", id, split_value);
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = data[j * n_features + i];
             y = static_cast<double>(splitter->targets[j]);
             if (data_point == splitter->nan_value) {}
             else if (data_point >= split_value) {
+                // printf(" Right : %f |", splitter->targets[j]);
                 mean_right += y;
                 n_right++;
             }
             else {
+                // printf("Left : %f |", splitter->targets[j]);
                 mean_left += y;
                 n_left++;
             }
@@ -89,6 +92,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
             }
         }
     }
+    // printf("Cost : %f", cost);
     return cost;
 }
 

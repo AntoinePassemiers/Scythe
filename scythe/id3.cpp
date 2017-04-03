@@ -132,7 +132,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
     Density* densities = computeDensities(data, n_instances, n_features,
         config->n_classes, config->nan_value);
     Density* next_density;
-    size_t best_feature = 0;
+    uint best_feature = 0;
     std::queue<Node*> queue;
     queue.push(current_node);
     while ((tree->n_nodes < config->max_nodes) && !queue.empty() && still_going) {
@@ -148,8 +148,10 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 best_feature = f;
             }
         }
+        splitter.feature_id = best_feature;
+        evaluateByThreshold(&splitter, &densities[best_feature], data, config->partitioning); // TODO : redundant calculus
         next_density = &densities[best_feature];
-        if ((best_feature != static_cast<size_t>(current_node->feature_id))
+        if ((best_feature != static_cast<uint>(current_node->feature_id))
             || (next_density->split_value != current_node->split_value)) { // TO REMOVE ?
             next_density = &densities[best_feature];
             size_t split_totals[2] = {
