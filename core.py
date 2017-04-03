@@ -5,9 +5,18 @@ import ctypes
 
 scythe = ctypes.cdll.LoadLibrary("scythe/scythe.lib")
 
-c_double_p = ctypes.POINTER(ctypes.c_double)
-c_float_p  = ctypes.POINTER(ctypes.c_float)
-c_int_p    = ctypes.POINTER(ctypes.c_int)
+c_int_p        = ctypes.POINTER(ctypes.c_int)
+c_uint_p       = ctypes.POINTER(ctypes.c_uint)
+c_int16_p      = ctypes.POINTER(ctypes.c_int16)
+c_uint16_p     = ctypes.POINTER(ctypes.c_uint16)
+c_int32_p      = ctypes.POINTER(ctypes.c_int32)
+c_uint32_p     = ctypes.POINTER(ctypes.c_uint32)
+c_int64_p      = ctypes.POINTER(ctypes.c_int64)
+c_uint64_p     = ctypes.POINTER(ctypes.c_uint64)
+c_size_t_p     = ctypes.POINTER(ctypes.c_size_t)
+c_float_p      = ctypes.POINTER(ctypes.c_float)
+c_double_p     = ctypes.POINTER(ctypes.c_double)
+c_longdouble_p = ctypes.POINTER(ctypes.c_longdouble)
 
 CLASSIFICATION_TASK = 0xF55A90
 REGRESSION_TASK     = 0xF55A91
@@ -86,24 +95,23 @@ if __name__ == "__main__":
 
     
     X_train = np.asarray(np.array([
-        [0, 0, 0], # 0    1
-        [0, 0, 1], # 0    0
-        [1, 0, 0], # 1    1
-        [2, 0, 0], # 1    1
-        [2, 1, 0], # 2    1.5
-        [2, 1, 1], # 0    0
-        [1, 1, 1], # 1    1
-        [0, 0, 0], # 2    1
-        [0, 1, 0], # 2    2
-        [2, 1, 0], # 1    1.5
-        [0, 1, 1], # 1    1
-        [1, 0, 1], # 1    1
-        [1, 1, 0], # 1    1
-        [2, 0, 1]  # 0    0
+        [0, 0, 0], # 0    1    5.6   6.65
+        [0, 0, 1], # 0    0    7.8   7.8
+        [1, 0, 0], # 1    1    4.2   4.2
+        [2, 0, 0], # 1    1    3.5   3.5
+        [2, 1, 0], # 2    1.5  9.8   7.9
+        [2, 1, 1], # 0    0    5.4   5.4
+        [1, 1, 1], # 1    1    2.1   2.1
+        [0, 0, 0], # 2    1    7.7   6.65
+        [0, 1, 0], # 2    2    8.8   8.8
+        [2, 1, 0], # 1    1.5  6.0   7.9
+        [0, 1, 1], # 1    1    5.7   5.7
+        [1, 0, 1], # 1    1    7.0   7.0
+        [1, 1, 0], # 1    1    6.9   6.9
+        [2, 0, 1]  # 0    0    6.3   6.3
     ]), dtype = np.double)
     
     #X_train = np.random.rand(14, 3)
-
 
     y_train = np.array([0, 0, 1, 1, 2, 0, 1, 2, 2, 1, 1, 1, 1, 0])
     X_test = X_train
@@ -122,8 +130,10 @@ if __name__ == "__main__":
     print(preds)
 
     # REGRESSION
+    targets = np.array([5.6, 7.8, 4.2, 3.5, 9.8, 5.4, 2.1, 7.7, 8.8, 6.0, 5.7, 7.0, 6.9, 6.3])
+    targets  = Labels(targets)
     config.task = REGRESSION_TASK
-    tree_addr = scythe.fit_regression_tree(ctypes.byref(dataset), ctypes.byref(labels), ctypes.byref(config))
+    tree_addr = scythe.fit_regression_tree(ctypes.byref(dataset), ctypes.byref(targets), ctypes.byref(config))
     preds_addr = scythe.tree_predict(ctypes.byref(testset), ctypes.c_void_p(tree_addr), ctypes.byref(config))
     preds_p = ctypes.cast(preds_addr, c_double_p)
     preds = np.ctypeslib.as_array(preds_p, shape = (14,))

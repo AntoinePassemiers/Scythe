@@ -158,7 +158,8 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
             };
             if (((split_totals[0] && split_totals[1])
                     && (config->task == gbdf_task::CLASSIFICATION_TASK))
-                    || ((config->task == gbdf_task::REGRESSION_TASK))) { 
+                    || ((config->task == gbdf_task::REGRESSION_TASK)
+                    && (splitter.n_left > 0) && (splitter.n_right > 0))) { 
                 Node* new_children = new Node[2];
                 data_t split_value = next_density->split_value;
                 current_node->feature_id = static_cast<int>(best_feature);
@@ -192,16 +193,8 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                     }
                     ++tree->n_nodes;
                 }
-                if (!std::isnan(splitter.mean_left)) {
-                    new_children[0].mean = splitter.mean_left;
-                } else {
-                    new_children[0].mean = current_node->mean;
-                }
-                if (!std::isnan(splitter.mean_right)) {
-                    new_children[1].mean = splitter.mean_right;
-                } else {
-                    new_children[1].mean = current_node->mean;
-                }
+                new_children[0].mean = splitter.mean_left;
+                new_children[1].mean = splitter.mean_right;
             }
         }
     }
