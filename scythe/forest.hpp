@@ -15,7 +15,7 @@ namespace reg {
     constexpr int REG_L2 = 0x778C11;
 }
 
-namespace boost {
+namespace gbdf_boost {
     constexpr int ADABOOST          = 0x28FE90;
     constexpr int GRADIENT_BOOSTING = 0x28FE91;
 }
@@ -31,7 +31,7 @@ struct ForestConfig {
     int       regularization       = reg::REG_L1;
     float     bagging_fraction     = 0.1f;
     size_t    early_stopping_round = 300;
-    int       boosting_method      = boost::GRADIENT_BOOSTING;
+    int       boosting_method      = gbdf_boost::GRADIENT_BOOSTING;
     int       max_depth            = INFINITE_DEPTH;
     float     l1_lambda            = 0.1f;
     float     l2_lambda            = 0.1f;
@@ -43,7 +43,7 @@ class Forest {
 private:
     size_t max_n_trees;
 
-    Tree* base_tree;
+    Tree base_tree;
     std::vector<Tree*> trees;
 
 public:
