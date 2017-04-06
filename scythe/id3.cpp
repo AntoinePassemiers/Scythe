@@ -1,7 +1,8 @@
 #include "id3.hpp"
 
 Node::Node(size_t n_classes):
-    counters(n_classes > 0 ? new size_t[n_classes] : nullptr) {}
+    counters(n_classes > 0 ? new size_t[n_classes] : nullptr),
+    id(0), mean(0) {}
 
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value) {
@@ -99,7 +100,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
     current_node->id = 0;
     current_node->n_instances = n_instances;
     current_node->mean = 0.0; // TODO : mean of all thr samples
-    if (config->task == gbdf_task::CLASSIFICATION_TASK) {
+    if (config->task == gbdf::CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
         for (uint i = 0; i < n_instances; i++) {
             current_node->counters[static_cast<size_t>(targets[i])]++;
@@ -159,8 +160,8 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 sum_counts(next_density->counters_right, config->n_classes)
             };
             if (((split_totals[0] && split_totals[1])
-                    && (config->task == gbdf_task::CLASSIFICATION_TASK))
-                    || ((config->task == gbdf_task::REGRESSION_TASK)
+                    && (config->task == gbdf::CLASSIFICATION_TASK))
+                    || ((config->task == gbdf::REGRESSION_TASK)
                     && (splitter.n_left > 0) && (splitter.n_right > 0))) { 
                 Node* new_children = new Node[2];
                 data_t split_value = next_density->split_value;
@@ -207,7 +208,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
 
 float* classify(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
-    assert(config->task == gbdf_task::CLASSIFICATION_TASK);
+    assert(config->task == gbdf::CLASSIFICATION_TASK);
     Node *current_node;
     size_t feature;
     size_t n_classes = config->n_classes;
@@ -239,7 +240,7 @@ float* classify(data_t* const data, size_t n_instances, size_t n_features,
 
 data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
-    assert(config->task == gbdf_task::REGRESSION_TASK);
+    assert(config->task == gbdf::REGRESSION_TASK);
     Node *current_node;
     size_t feature;
     data_t* predictions = new data_t[n_instances];

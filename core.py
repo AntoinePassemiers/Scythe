@@ -68,6 +68,7 @@ class ForestConfig(ctypes.Structure):
         ("task", ctypes.c_int),
         ("n_classes", ctypes.c_size_t),
         ("n_iter", ctypes.c_size_t),
+        ("max_n_trees", ctypes.c_size_t),
         ("learning_rate", ctypes.c_float),
         ("n_leaves", ctypes.c_size_t),
         ("n_jobs", ctypes.c_size_t),
@@ -80,7 +81,8 @@ class ForestConfig(ctypes.Structure):
         ("l1_lambda", ctypes.c_float),
         ("l2_lambda", ctypes.c_float),
         ("seed", ctypes.c_float),
-        ("verbose", ctypes.c_int)]
+        ("verbose", ctypes.c_int)
+        ("nan_value", ctypes.c_double)]
 
 
 if __name__ == "__main__":

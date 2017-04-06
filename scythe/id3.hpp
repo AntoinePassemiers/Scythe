@@ -23,13 +23,13 @@ typedef unsigned int uint;
 typedef double data_t;
 typedef double target_t;
 
-namespace gbdf_part {
+namespace gbdf {
+    // Partitioning of the input's density function
     constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
     constexpr int DECILE_PARTITIONING     = 0xB23A41;
     constexpr int PERCENTILE_PARTITIONING = 0xB23A42;
-}
 
-namespace gbdf_task {
+    // Task of the tree / forest
     constexpr int CLASSIFICATION_TASK = 0xF55A90;
     constexpr int REGRESSION_TASK     = 0xF55A91;
 }
@@ -94,6 +94,7 @@ struct Tree {
     size_t      n_classes;
     size_t      n_features;
     TreeConfig* config;
+    ptrdiff_t   level;
 };
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);

@@ -104,15 +104,15 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
     double cost;
     size_t n_partition_values;
     switch(partition_value_type) {
-        case gbdf_part::QUARTILE_PARTITIONING:
+        case gbdf::QUARTILE_PARTITIONING:
             splitter->partition_values = density->quartiles;
             n_partition_values = 4;
             break;
-        case gbdf_part::DECILE_PARTITIONING:
+        case gbdf::DECILE_PARTITIONING:
             splitter->partition_values = density->deciles;
             n_partition_values = 10;
             break;
-        case gbdf_part::PERCENTILE_PARTITIONING:
+        case gbdf::PERCENTILE_PARTITIONING:
             splitter->partition_values = density->percentiles;
             n_partition_values = 100;
             break;
@@ -121,7 +121,7 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
             n_partition_values = 100;
     }
     for (uint k = 1; k < n_partition_values - 1; k++) {
-        if (splitter->task == gbdf_task::CLASSIFICATION_TASK) {
+        if (splitter->task == gbdf::CLASSIFICATION_TASK) {
             cost = evaluatePartitions(data, density, splitter, k);
         }
         else {
@@ -132,7 +132,7 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
             best_split_id = k;
         }
     }
-    if (splitter->task == gbdf_task::CLASSIFICATION_TASK) {
+    if (splitter->task == gbdf::CLASSIFICATION_TASK) {
         evaluatePartitions(data, density, splitter, best_split_id);
     }
     else {
