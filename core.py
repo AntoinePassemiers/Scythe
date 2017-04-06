@@ -67,6 +67,7 @@ class ForestConfig(ctypes.Structure):
     _fields_ = [
         ("task", ctypes.c_int),
         ("n_classes", ctypes.c_size_t),
+        ("score_metric", ctypes.c_int),
         ("n_iter", ctypes.c_size_t),
         ("max_n_trees", ctypes.c_size_t),
         ("learning_rate", ctypes.c_float),
@@ -81,7 +82,7 @@ class ForestConfig(ctypes.Structure):
         ("l1_lambda", ctypes.c_float),
         ("l2_lambda", ctypes.c_float),
         ("seed", ctypes.c_float),
-        ("verbose", ctypes.c_int)
+        ("verbose", ctypes.c_int),
         ("nan_value", ctypes.c_double)]
 
 
@@ -122,7 +123,7 @@ if __name__ == "__main__":
     labels  = Labels(y_train)
     testset = Dataset(X_test)
 
-    # CLASSIFICATION
+    # CLASSIFICATION TREE
     config.task = CLASSIFICATION_TASK
     tree_addr = scythe.fit_classification_tree(ctypes.byref(dataset), ctypes.byref(labels), ctypes.byref(config))
     preds_addr = scythe.tree_classify(ctypes.byref(testset), ctypes.c_void_p(tree_addr), ctypes.byref(config))
@@ -131,15 +132,32 @@ if __name__ == "__main__":
     print("\n")
     print(preds)
 
-    # REGRESSION
+    # REGRESSION FOREST
     targets = np.array([5.6, 7.8, 4.2, 3.5, 9.8, 5.4, 2.1, 7.7, 8.8, 6.0, 5.7, 7.0, 6.9, 6.3])
     targets  = Labels(targets)
     config.task = REGRESSION_TASK
-    tree_addr = scythe.fit_regression_tree(ctypes.byref(dataset), ctypes.byref(targets), ctypes.byref(config))
-    preds_addr = scythe.tree_predict(ctypes.byref(testset), ctypes.c_void_p(tree_addr), ctypes.byref(config))
+    tree_addr = scythe.fit_regression_tree(
+        ctypes.byref(dataset), 
+        ctypes.byref(targets), 
+        ctypes.byref(config))
+    preds_addr = scythe.tree_predict(
+        ctypes.byref(testset), 
+        ctypes.c_void_p(tree_addr), 
+        ctypes.byref(config))
     preds_p = ctypes.cast(preds_addr, c_double_p)
     preds = np.ctypeslib.as_array(preds_p, shape = (14,))
     print("\n")
     print(preds)
+
+    # CLASSIFICATION FOREST
+    fconfig = ForestConfig()
+    fconfig.task = CLASSIFICATION_TASK
+    fconfig.n_classes = 3
+    fconfig.max_depth = 50
+    fconfig.nan_value = -1.0
+    forest_addr = scythe.fit_classification_forest(
+        ctypes.byref(dataset), 
+        ctypes.byref(labels), 
+        ctypes.byref(fconfig))
 
     print("Finished")

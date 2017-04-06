@@ -1,6 +1,9 @@
 #include "scythe.hpp"
 
 extern "C" {
+
+    /* TREE API */
+
     void* fit_classification_tree(Dataset* dataset, Labels<target_t>* labels, TreeConfig* config) {
         return static_cast<void*>(ID3(
             dataset->data, 
@@ -31,5 +34,21 @@ extern "C" {
         data_t* predictions = predict(dataset->data, dataset->n_rows, dataset->n_cols,
             tree, config);
         return predictions;
+    }
+
+    /* FOREST API */
+
+    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config) {
+        ClassificationForest* forest = new ClassificationForest(
+            config,
+            dataset->n_rows,
+            dataset->n_cols);
+        TrainingSet training_set = {
+            dataset->data,
+            labels->data,
+            dataset->n_rows,
+            dataset->n_cols };
+        forest->fit(training_set);
+        return static_cast<void*>(forest);
     }
 }

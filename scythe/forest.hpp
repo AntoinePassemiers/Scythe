@@ -53,6 +53,9 @@ struct TrainingSet {
 
 class Forest {
 protected:
+    size_t n_instances;
+    size_t n_features;
+
     ForestConfig config;
 
     Tree base_tree;
@@ -63,7 +66,14 @@ protected:
 public:
     TreeConfig base_tree_config;
 
-    Forest() : config(), base_tree(), base_tree_config(), trees(), prediction_state(0) {};
+    Forest(size_t n_instances, size_t n_features) : 
+        n_instances(n_instances),
+        n_features(n_features),
+        config(), 
+        base_tree(), 
+        base_tree_config(), 
+        trees(), 
+        prediction_state(0) {};
     virtual void init() = 0;
     virtual void fit(TrainingSet) = 0;
     virtual ~Forest() = default;
@@ -73,7 +83,7 @@ class ClassificationForest : public Forest {
 private:
     std::unique_ptr<ClassificationError> score_metric;
 public:
-    ClassificationForest(ForestConfig*);
+    ClassificationForest(ForestConfig*, size_t, size_t);
     void init();
     void fit(TrainingSet dataset);
     ~ClassificationForest() = default;
