@@ -13,6 +13,7 @@ extern "C" {
             config));
     }
 
+    // TODO : remove this function / Equivalent to fit_classifiction_tree
     void* fit_regression_tree(Dataset* dataset, Labels<data_t>* labels, TreeConfig* config) {
         return static_cast<void*>(ID3(
             dataset->data, 

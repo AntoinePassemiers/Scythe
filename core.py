@@ -89,7 +89,7 @@ class ForestConfig(ctypes.Structure):
 if __name__ == "__main__":
     config = TreeConfig()
     config.is_incremental = False
-    config.threshold = 1e-06
+    config.min_threshold = 1e-06
     config.max_height = 50
     config.n_classes = 3
     config.max_nodes = 30
@@ -150,11 +150,16 @@ if __name__ == "__main__":
     print(preds)
 
     # CLASSIFICATION FOREST
+    dataset = Dataset(np.random.rand(1000, 3))
+    labels  = Labels(np.random.randint(3, size = 1000))
+
     fconfig = ForestConfig()
     fconfig.task = CLASSIFICATION_TASK
     fconfig.n_classes = 3
     fconfig.max_depth = 50
     fconfig.nan_value = -1.0
+    fconfig.n_iter    = 50
+    fconfig.learning_rate = 0.01
     forest_addr = scythe.fit_classification_forest(
         ctypes.byref(dataset), 
         ctypes.byref(labels), 

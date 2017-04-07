@@ -28,7 +28,7 @@ struct ForestConfig {
     int       score_metric         = gbdf::MLOG_LOSS;
     size_t    n_iter               = 100;
     size_t    max_n_trees          = 150;
-    float     learning_rate        = 0.1f;
+    float     learning_rate        = 0.001f;
     size_t    n_leaves             = 1023;
     size_t    n_jobs               = 1;
     size_t    n_samples_per_leaf   = 50;
@@ -59,12 +59,13 @@ protected:
     ForestConfig config;
 
     Tree base_tree;
-    std::vector<Tree*> trees;
+    std::vector<std::shared_ptr<Tree>> trees;
 
     ptrdiff_t prediction_state;
 
 public:
     TreeConfig base_tree_config;
+    TreeConfig grad_trees_config;
 
     Forest(size_t n_instances, size_t n_features) : 
         n_instances(n_instances),
@@ -72,19 +73,22 @@ public:
         config(), 
         base_tree(), 
         base_tree_config(), 
+        grad_trees_config(),
         trees(), 
         prediction_state(0) {};
     virtual void init() = 0;
+    virtual float* fitBaseTree(TrainingSet) = 0;
     virtual void fit(TrainingSet) = 0;
     virtual ~Forest() = default;
 };
 
 class ClassificationForest : public Forest {
 private:
-    std::unique_ptr<ClassificationError> score_metric;
+    std::shared_ptr<ClassificationError> score_metric;
 public:
     ClassificationForest(ForestConfig*, size_t, size_t);
     void init();
+    float* fitBaseTree(TrainingSet dataset);
     void fit(TrainingSet dataset);
     ~ClassificationForest() = default;
 };
@@ -103,5 +107,5 @@ for k in range(n_boost):
 (n_test, D) = X_test.shape
 predict = zeros(n_test, 1)
 for k in range(n_boost):
-    predict = predict + alpha[k] = predict(Learner[k], X_test)
+    predict = predict + alpha[k] * predict(Learner[k], X_test)
 */
