@@ -156,13 +156,14 @@ if __name__ == "__main__":
     fconfig = ForestConfig()
     fconfig.task = CLASSIFICATION_TASK
     fconfig.n_classes = 3
-    fconfig.max_depth = 50
+    fconfig.max_depth = 30
     fconfig.nan_value = -1.0
-    fconfig.n_iter    = 300
+    fconfig.n_iter    = 10
     fconfig.learning_rate = 0.05
     forest_addr = scythe.fit_classification_forest(
         ctypes.byref(dataset), 
         ctypes.byref(labels), 
         ctypes.byref(fconfig))
+
 
     print("Finished")

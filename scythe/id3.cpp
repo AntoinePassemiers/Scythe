@@ -99,7 +99,7 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
     Node* current_node = new Node(config->n_classes);
     current_node->id = 0;
     current_node->n_instances = n_instances;
-    current_node->mean = 0.0; // TODO : mean of all thr samples
+    current_node->mean = 0.0; // TODO : mean of all the samples
     if (config->task == gbdf::CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
         for (uint i = 0; i < n_instances; i++) {
@@ -134,10 +134,11 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
         config->n_classes, config->nan_value);
     Density* next_density;
     uint best_feature = 0;
-    std::queue<Node*> queue;
-    queue.push(current_node);
+    std::queue<NodeSpace> queue;
+    queue.push({ current_node, 1, nullptr, nullptr });
     while ((tree->n_nodes < config->max_nodes) && !queue.empty() && still_going) {
-        current_node = queue.front(); queue.pop();
+        NodeSpace current_node_space = queue.front(); queue.pop();
+        current_node = current_node_space.owner;
         double e_cost = INFINITY;
         double lowest_e_cost = INFINITY;
         splitter.node = current_node;
@@ -159,10 +160,12 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                 sum_counts(next_density->counters_left, config->n_classes),
                 sum_counts(next_density->counters_right, config->n_classes)
             };
-            if (((split_totals[0] && split_totals[1])
+            if ((tree->n_nodes < config->max_nodes) &&
+                (current_node_space.current_depth < config->max_height) &&
+                (((split_totals[0] && split_totals[1])
                     && (config->task == gbdf::CLASSIFICATION_TASK))
                     || ((config->task == gbdf::REGRESSION_TASK)
-                    && (splitter.n_left > 0) && (splitter.n_right > 0))) { 
+                    && (splitter.n_left > 0) && (splitter.n_right > 0)))) { 
                 Node* new_children = new Node[2];
                 data_t split_value = next_density->split_value;
                 current_node->feature_id = static_cast<int>(best_feature);
@@ -192,7 +195,11 @@ Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
                     child_node->counters = new size_t[config->n_classes];
                     memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
                     if (lowest_e_cost > config->min_threshold) {
-                        queue.push(child_node);
+                        queue.push({ 
+                            child_node, 
+                            current_node_space.current_depth + 1, 
+                            nullptr, 
+                            nullptr });
                     }
                     ++tree->n_nodes;
                 }

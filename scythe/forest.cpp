@@ -4,12 +4,12 @@ ClassificationForest::ClassificationForest
     (ForestConfig* config, size_t n_instances, size_t n_features) :
     Forest(n_instances, n_features) {
     Forest::config = *config;
-    Forest::base_tree_config.task = Forest::config.task;
-    Forest::base_tree_config.nan_value = Forest::config.nan_value;
-    Forest::base_tree_config.n_classes = Forest::config.n_classes;
+    Forest::base_tree_config.task = config->task;
+    Forest::base_tree_config.nan_value = config->nan_value;
+    Forest::base_tree_config.n_classes = config->n_classes;
     Forest::base_tree_config.is_incremental = false;
     Forest::base_tree_config.min_threshold = 1e-06;
-    Forest::base_tree_config.max_height = 50;
+    Forest::base_tree_config.max_height = config->max_depth;
     Forest::base_tree_config.max_nodes = 30;
     Forest::base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     // TODO : other parameters
