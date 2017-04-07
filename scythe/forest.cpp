@@ -60,7 +60,7 @@ void ClassificationForest::fit(TrainingSet dataset) {
         }
     }
 
-    data_t F_k = static_cast<data_t>(calloc(
+    data_t* F_k = static_cast<data_t*>(calloc(
         n_classes * dataset.n_instances, sizeof(data_t)));
     assert(n_classes == score_metric.get()->getNumberOfRequiredTrees());
     uint n_boost = 0;
@@ -86,8 +86,10 @@ void ClassificationForest::fit(TrainingSet dataset) {
                 &(Forest::grad_trees_config));
 
             for (uint p = 0; p < dataset.n_instances; p++) {
-                probabilities[p * n_classes + i] -= alpha * predictions[p];
+                // Compute gamma according to Friedman's formulas
+                F_k[p * n_classes + i] -= alpha * predictions[p];
             }
+            free(predictions);
         }
 
         for (uint p = 0; p < dataset.n_instances; p++) {
@@ -109,4 +111,6 @@ void ClassificationForest::fit(TrainingSet dataset) {
             printf("%f, ", probabilities[p * n_classes + i]);
         }
     }
+    free(probabilities);
+    free(F_k);
 }

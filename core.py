@@ -158,8 +158,8 @@ if __name__ == "__main__":
     fconfig.n_classes = 3
     fconfig.max_depth = 50
     fconfig.nan_value = -1.0
-    fconfig.n_iter    = 50
-    fconfig.learning_rate = 0.01
+    fconfig.n_iter    = 300
+    fconfig.learning_rate = 0.05
     forest_addr = scythe.fit_classification_forest(
         ctypes.byref(dataset), 
         ctypes.byref(labels), 
