@@ -83,8 +83,11 @@ private:
 public:
     ClassificationForest(ForestConfig*, size_t, size_t);
     void init();
-    float* fitBaseTree(TrainingSet dataset);
     void fit(TrainingSet dataset);
+    float* fitBaseTree(TrainingSet dataset);
+    void fitNewTree(TrainingSet dataset, data_t* gradient);
+    data_t* predictGradient(std::shared_ptr<Tree> tree, TrainingSet dataset);
+    void applySoftmax(float* probabilities, data_t* F_k);
     ~ClassificationForest() = default;
 };
 

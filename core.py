@@ -131,7 +131,7 @@ if __name__ == "__main__":
     print("\n")
     print(preds)
 
-    # REGRESSION FOREST
+    # REGRESSION TREE
     targets = np.array([5.6, 7.8, 4.2, 3.5, 9.8, 5.4, 2.1, 7.7, 8.8, 6.0, 5.7, 7.0, 6.9, 6.3])
     targets  = Labels(targets)
     config.task = REGRESSION_TASK
