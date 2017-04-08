@@ -28,6 +28,7 @@ struct ForestConfig {
     int       score_metric         = gbdf::MLOG_LOSS;
     size_t    n_iter               = 100;
     size_t    max_n_trees          = 150;
+    size_t    max_n_nodes          = 30;
     float     learning_rate        = 0.001f;
     size_t    n_leaves             = 1023;
     size_t    n_jobs               = 1;

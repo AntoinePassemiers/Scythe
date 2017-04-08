@@ -33,6 +33,8 @@ extern "C" {
     float* tree_classify(Dataset*, void*, TreeConfig*);
 
     data_t* tree_predict(Dataset*, void*, TreeConfig*);
+
+    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config);
 }
 
 #endif // SCYTHE_HPP_

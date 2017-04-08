@@ -10,7 +10,7 @@ ClassificationForest::ClassificationForest
     Forest::base_tree_config.is_incremental = false;
     Forest::base_tree_config.min_threshold = 1e-06;
     Forest::base_tree_config.max_height = config->max_depth;
-    Forest::base_tree_config.max_nodes = 30;
+    Forest::base_tree_config.max_nodes = config->max_n_nodes;
     Forest::base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     // TODO : other parameters
 
@@ -29,7 +29,7 @@ float* ClassificationForest::fitBaseTree(TrainingSet dataset) {
         dataset.targets,
         dataset.n_instances,
         dataset.n_features,
-        &(Forest::base_tree_config)); 
+        &(Forest::base_tree_config));
 
     // Predict with the base tree and compute the gradient of the error
     float* probabilities = classify(
@@ -38,6 +38,7 @@ float* ClassificationForest::fitBaseTree(TrainingSet dataset) {
         dataset.n_features,
         &(this->base_tree),
         &(Forest::base_tree_config));
+    printf("C");
     loss_t loss = score_metric.get()->computeLoss(probabilities, dataset.targets);
     printf("Iteration %3i / mlog-loss error : %f\n", 0, static_cast<double>(loss));
     return probabilities;
@@ -106,7 +107,7 @@ void ClassificationForest::fit(TrainingSet dataset) {
         loss_t loss = score_metric.get()->computeLoss(probabilities, dataset.targets);
         printf("Iteration %3i / mlog-loss error : %f\n", n_boost, static_cast<double>(loss));
     }
-    for (uint p = 0; p < 3; p++) {
+    for (uint p = 0; p < 300; p++) {
         for (uint i = 0; i < n_classes; i++) { 
             printf("%f, ", probabilities[p * n_classes + i]);
         }

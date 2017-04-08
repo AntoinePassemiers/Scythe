@@ -39,7 +39,7 @@ extern "C" {
 
     /* FOREST API */
 
-    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config) {
+    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config) {       
         ClassificationForest* forest = new ClassificationForest(
             config,
             dataset->n_rows,

@@ -32,13 +32,12 @@ class Dataset(ctypes.Structure):
         ("n_cols", ctypes.c_size_t)]
 
     def __init__(self, data):
-        data = np.asarray(data, dtype = np.double)
-        self.np_data = data.astype(np.double)
+        self.np_data = np.ascontiguousarray(data, dtype = np.double)
         self.n_rows = self.np_data.shape[0]
         self.n_cols = self.np_data.shape[1]
 
         p = ctypes.POINTER(ctypes.c_double)
-        self.data = data.ctypes.data_as(p)
+        self.data = self.np_data.ctypes.data_as(p)
 
 class Labels(ctypes.Structure):
     _fields_ = [
@@ -46,7 +45,7 @@ class Labels(ctypes.Structure):
         ("n_rows", ctypes.c_size_t)]
 
     def __init__(self, data):
-        data = np.asarray(data, dtype = np.double)
+        data = np.ascontiguousarray(data, dtype = np.double)
         self.np_data = data.astype(np.int)
         self.n_rows = self.np_data.shape[0]
 
@@ -70,6 +69,7 @@ class ForestConfig(ctypes.Structure):
         ("score_metric", ctypes.c_int),
         ("n_iter", ctypes.c_size_t),
         ("max_n_trees", ctypes.c_size_t),
+        ("max_n_nodes", ctypes.c_size_t),
         ("learning_rate", ctypes.c_float),
         ("n_leaves", ctypes.c_size_t),
         ("n_jobs", ctypes.c_size_t),
@@ -150,13 +150,14 @@ if __name__ == "__main__":
     print(preds)
 
     # CLASSIFICATION FOREST
-    dataset = Dataset(np.random.rand(1000, 3))
+    dataset = Dataset(np.random.rand(1000, 100))
     labels  = Labels(np.random.randint(3, size = 1000))
 
     fconfig = ForestConfig()
     fconfig.task = CLASSIFICATION_TASK
     fconfig.n_classes = 3
-    fconfig.max_depth = 30
+    fconfig.max_depth = 35
+    fconfig.max_n_nodes = 500
     fconfig.nan_value = -1.0
     fconfig.n_iter    = 10
     fconfig.learning_rate = 0.05
