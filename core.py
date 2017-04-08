@@ -161,11 +161,11 @@ if __name__ == "__main__":
     fconfig.nan_value = -1.0
     fconfig.n_iter    = 50
     fconfig.learning_rate = 0.05
-    """
+    
     forest_addr = scythe.fit_classification_forest(
         ctypes.byref(dataset), 
         ctypes.byref(labels), 
         ctypes.byref(fconfig))
-    """
+    
 
     print("Finished")

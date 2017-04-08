@@ -1,14 +1,8 @@
-#ifndef METRICS_HPP_
-#define METRICS_HPP_
+#ifndef CLASSIFICATION_METRICS_HPP_
+#define CLASSIFICATION_METRICS_HPP_
 
-#include <iostream>
-#include <memory>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <vector>
-
-#include "id3.hpp"
+#include "metrics.hpp"
+#include "../id3.hpp"
 
 /*
 Reference
@@ -17,16 +11,6 @@ Reference
 http://luthuli.cs.uiuc.edu/~daf/courses/optimization/papers/2699986.pdf
 pg 1201
 */
-
-namespace gbdf {
-    // Classification
-    constexpr int MLOG_LOSS = 0x7711A0;
-
-    // Regression
-    constexpr int MSE = 0xC97B00; // Mean squared error
-}
-
-typedef double loss_t;
 
 class ClassificationError {
 protected:
@@ -90,4 +74,4 @@ public:
     ~MultiLogLossError() = default;
 };
 
-#endif // METRICS_H_
+#endif // CLASSIFICATION_METRICS_HPP_

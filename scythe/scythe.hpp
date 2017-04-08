@@ -6,7 +6,9 @@
 #include <iostream>
 #include <string>
 
-#include "forest.hpp"
+#include "forest/forest.hpp"
+#include "forest/classification_forest.hpp"
+#include "forest/regression_forest.hpp"
 
 struct Dataset {
     data_t* data;

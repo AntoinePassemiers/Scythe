@@ -1,4 +1,4 @@
-#include "forest.hpp"
+#include "classification_forest.hpp"
 
 ClassificationForest::ClassificationForest
     (ForestConfig* config, size_t n_instances, size_t n_features) :
