@@ -65,8 +65,8 @@ struct Node {
 struct NodeSpace {
     Node*   owner;
     size_t  current_depth;
-    data_t* feature_left_bounds;
-    data_t* feature_right_bounds;
+    size_t* feature_left_bounds;
+    size_t* feature_right_bounds;
 };
 
 struct TreeConfig {
