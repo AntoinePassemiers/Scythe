@@ -6,10 +6,14 @@ LDFLAGS      :=  -L. -shared
 DEBUGFLAGS   :=  -O0 -D _DEBUG
 RELEASEFLAGS :=  -O2 -D NDEBUG -combine -fwhole-program
 NAME         :=  scythe
-TARGET       :=  $(NAME).lib # TODO : manage .so files
 SRC          :=  $(wildcard *.cpp)
 OBJS         :=  $(SRC:.cpp=.o)
 
+ifeq ($(OS),Windows_NT)
+	TARGET = $(NAME).lib
+else
+	TARGET = $(NAME).so
+endif
 
 %.o: %.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<

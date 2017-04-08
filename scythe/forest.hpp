@@ -1,6 +1,7 @@
 #ifndef FOREST_HPP_
 #define FOREST_HPP_
 
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <stdio.h>
@@ -43,13 +44,6 @@ struct ForestConfig {
     float     seed                 = 4.f;
     int       verbose              = true;
     data_t    nan_value            = std::numeric_limits<data_t>::quiet_NaN();
-};
-
-struct TrainingSet {
-    data_t*   const data;
-    target_t* const targets;
-    size_t    n_instances;
-    size_t    n_features;
 };
 
 class Forest {

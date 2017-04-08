@@ -6,20 +6,14 @@ extern "C" {
 
     void* fit_classification_tree(Dataset* dataset, Labels<target_t>* labels, TreeConfig* config) {
         return static_cast<void*>(ID3(
-            dataset->data, 
-            static_cast<target_t*>(labels->data),
-            dataset->n_rows, 
-            dataset->n_cols, 
+            { dataset->data, static_cast<target_t*>(labels->data), dataset->n_rows, dataset->n_cols },
             config));
     }
 
     // TODO : remove this function / Equivalent to fit_classifiction_tree
     void* fit_regression_tree(Dataset* dataset, Labels<data_t>* labels, TreeConfig* config) {
         return static_cast<void*>(ID3(
-            dataset->data, 
-            static_cast<target_t*>(labels->data),
-            dataset->n_rows, 
-            dataset->n_cols,
+            { dataset->data, static_cast<target_t*>(labels->data), dataset->n_rows, dataset->n_cols },
             config));
     }
 

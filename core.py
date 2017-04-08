@@ -32,12 +32,11 @@ class Dataset(ctypes.Structure):
         ("n_cols", ctypes.c_size_t)]
 
     def __init__(self, data):
-        self.np_data = np.ascontiguousarray(data, dtype = np.double)
-        self.n_rows = self.np_data.shape[0]
-        self.n_cols = self.np_data.shape[1]
+        np_data = np.ascontiguousarray(data, dtype = np.double)
+        self.n_rows = np_data.shape[0]
+        self.n_cols = np_data.shape[1]
 
-        p = ctypes.POINTER(ctypes.c_double)
-        self.data = self.np_data.ctypes.data_as(p)
+        self.data = np_data.ctypes.data_as(c_double_p)
 
 class Labels(ctypes.Structure):
     _fields_ = [
@@ -150,16 +149,17 @@ if __name__ == "__main__":
     print(preds)
 
     # CLASSIFICATION FOREST
-    dataset = Dataset(np.random.rand(1000, 100))
-    labels  = Labels(np.random.randint(3, size = 1000))
+    n_instances = 1000
+    dataset = Dataset(np.random.rand(n_instances, 3))
+    labels  = Labels(np.random.randint(3, size = n_instances))
 
     fconfig = ForestConfig()
     fconfig.task = CLASSIFICATION_TASK
     fconfig.n_classes = 3
-    fconfig.max_depth = 35
+    fconfig.max_depth = 4
     fconfig.max_n_nodes = 500
     fconfig.nan_value = -1.0
-    fconfig.n_iter    = 10
+    fconfig.n_iter    = 50
     fconfig.learning_rate = 0.05
     forest_addr = scythe.fit_classification_forest(
         ctypes.byref(dataset), 

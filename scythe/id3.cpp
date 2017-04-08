@@ -94,8 +94,11 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-Tree* ID3(data_t* const data, target_t* const targets, size_t n_instances,
-                 size_t n_features, TreeConfig* config) {
+Tree* ID3(TrainingSet dataset, TreeConfig* config) {
+    data_t* const data = dataset.data;
+    target_t* const targets = dataset.targets;
+    size_t n_instances = dataset.n_instances;
+    size_t n_features  = dataset.n_features;
     Node* current_node = new Node(config->n_classes);
     current_node->id = 0;
     current_node->n_instances = n_instances;

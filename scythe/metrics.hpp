@@ -77,13 +77,8 @@ public:
             for (uint j = 0; j < this->n_classes; j++) {
                 data_t prob = probabilities[i * this->n_classes + j];
                 prob = std::max(std::min(prob, 1.0 - this->stability_threshold), this->stability_threshold);
-                if (static_cast<size_t>(targets[i]) == j) {
-                    this->gradient.get()[j * this->n_instances + i] = -(1.0 - prob);
-                    // printf("%f, ", this->gradient.get()[j * this->n_instances + i]);
-                }
-                else {
-                    this->gradient.get()[j * this->n_instances + i] = -prob;
-                }
+                data_t gradient_at_ij = (static_cast<size_t>(targets[i]) == j) ? (prob - 1.0) : (prob);
+                this->gradient.get()[j * this->n_instances + i] = gradient_at_ij;
             }
         }
     }
