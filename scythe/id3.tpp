@@ -46,7 +46,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
 
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
-    data_t data_point;
+    data_t data_point, nan_value = splitter->nan_value;
     double y;
     size_t id = splitter->node->id;
     size_t n_left = 0, n_right = 0;
@@ -59,7 +59,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
         if (splitter->belongs_to[j] == id) {
             data_point = data[j * n_features + i];
             y = static_cast<double>(splitter->targets[j]);
-            if (data_point == splitter->nan_value) {}
+            if (data_point == nan_value) {}
             else if (data_point >= split_value) {
                 // printf(" Right : %f |", splitter->targets[j]);
                 mean_right += y;
@@ -99,6 +99,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
 template <typename T>
 double evaluateByThreshold(Splitter<T>* splitter, Density* density,
                            data_t* const data, int partition_value_type) {
+    size_t feature_id = splitter->feature_id;
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;
     double cost;
@@ -120,7 +121,9 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
             splitter->partition_values = density->percentiles;
             n_partition_values = 100;
     }
-    for (uint k = 1; k < n_partition_values - 1; k++) {
+    size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
+    size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
+    for (uint k = lower_bound; k < upper_bound; k++) {
         if (splitter->task == gbdf::CLASSIFICATION_TASK) {
             cost = evaluatePartitions(data, density, splitter, k);
         }
@@ -131,6 +134,7 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
             lowest_cost = cost;
             best_split_id = k;
         }
+    splitter->best_split_id = best_split_id;
     }
     if (splitter->task == gbdf::CLASSIFICATION_TASK) {
         evaluatePartitions(data, density, splitter, best_split_id);

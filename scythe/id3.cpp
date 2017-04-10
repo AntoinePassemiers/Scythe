@@ -1,8 +1,44 @@
 #include "id3.hpp"
 
 Node::Node(size_t n_classes):
+    id(0),
     counters(n_classes > 0 ? new size_t[n_classes] : nullptr),
-    id(0), mean(0) {}
+    mean(0) {}
+
+NodeSpace newNodeSpace(Node* owner, size_t n_features, int partitioning) {
+    NodeSpace new_space;
+    new_space.current_depth = 1;
+    new_space.owner = owner;
+    size_t n_bytes = n_features * sizeof(size_t);
+    new_space.feature_left_bounds = static_cast<size_t*>(malloc(n_bytes));
+    new_space.feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
+    for (uint f = 0; f < n_features; f++) {
+        new_space.feature_left_bounds[f] = 1;
+        switch(partitioning) {
+            case gbdf::QUARTILE_PARTITIONING:
+                new_space.feature_right_bounds[f] = 3; break;
+            case gbdf::DECILE_PARTITIONING:
+                new_space.feature_right_bounds[f] = 9; break;
+            case gbdf::PERCENTILE_PARTITIONING:
+                new_space.feature_right_bounds[f] = 99; break;
+            default:
+                new_space.feature_right_bounds[f] = 99;
+        }
+    }
+    return new_space;
+}
+
+NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features) {
+    NodeSpace new_space;
+    new_space.owner = node_space.owner;
+    new_space.current_depth = node_space.current_depth;
+    size_t n_bytes = n_features * sizeof(size_t);
+    new_space.feature_left_bounds = static_cast<size_t*>(malloc(n_bytes));
+    new_space.feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
+    memcpy(new_space.feature_left_bounds, node_space.feature_left_bounds, n_bytes);
+    memcpy(new_space.feature_right_bounds, node_space.feature_right_bounds, n_bytes);
+    return new_space;
+}
 
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                                  size_t n_classes, data_t nan_value) {
@@ -119,6 +155,7 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
     bool still_going = 1;
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     size_t** split_sides = new size_t*[2];
+NodeSpace current_node_space = newNodeSpace(current_node, n_features, config->partitioning);
     Splitter<target_t> splitter = {
         config->task,
         current_node,
@@ -131,20 +168,23 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
         static_cast<size_t>(NO_FEATURE),
         n_features,
         targets,
-        config->nan_value
+        config->nan_value,
+        0,
+        current_node_space
     };
     Density* densities = computeDensities(data, n_instances, n_features,
         config->n_classes, config->nan_value);
     Density* next_density;
     uint best_feature = 0;
     std::queue<NodeSpace> queue;
-    queue.push({ current_node, 1, nullptr, nullptr });
+    queue.push(current_node_space);
     while ((tree->n_nodes < config->max_nodes) && !queue.empty() && still_going) {
-        NodeSpace current_node_space = queue.front(); queue.pop();
+        current_node_space = queue.front(); queue.pop();
         current_node = current_node_space.owner;
         double e_cost = INFINITY;
         double lowest_e_cost = INFINITY;
         splitter.node = current_node;
+        splitter.node_space = current_node_space;
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;
             e_cost = evaluateByThreshold(&splitter, &densities[f], data, config->partitioning);
@@ -178,6 +218,12 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
 
                 split_sides[0] = next_density->counters_left;
                 split_sides[1] = next_density->counters_right;
+                int new_left_bounds[2] = { 
+                    current_node_space.feature_left_bounds[best_feature],
+                    splitter.best_split_id - 1};
+                int new_right_bounds[2] = { 
+                    splitter.best_split_id,
+                    current_node_space.feature_right_bounds[best_feature]};
                 for (uint i = 0; i < 2; i++) {
                     for (uint j = 0; j < n_instances; j++) {
                         bool is_on_the_left = (data[j * n_features + best_feature] < split_value) ? 1 : 0;
@@ -198,11 +244,12 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
                     child_node->counters = new size_t[config->n_classes];
                     memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
                     if (lowest_e_cost > config->min_threshold) {
-                        queue.push({ 
-                            child_node, 
-                            current_node_space.current_depth + 1, 
-                            nullptr, 
-                            nullptr });
+                        NodeSpace child_space = copyNodeSpace(current_node_space, n_features);
+                        child_space.owner = child_node;
+                        child_space.current_depth = current_node_space.current_depth + 1;
+                        child_space.feature_left_bounds[best_feature] = new_left_bounds[i];
+                        child_space.feature_right_bounds[best_feature] = new_right_bounds[i];
+                        queue.push(child_space);
                     }
                     ++tree->n_nodes;
                 }

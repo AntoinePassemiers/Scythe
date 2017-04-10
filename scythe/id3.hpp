@@ -93,20 +93,22 @@ struct Density {
 
 template <typename T>
 struct Splitter {
-    int     task;
-    Node*   node;
-    size_t  n_instances;
-    data_t* partition_values;
-    size_t  n_classes;
-    double  mean_left;
-    double  mean_right;
-    size_t  n_left;
-    size_t  n_right;
-    size_t* belongs_to;
-    size_t  feature_id;
-    size_t  n_features;
-    T*      targets;
-    data_t  nan_value;
+    int       task;
+    Node*     node;
+    size_t    n_instances;
+    data_t*   partition_values;
+    size_t    n_classes;
+    double    mean_left;
+    double    mean_right;
+    size_t    n_left;
+    size_t    n_right;
+    size_t*   belongs_to;
+    size_t    feature_id;
+    size_t    n_features;
+    T*        targets;
+    data_t    nan_value;
+    int       best_split_id;
+    NodeSpace node_space;
 };
 
 struct Tree {
@@ -117,6 +119,10 @@ struct Tree {
     TreeConfig* config;
     ptrdiff_t   level;
 };
+
+NodeSpace newNodeSpace(Node* owner, size_t n_features);
+
+NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);
 
