@@ -13,7 +13,7 @@ else
 	TARGET = $(NAME).so
 endif
 
-OBJS := id3.o scythe.o classification_forest.o regression_forest.o
+OBJS := cart.o scythe.o classification_forest.o regression_forest.o
 OBJS += classification_metrics.o regression_metrics.o
 
 $(TARGET): $(OBJS)

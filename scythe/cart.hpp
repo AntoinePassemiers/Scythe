@@ -1,5 +1,13 @@
-#ifndef ID3_HPP_
-#define ID3_HPP_
+/**
+    id3.hpp
+    Grow classification trees and regression trees
+
+    @author Antoine Passemiers
+    @version 1.3 12/04/2017
+*/
+
+#ifndef CART_HPP_
+#define CART_HPP_
 
 #include <cassert>
 #include <cmath>
@@ -129,7 +137,7 @@ NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 inline size_t sum_counts(size_t* counters, size_t n_counters);
 
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
-                                 size_t n_classes, data_t nan_value, int partitioning);
+                          size_t n_classes, data_t nan_value, int partitioning);
 
 inline float ShannonEntropy(float probability);
 
@@ -139,7 +147,7 @@ double getFeatureCost(Density* density, size_t n_classes);
 
 void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
 
-Tree* ID3(TrainingSet dataset, TreeConfig* config);
+Tree* ID3(TrainingSet dataset, TreeConfig* config, Density* densities);
 
 float* classify(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
@@ -156,8 +164,8 @@ inline double evaluatePartitionsWithRegression(data_t* data, Density* density,
 
 template <typename T>
 double evaluateByThreshold(Splitter<T>* splitter, Density* density,
-                           data_t* const data, int partition_value_type);
+                           data_t* const data);
 
-#include "id3.tpp"
+#include "cart.tpp"
 
-#endif // ID3_HPP_
+#endif // CART_HPP_

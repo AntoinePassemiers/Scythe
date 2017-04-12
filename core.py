@@ -32,11 +32,11 @@ class Dataset(ctypes.Structure):
         ("n_cols", ctypes.c_size_t)]
 
     def __init__(self, data):
-        np_data = np.ascontiguousarray(data, dtype = np.double)
-        self.n_rows = np_data.shape[0]
-        self.n_cols = np_data.shape[1]
+        self.np_data = np.ascontiguousarray(data, dtype = np.double)
+        self.n_rows = self.np_data.shape[0]
+        self.n_cols = self.np_data.shape[1]
 
-        self.data = np_data.ctypes.data_as(c_double_p)
+        self.data = self.np_data.ctypes.data_as(c_double_p)
 
 class Labels(ctypes.Structure):
     _fields_ = [
@@ -44,11 +44,10 @@ class Labels(ctypes.Structure):
         ("n_rows", ctypes.c_size_t)]
 
     def __init__(self, data):
-        data = np.ascontiguousarray(data, dtype = np.double)
-        self.np_data = data.astype(np.int)
+        self.np_data = np.ascontiguousarray(data, dtype = np.double)
         self.n_rows = self.np_data.shape[0]
 
-        self.data = data.ctypes.data_as(c_double_p)
+        self.data = self.np_data.ctypes.data_as(c_double_p)
 
 class TreeConfig(ctypes.Structure):
     _fields_ = [
@@ -149,8 +148,9 @@ if __name__ == "__main__":
     print(preds)
 
     # CLASSIFICATION FOREST
-    n_instances = 1000
-    dataset = Dataset(np.random.randint(0, 2, size=(n_instances, 3)))
+    n_instances = 100000
+    n_features = 100
+    dataset = Dataset(np.random.randint(0, 2, size=(n_instances, n_features)))
     labels  = Labels(np.random.randint(3, size = n_instances))
 
     fconfig = ForestConfig()

@@ -1,8 +1,16 @@
+/**
+    forest.hpp
+    Forest abstract class and configurations
+
+    @author Antoine Passemiers
+    @version 1.0 12/04/2017
+*/
+
 #ifndef FOREST_HPP_
 #define FOREST_HPP_
 
 #include "../metrics/metrics.hpp"
-#include "../id3.hpp"
+#include "../cart.hpp"
 
 
 namespace gbdf {

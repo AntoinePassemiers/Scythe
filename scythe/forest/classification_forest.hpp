@@ -7,9 +7,11 @@
 class ClassificationForest : public Forest {
 private:
     std::shared_ptr<ClassificationError> score_metric;
+    std::shared_ptr<Density> densities;
 public:
     ClassificationForest(ForestConfig*, size_t, size_t);
     void init();
+    void preprocessDensities(TrainingSet dataset);
     void fit(TrainingSet dataset);
     float* fitBaseTree(TrainingSet dataset);
     void fitNewTree(TrainingSet dataset, data_t* gradient);
@@ -19,19 +21,6 @@ public:
 };
 
 // https://eric.univ-lyon2.fr/~ricco/cours/slides/gradient_boosting.pdf
-/*
-mu = mean(Y)
-dY = Y - mu
-for k in range(n_boost):
-    Learner[k] = train_regressor(X, dY)
-    alpha[k] = 1 # TODO
-    dY = dY - alpha[k] * predict(Learner[k], X)
-
-(n_test, D) = X_test.shape
-predict = zeros(n_test, 1)
-for k in range(n_boost):
-    predict = predict + alpha[k] * predict(Learner[k], X_test)
-*/
 
 
 #endif // CLASSIFICATION_FOREST_HPP_

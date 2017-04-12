@@ -5,9 +5,8 @@ deep forests.
 
 ## TODO
 
-* Numerical stability of integers (1.00000000 != 1.00000001)
 * [ID3] Set the minimum number of instances per leaf as a parameter
-* Being able to pass non-contiguous Numpy arrays to the C API
+* Being able to pass non-contiguous Numpy arrays to the C API (not sure if necessary)
 * [ClassificationForest] Create a cross-validation function
 * [ClassificationForest] Create a predict function
 * [ClassificationForest] Use Friedman's formula to compute the gradient

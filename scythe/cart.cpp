@@ -1,11 +1,36 @@
-#include "id3.hpp"
+/**
+    id3.cpp
+    Grow classification trees and regression trees
 
+    @author Antoine Passemiers
+    @version 1.3 12/04/2017
+*/
+
+#include "cart.hpp"
+
+// Constructor for struct Node
 Node::Node(size_t n_classes):
     id(0),
     counters(n_classes > 0 ? new size_t[n_classes] : nullptr),
     mean(0) {}
 
 NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities) {
+    /**
+        Factory function for struct NodeSpace. This is being called while
+        instantiating the tree's root. When evaluating the split values for
+        the root, all the partition values of each features are being considered,
+        this is why the left and right bounds of the node space are first set 
+        to their maxima.
+
+        @param owner
+            Node related to the current space (root of the tree)
+        @param n_features
+            Number of features in the training set
+        @param densities
+            Density functions of the features
+            There are supposed to be n_features densities
+        @return A new NodeSpace for the tree's root
+    */
     NodeSpace new_space;
     new_space.current_depth = 1;
     new_space.owner = owner;
@@ -155,7 +180,7 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-Tree* ID3(TrainingSet dataset, TreeConfig* config) {
+Tree* ID3(TrainingSet dataset, TreeConfig* config, Density* densities) {
     data_t* const data = dataset.data;
     target_t* const targets = dataset.targets;
     size_t n_instances = dataset.n_instances;
@@ -180,8 +205,6 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
     bool still_going = 1;
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     size_t** split_sides = new size_t*[2];
-    Density* densities = computeDensities(data, n_instances, n_features,
-        config->n_classes, config->nan_value, config->partitioning);
     Density* next_density;
     NodeSpace current_node_space = newNodeSpace(current_node, n_features, densities);
     Splitter<target_t> splitter = {
@@ -212,14 +235,14 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
         splitter.node_space = current_node_space;
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;
-            e_cost = evaluateByThreshold(&splitter, &densities[f], data, config->partitioning);
+            e_cost = evaluateByThreshold(&splitter, &densities[f], data);
             if (e_cost < lowest_e_cost) {
                 lowest_e_cost = e_cost;
                 best_feature = f;
             }
         }
         splitter.feature_id = best_feature;
-        evaluateByThreshold(&splitter, &densities[best_feature], data, config->partitioning); // TODO : redundant calculus
+        evaluateByThreshold(&splitter, &densities[best_feature], data); // TODO : redundant calculus
         next_density = &densities[best_feature];
         if ((best_feature != static_cast<uint>(current_node->feature_id))
             || (next_density->split_value != current_node->split_value)) { // TO REMOVE ?

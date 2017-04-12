@@ -1,3 +1,11 @@
+/**
+    classification_forest.cpp
+    Classification forests
+
+    @author Antoine Passemiers
+    @version 1.0 12/04/2017
+*/
+
 #include "classification_forest.hpp"
 
 ClassificationForest::ClassificationForest
@@ -21,12 +29,11 @@ ClassificationForest::ClassificationForest
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-void ClassificationForest::init() {
-}
+void ClassificationForest::init() {}
 
 float* ClassificationForest::fitBaseTree(TrainingSet dataset) {
     this->prediction_state = 0;
-    this->base_tree = *ID3(dataset, &(Forest::base_tree_config));
+    this->base_tree = *ID3(dataset, &(Forest::base_tree_config), this->densities.get());
 
     // Predict with the base tree and compute the gradient of the error
     float* probabilities = classify(
@@ -43,7 +50,8 @@ float* ClassificationForest::fitBaseTree(TrainingSet dataset) {
 void ClassificationForest::fitNewTree(TrainingSet dataset, data_t* gradient) {
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(ID3(
         { dataset.data, gradient, dataset.n_instances, dataset.n_features },
-        &(Forest::grad_trees_config)));
+        &(Forest::grad_trees_config),
+        this->densities.get()));
     Forest::trees.push_back(new_tree);
 }
 
@@ -72,7 +80,20 @@ void ClassificationForest::applySoftmax(float* probabilities, data_t* F_k) {
     }
 }
 
+void ClassificationForest::preprocessDensities(TrainingSet dataset) {
+    this->densities = std::move(std::shared_ptr<Density>(computeDensities(
+        dataset.data, 
+        dataset.n_instances, 
+        dataset.n_features,
+        Forest::base_tree_config.n_classes, 
+        Forest::base_tree_config.nan_value, 
+        Forest::base_tree_config.partitioning)));
+}
+
 void ClassificationForest::fit(TrainingSet dataset) {
+    // Compute density functions of all features
+    this->preprocessDensities(dataset);
+
     // Fit the base classification tree
     float* probabilities = this->fitBaseTree(dataset);
 
