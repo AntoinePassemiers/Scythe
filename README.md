@@ -5,7 +5,7 @@ deep forests.
 
 ## TODO
 
-* [ID3] Avoid redundant computation : do not evaluate a split value corresponding to an instance that is not part of the current tree node
+* Numerical stability of integers (1.00000000 != 1.00000001)
 * [ID3] Set the minimum number of instances per leaf as a parameter
 * Being able to pass non-contiguous Numpy arrays to the C API
 * [ClassificationForest] Create a cross-validation function

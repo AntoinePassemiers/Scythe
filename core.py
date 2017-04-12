@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     # CLASSIFICATION FOREST
     n_instances = 1000
-    dataset = Dataset(np.random.rand(n_instances, 3))
+    dataset = Dataset(np.random.randint(0, 2, size=(n_instances, 3)))
     labels  = Labels(np.random.randint(3, size = n_instances))
 
     fconfig = ForestConfig()
@@ -159,14 +159,15 @@ if __name__ == "__main__":
     fconfig.max_depth = 4
     fconfig.max_n_nodes = 500
     fconfig.nan_value = -1.0
-    fconfig.n_iter    = 50
+    fconfig.n_iter    = 5
     fconfig.learning_rate = 0.05
-    """
+    
+    
     forest_addr = scythe.fit_classification_forest(
         ctypes.byref(dataset), 
         ctypes.byref(labels), 
         ctypes.byref(fconfig))
-    """
+    
     
 
     print("Finished")

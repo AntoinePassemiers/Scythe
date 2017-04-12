@@ -86,6 +86,8 @@ struct Density {
     data_t* quartiles;
     data_t* deciles;
     data_t* percentiles;
+    data_t* values;
+    size_t  n_values;
     size_t* counters_left;
     size_t* counters_right;
     size_t* counters_nan;
@@ -120,14 +122,14 @@ struct Tree {
     ptrdiff_t   level;
 };
 
-NodeSpace newNodeSpace(Node* owner, size_t n_features);
+NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 
 NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);
 
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
-                                 size_t n_classes, data_t nan_value);
+                                 size_t n_classes, data_t nan_value, int partitioning);
 
 inline float ShannonEntropy(float probability);
 

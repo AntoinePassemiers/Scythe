@@ -106,21 +106,16 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
     size_t n_partition_values;
     switch(partition_value_type) {
         case gbdf::QUARTILE_PARTITIONING:
-            splitter->partition_values = density->quartiles;
-            n_partition_values = 4;
-            break;
+            splitter->partition_values = density->quartiles; break;
         case gbdf::DECILE_PARTITIONING:
-            splitter->partition_values = density->deciles;
-            n_partition_values = 10;
-            break;
+            splitter->partition_values = density->deciles; break;
         case gbdf::PERCENTILE_PARTITIONING:
-            splitter->partition_values = density->percentiles;
-            n_partition_values = 100;
-            break;
+            splitter->partition_values = density->percentiles; break;
         default:
             splitter->partition_values = density->percentiles;
-            n_partition_values = 100;
     }
+    splitter->partition_values = density->values;
+
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
     for (uint k = lower_bound; k < upper_bound; k++) {

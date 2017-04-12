@@ -5,7 +5,7 @@ Node::Node(size_t n_classes):
     counters(n_classes > 0 ? new size_t[n_classes] : nullptr),
     mean(0) {}
 
-NodeSpace newNodeSpace(Node* owner, size_t n_features, int partitioning) {
+NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities) {
     NodeSpace new_space;
     new_space.current_depth = 1;
     new_space.owner = owner;
@@ -14,16 +14,7 @@ NodeSpace newNodeSpace(Node* owner, size_t n_features, int partitioning) {
     new_space.feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
     for (uint f = 0; f < n_features; f++) {
         new_space.feature_left_bounds[f] = 1;
-        switch(partitioning) {
-            case gbdf::QUARTILE_PARTITIONING:
-                new_space.feature_right_bounds[f] = 3; break;
-            case gbdf::DECILE_PARTITIONING:
-                new_space.feature_right_bounds[f] = 9; break;
-            case gbdf::PERCENTILE_PARTITIONING:
-                new_space.feature_right_bounds[f] = 99; break;
-            default:
-                new_space.feature_right_bounds[f] = 99;
-        }
+        new_space.feature_right_bounds[f] = densities[f].n_values;
     }
     return new_space;
 }
@@ -41,10 +32,11 @@ NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features) {
 }
 
 Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
-                                 size_t n_classes, data_t nan_value) {
+                                 size_t n_classes, data_t nan_value, int partitioning) {
     Density* densities = new Density[n_features];
-    data_t* sorted_values = new data_t[n_instances];
+    data_t* sorted_values;
     for (uint f = 0; f < n_features; f++) {
+        sorted_values = new data_t[n_instances];
         densities[f].quartiles = new data_t[4];
         densities[f].deciles = new data_t[10];
         densities[f].percentiles = new data_t[100];
@@ -90,8 +82,41 @@ Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
                 current_index += step_size;
             }
         }
+
+        size_t n_distinct = 1;
+        x = sorted_values[0];
+        for (uint i = 1; i < n_acceptable; i++) {
+            if (sorted_values[n_distinct - 1] != sorted_values[i]) {
+                sorted_values[n_distinct++] = sorted_values[i];
+            }
+            x = sorted_values[i];
+        }
+
+        size_t n_partition_values;
+        switch(partitioning) {
+            case gbdf::QUARTILE_PARTITIONING:
+                densities[f].values = densities[f].quartiles;
+                n_partition_values = 4; break;
+            case gbdf::DECILE_PARTITIONING:
+                densities[f].values = densities[f].deciles;
+                n_partition_values = 10; break;
+            case gbdf::PERCENTILE_PARTITIONING:
+                densities[f].values = densities[f].percentiles;
+                n_partition_values = 100; break;
+            default:
+                densities[f].values = densities[f].percentiles;
+                n_partition_values = 100; break;
+        }
+        if (n_distinct < n_partition_values) {
+            densities[f].n_values = n_distinct;
+            densities[f].values = sorted_values;
+        }
+        else {
+            densities[f].n_values = n_partition_values;
+            // delete[] sorted_values;
+        }
+        printf("%i - %i, ", densities[f].n_values, densities[f].is_categorical);
     }
-    delete[] sorted_values;
     return densities;
 }
 
@@ -155,7 +180,10 @@ Tree* ID3(TrainingSet dataset, TreeConfig* config) {
     bool still_going = 1;
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     size_t** split_sides = new size_t*[2];
-NodeSpace current_node_space = newNodeSpace(current_node, n_features, config->partitioning);
+    Density* densities = computeDensities(data, n_instances, n_features,
+        config->n_classes, config->nan_value, config->partitioning);
+    Density* next_density;
+    NodeSpace current_node_space = newNodeSpace(current_node, n_features, densities);
     Splitter<target_t> splitter = {
         config->task,
         current_node,
@@ -172,9 +200,6 @@ NodeSpace current_node_space = newNodeSpace(current_node, n_features, config->pa
         0,
         current_node_space
     };
-    Density* densities = computeDensities(data, n_instances, n_features,
-        config->n_classes, config->nan_value);
-    Density* next_density;
     uint best_feature = 0;
     std::queue<NodeSpace> queue;
     queue.push(current_node_space);
@@ -220,7 +245,7 @@ NodeSpace current_node_space = newNodeSpace(current_node, n_features, config->pa
                 split_sides[1] = next_density->counters_right;
                 int new_left_bounds[2] = { 
                     current_node_space.feature_left_bounds[best_feature],
-                    splitter.best_split_id - 1};
+                    splitter.best_split_id + 1};
                 int new_right_bounds[2] = { 
                     splitter.best_split_id,
                     current_node_space.feature_right_bounds[best_feature]};
