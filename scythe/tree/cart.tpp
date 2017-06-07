@@ -1,5 +1,5 @@
 /**
-    id3.tpp
+    cart.tpp
     Grow classification trees and regression trees
 
     @author Antoine Passemiers

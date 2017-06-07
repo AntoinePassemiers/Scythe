@@ -27,7 +27,7 @@ extern "C" {
         config->task = gbdf::CLASSIFICATION_TASK;
         Density* densities = computeDensities(dataset->data, dataset->n_rows, dataset->n_cols,
             config->n_classes, config->nan_value, config->partitioning);
-        return static_cast<void*>(ID3(
+        return static_cast<void*>(CART(
             { dataset->data, static_cast<target_t*>(labels->data), dataset->n_rows, dataset->n_cols },
             config, densities));
     }
@@ -47,7 +47,7 @@ extern "C" {
         config->task = gbdf::REGRESSION_TASK;
         Density* densities = computeDensities(dataset->data, dataset->n_rows, dataset->n_cols,
             config->n_classes, config->nan_value, config->partitioning);
-        return static_cast<void*>(ID3(
+        return static_cast<void*>(CART(
             { dataset->data, static_cast<target_t*>(targets->data), dataset->n_rows, dataset->n_cols },
             config, densities));
     }
@@ -108,7 +108,7 @@ extern "C" {
                 Parameters of the classification forest
             @return Pointer to the new forest
         */
-        ClassificationForest* forest = new ClassificationForest(
+        ClassificationGB* forest = new ClassificationGB(
             config,
             dataset->n_rows,
             dataset->n_cols);

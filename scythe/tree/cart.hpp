@@ -1,5 +1,5 @@
 /**
-    id3.hpp
+    cart.hpp
     Grow classification trees and regression trees
 
     @author Antoine Passemiers
@@ -147,7 +147,7 @@ double getFeatureCost(Density* density, size_t n_classes);
 
 void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
 
-Tree* ID3(TrainingSet dataset, TreeConfig* config, Density* densities);
+Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities);
 
 float* classify(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);

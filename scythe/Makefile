@@ -13,7 +13,7 @@ else
 	TARGET = $(NAME).so
 endif
 
-OBJS := cart.o scythe.o classification_forest.o regression_forest.o
+OBJS := cart.o scythe.o classification_gb.o regression_gb.o
 OBJS += classification_metrics.o regression_metrics.o
 OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
@@ -28,7 +28,7 @@ cart.o : tree/cart.cpp
 regression_metrics.o: metrics/regression_metrics.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
-regression_forest.o: forest/regression_forest.cpp
+regression_gb.o: forest/regression_gb.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 regression_rf.o: forest/regression_rf.cpp
@@ -40,7 +40,7 @@ regression_complete_rf.o: forest/regression_complete_rf.cpp
 classification_metrics.o: metrics/classification_metrics.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
-classification_forest.o: forest/classification_forest.cpp
+classification_gb.o: forest/classification_gb.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 classification_rf.o: forest/classification_rf.cpp

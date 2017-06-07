@@ -1,5 +1,5 @@
 /**
-    id3.cpp
+    cart.cpp
     Grow classification trees and regression trees
 
     @author Antoine Passemiers
@@ -180,7 +180,7 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-Tree* ID3(TrainingSet dataset, TreeConfig* config, Density* densities) {
+Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities) {
     data_t* const data = dataset.data;
     target_t* const targets = dataset.targets;
     size_t n_instances = dataset.n_instances;

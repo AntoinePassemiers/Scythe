@@ -6,34 +6,21 @@
     @version 1.0 12/04/2017
 */
 
-#include "classification_forest.hpp"
+#include "classification_gb.hpp"
 
-ClassificationForest::ClassificationForest
+ClassificationGB::ClassificationGB
         (ForestConfig* config, size_t n_instances, size_t n_features) :
-        Forest(n_instances, n_features) {
-    Forest::config = *config;
-    Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
-    Forest::base_tree_config.nan_value = config->nan_value;
-    Forest::base_tree_config.n_classes = config->n_classes;
-    Forest::base_tree_config.is_incremental = false;
-    Forest::base_tree_config.min_threshold = 1e-06;
-    Forest::base_tree_config.max_height = config->max_depth;
-    Forest::base_tree_config.max_nodes = config->max_n_nodes;
-    Forest::base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
-    Forest::grad_trees_config = Forest::base_tree_config;
-    Forest::grad_trees_config.task = gbdf::REGRESSION_TASK;
-    // TODO : other parameters
-
+        Forest::Forest(config, n_instances, n_features) {
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-void ClassificationForest::init() {}
+void ClassificationGB::init() {}
 
-float* ClassificationForest::fitBaseTree(TrainingSet dataset) {
+float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
     this->prediction_state = 0;
-    this->base_tree = *ID3(dataset, &(Forest::base_tree_config), this->densities.get());
+    this->base_tree = *CART(dataset, &(Forest::base_tree_config), this->densities.get());
 
     // Predict with the base tree and compute the gradient of the error
     float* probabilities = classify(
@@ -47,15 +34,15 @@ float* ClassificationForest::fitBaseTree(TrainingSet dataset) {
     return probabilities;
 }
 
-void ClassificationForest::fitNewTree(TrainingSet dataset, data_t* gradient) {
-    std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(ID3(
+void ClassificationGB::fitNewTree(TrainingSet dataset, data_t* gradient) {
+    std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         { dataset.data, gradient, dataset.n_instances, dataset.n_features },
         &(Forest::grad_trees_config),
         this->densities.get()));
     Forest::trees.push_back(new_tree);
 }
 
-data_t* ClassificationForest::predictGradient(std::shared_ptr<Tree> tree, TrainingSet dataset) {
+data_t* ClassificationGB::predictGradient(std::shared_ptr<Tree> tree, TrainingSet dataset) {
     data_t* predictions = predict(
         dataset.data,
         dataset.n_instances, 
@@ -65,7 +52,7 @@ data_t* ClassificationForest::predictGradient(std::shared_ptr<Tree> tree, Traini
     return predictions;
 }
 
-void ClassificationForest::applySoftmax(float* probabilities, data_t* F_k) {
+void ClassificationGB::applySoftmax(float* probabilities, data_t* F_k) {
     size_t n_classes = dynamic_cast<ClassificationError*>(
         this->score_metric.get())->getNumberOfClasses();
     for (uint p = 0; p < Forest::n_instances; p++) {
@@ -80,7 +67,7 @@ void ClassificationForest::applySoftmax(float* probabilities, data_t* F_k) {
     }
 }
 
-void ClassificationForest::preprocessDensities(TrainingSet dataset) {
+void ClassificationGB::preprocessDensities(TrainingSet dataset) {
     this->densities = std::move(std::shared_ptr<Density>(computeDensities(
         dataset.data, 
         dataset.n_instances, 
@@ -90,7 +77,7 @@ void ClassificationForest::preprocessDensities(TrainingSet dataset) {
         Forest::base_tree_config.partitioning)));
 }
 
-void ClassificationForest::fit(TrainingSet dataset) {
+void ClassificationGB::fit(TrainingSet dataset) {
     // Compute density functions of all features
     this->preprocessDensities(dataset);
 

@@ -62,17 +62,27 @@ public:
     TreeConfig base_tree_config;
     TreeConfig grad_trees_config;
 
-    Forest(size_t n_instances, size_t n_features) : 
+    Forest(ForestConfig* config, size_t n_instances, size_t n_features) : 
         n_instances(n_instances),
         n_features(n_features),
         config(), 
-        base_tree(), 
-        base_tree_config(), 
         grad_trees_config(),
         trees(), 
-        prediction_state(0) {};
+        prediction_state(0) {
+            this->config = *config;
+            base_tree_config.task = gbdf::CLASSIFICATION_TASK;
+            base_tree_config.nan_value = config->nan_value;
+            base_tree_config.n_classes = config->n_classes;
+            base_tree_config.is_incremental = false;
+            base_tree_config.min_threshold = 1e-06;
+            base_tree_config.max_height = config->max_depth;
+            base_tree_config.max_nodes = config->max_n_nodes;
+            base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
+            grad_trees_config = Forest::base_tree_config;
+            grad_trees_config.task = gbdf::REGRESSION_TASK;
+    }
+    void configure(ForestConfig* config, size_t n_instances, size_t n_features);
     virtual void init() = 0;
-    virtual float* fitBaseTree(TrainingSet) = 0;
     virtual void fit(TrainingSet) = 0;
     virtual ~Forest() = default;
 };

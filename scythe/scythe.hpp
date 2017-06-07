@@ -15,10 +15,10 @@
 #include <string>
 
 #include "forest/forest.hpp"
-#include "forest/classification_forest.hpp"
+#include "forest/classification_gb.hpp"
 #include "forest/classification_rf.hpp"
 #include "forest/classification_complete_rf.hpp"
-#include "forest/regression_forest.hpp"
+#include "forest/regression_gb.hpp"
 #include "forest/regression_rf.hpp"
 #include "forest/regression_complete_rf.hpp"
 
