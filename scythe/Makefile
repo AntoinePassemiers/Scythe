@@ -1,6 +1,6 @@
 CC           :=  g++
 FLAGS        :=  -std=c++14 -Iinclude
-CFLAGS       :=  -ggdb3 -Wpedantic -Wall -Wextra -Wconversion -Weffc++ -Wstrict-null-sentinel -Wold-style-cast -Wnoexcept -Wctor-dtor-privacy -Woverloaded-virtual -Wsign-promo -Wzero-as-null-pointer-constant -Wconversion -pthread
+CFLAGS       :=  -ggdb3 -Wpedantic -Wall -Wextra -Wconversion -Weffc++ -Wstrict-null-sentinel -Wold-style-cast -Wnoexcept -Wctor-dtor-privacy -Woverloaded-virtual -Wsign-promo -Wzero-as-null-pointer-constant -Wconversion -pthread -O3
 CPPFLAGS     :=  -O2 -g
 LDFLAGS      :=  -L. -shared
 DEBUGFLAGS   :=  -O0 -D _DEBUG
@@ -15,21 +15,38 @@ endif
 
 OBJS := cart.o scythe.o classification_forest.o regression_forest.o
 OBJS += classification_metrics.o regression_metrics.o
+OBJS += classification_rf.o regression_rf.o
+OBJS += classification_complete_rf.o regression_complete_rf.o
 
 $(TARGET): $(OBJS)
-	$(CC) $(FLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(FLAGS) $(CFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
 	@rm -rf $(OBJS) # clean
 
-regression_metrics.o: metrics/regression_metrics.cpp
+cart.o : tree/cart.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
-classification_metrics.o: metrics/classification_metrics.cpp
+regression_metrics.o: metrics/regression_metrics.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 regression_forest.o: forest/regression_forest.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
+regression_rf.o: forest/regression_rf.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+regression_complete_rf.o: forest/regression_complete_rf.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+classification_metrics.o: metrics/classification_metrics.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
 classification_forest.o: forest/classification_forest.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+classification_rf.o: forest/classification_rf.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+classification_complete_rf.o: forest/classification_complete_rf.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 %.o: %.cpp

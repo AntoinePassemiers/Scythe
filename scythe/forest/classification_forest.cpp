@@ -9,8 +9,8 @@
 #include "classification_forest.hpp"
 
 ClassificationForest::ClassificationForest
-    (ForestConfig* config, size_t n_instances, size_t n_features) :
-    Forest(n_instances, n_features) {
+        (ForestConfig* config, size_t n_instances, size_t n_features) :
+        Forest(n_instances, n_features) {
     Forest::config = *config;
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.nan_value = config->nan_value;

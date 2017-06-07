@@ -16,7 +16,11 @@
 
 #include "forest/forest.hpp"
 #include "forest/classification_forest.hpp"
+#include "forest/classification_rf.hpp"
+#include "forest/classification_complete_rf.hpp"
 #include "forest/regression_forest.hpp"
+#include "forest/regression_rf.hpp"
+#include "forest/regression_complete_rf.hpp"
 
 struct Dataset {
     data_t* data;

@@ -10,7 +10,7 @@
 #define FOREST_HPP_
 
 #include "../metrics/metrics.hpp"
-#include "../cart.hpp"
+#include "../tree/cart.hpp"
 
 
 namespace gbdf {

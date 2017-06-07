@@ -83,6 +83,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
     size_t* belongs_to = splitter->belongs_to;
     size_t n_left = 0, n_right = 0;
     density->split_value = splitter->partition_values[k];
+    T* targets = splitter->targets;
     data_t split_value = density->split_value;
     double mean_left = 0, mean_right = 0;
     double cost = 0.0;
@@ -91,8 +92,8 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
         if (belongs_to[j] == id) {
             data_point = data[j * n_features + i];
             y = static_cast<double>(splitter->targets[j]);
-            if (data_point == nan_value) {}
-            else if (data_point >= split_value) {
+            // if (data_point == nan_value) {}
+            if (data_point >= split_value) {
                 mean_right += y;
                 n_right++;
             }
@@ -113,8 +114,8 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
         if (splitter->belongs_to[j] == id) {
             data_point = data[j * n_features + i];
             y = splitter->targets[j];
-            if (data_point == splitter->nan_value) {}
-            else if (data_point >= split_value) {
+            // if (data_point == splitter->nan_value) {}
+            if (data_point >= split_value) {
                 cost += std::abs(mean_right - y); // TODO : use squared error ?
             }
             else {
