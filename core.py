@@ -9,6 +9,7 @@ from utils import *
 REGRESSION     = "regression"
 CLASSIFICATION = "classification"
 
+
 class Model:
     def __init__(self, config, task):
         assert(task.lower() in [CLASSIFICATION, REGRESSION])
@@ -25,6 +26,7 @@ class Model:
     @abc.abstractmethod
     def predict(self, X):
         return None
+
 
 class Tree(Model):
     def __init__(self, config, task):
@@ -58,3 +60,8 @@ class Tree(Model):
             preds_p = ctypes.cast(preds_addr, c_float_p)
             preds = np.ctypeslib.as_array(preds_p, shape = (n_rows, n_classes))
         return preds
+
+
+class Forest(Model):
+    def __init__(self, config, task):
+        Model.__init__(self, config, task)

@@ -16,9 +16,9 @@ class ClassificationGB : public Forest {
 private:
     std::shared_ptr<ClassificationError> score_metric;
     std::shared_ptr<Density> densities;
+    TreeConfig grad_trees_config;
 public:
     ClassificationGB(ForestConfig*, size_t, size_t);
-    void init();
     void preprocessDensities(TrainingSet dataset);
     void fit(TrainingSet dataset);
     float* fitBaseTree(TrainingSet dataset);

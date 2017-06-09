@@ -88,16 +88,15 @@ extern "C" {
             @return Predictions
         */
         Tree* tree = static_cast<Tree*>(tree_p);
-        data_t* predictions = predict(dataset->data, dataset->n_rows, dataset->n_cols,
-            tree, config);
+        data_t* predictions = predict(dataset->data, dataset->n_rows, dataset->n_cols, tree, config);
         return predictions;
     }
 
     /* FOREST API */
 
-    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config) {       
+    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config) {
         /**
-            Fits a gradient boosted forest for classification, based on the training set 
+            Fits a classification, based on the training set 
             and the labels, and returns it as a pointer to void.
 
             @param dataset
@@ -108,10 +107,16 @@ extern "C" {
                 Parameters of the classification forest
             @return Pointer to the new forest
         */
-        ClassificationGB* forest = new ClassificationGB(
-            config,
-            dataset->n_rows,
-            dataset->n_cols);
+        ClassificationGB* forest;
+        if (config->type == gbdf::RANDOM_FOREST) {
+            forest = new ClassificationRF(config, dataset->n_rows, dataset->n_cols);
+        }
+        else if (config->type == gbdf::GRADIENT_BOOSTING) {
+            forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
+        }
+        else {
+            // TODO
+        }
         TrainingSet training_set = {
             dataset->data,
             labels->data,
@@ -119,5 +124,16 @@ extern "C" {
             dataset->n_cols };
         forest->fit(training_set);
         return static_cast<void*>(forest);
+    }
+
+    float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config) {
+        float* probabilites;
+        if (config->type == gbdf::RANDOM_FOREST) {
+            ClassificationRF* forest = static_cast<ClassificationRF*>(forest_p);
+            probabilites = forest.classify(dataset);
+        }
+        else {
+            // TODO
+        }
     }
 }

@@ -181,6 +181,12 @@ double getFeatureCost(Density* density, size_t n_classes) {
 }
 
 Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities) {
+    size_t n_instances = dataset.n_instances;
+    size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
+    return CART(dataset, config, densities, belongs_to);
+}
+
+Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* belongs_to) {
     data_t* const data = dataset.data;
     target_t* const targets = dataset.targets;
     size_t n_instances = dataset.n_instances;
@@ -203,7 +209,6 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities) {
     tree->n_classes = config->n_classes;
     tree->n_features = n_features;
     bool still_going = 1;
-    size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     size_t** split_sides = new size_t*[2];
     Density* next_density;
     NodeSpace current_node_space = newNodeSpace(current_node, n_features, densities);

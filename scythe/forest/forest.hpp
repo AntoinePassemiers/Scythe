@@ -21,9 +21,15 @@ namespace gbdf {
     // Boosting method
     constexpr int ADABOOST          = 0x28FE90;
     constexpr int GRADIENT_BOOSTING = 0x28FE91;
+
+    // Forest type
+    constexpr int RANDOM_FOREST          = 0x8959F0;
+    constexpr int COMPLETE_RANDOM_FOREST = 0x8959F0;
+    constexpr int GRADIENT_BOOSTING      = 0x8959F1;
 }
 
 struct ForestConfig {
+    int       type                 = gbdf::RANDOM_FOREST;
     int       task                 = gbdf::CLASSIFICATION_TASK;
     size_t    n_classes            = 2;
     int       score_metric         = gbdf::MLOG_LOSS;
@@ -35,7 +41,7 @@ struct ForestConfig {
     size_t    n_jobs               = 1;
     size_t    n_samples_per_leaf   = 50;
     int       regularization       = gbdf::REG_L1;
-    float     bagging_fraction     = 0.1f;
+    size_t    bag_size             = 100;
     size_t    early_stopping_round = 300;
     int       boosting_method      = gbdf::GRADIENT_BOOSTING;
     int       max_depth            = INFINITE_DEPTH;
@@ -53,20 +59,18 @@ protected:
 
     ForestConfig config;
 
-    Tree base_tree;
+    Tree base_tree; // TODO : keep it ?
     std::vector<std::shared_ptr<Tree>> trees;
 
     ptrdiff_t prediction_state;
 
 public:
     TreeConfig base_tree_config;
-    TreeConfig grad_trees_config;
 
     Forest(ForestConfig* config, size_t n_instances, size_t n_features) : 
         n_instances(n_instances),
         n_features(n_features),
         config(), 
-        grad_trees_config(),
         trees(), 
         prediction_state(0) {
             this->config = *config;
@@ -78,11 +82,8 @@ public:
             base_tree_config.max_height = config->max_depth;
             base_tree_config.max_nodes = config->max_n_nodes;
             base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
-            grad_trees_config = Forest::base_tree_config;
-            grad_trees_config.task = gbdf::REGRESSION_TASK;
     }
     void configure(ForestConfig* config, size_t n_instances, size_t n_features);
-    virtual void init() = 0;
     virtual void fit(TrainingSet) = 0;
     virtual ~Forest() = default;
 };

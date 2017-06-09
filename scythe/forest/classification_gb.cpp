@@ -11,12 +11,12 @@
 ClassificationGB::ClassificationGB
         (ForestConfig* config, size_t n_instances, size_t n_features) :
         Forest::Forest(config, n_instances, n_features) {
+    grad_trees_config = Forest::base_tree_config;
+    grad_trees_config.task = gbdf::REGRESSION_TASK;
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
             new MultiLogLossError(config->n_classes, n_instances)));
 }
-
-void ClassificationGB::init() {}
 
 float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
     this->prediction_state = 0;
@@ -37,7 +37,7 @@ float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
 void ClassificationGB::fitNewTree(TrainingSet dataset, data_t* gradient) {
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         { dataset.data, gradient, dataset.n_instances, dataset.n_features },
-        &(Forest::grad_trees_config),
+        &grad_trees_config,
         this->densities.get()));
     Forest::trees.push_back(new_tree);
 }
@@ -48,7 +48,7 @@ data_t* ClassificationGB::predictGradient(std::shared_ptr<Tree> tree, TrainingSe
         dataset.n_instances, 
         dataset.n_features,
         tree.get(),
-        &(Forest::grad_trees_config));
+        &grad_trees_config);
     return predictions;
 }
 

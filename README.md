@@ -3,14 +3,32 @@
 [Under development] Machine learning library for fitting gradient boosted trees and 
 deep forests.
 
-## TODO
+## Features
 
-* [ID3] Set the minimum number of instances per leaf as a parameter
+|         | C (fit) | C (predict) | R (fit) | R (predict) |
+|---------|:-------:|:-----------:|:-------:|------------:|
+| RF      | done    | done        |         |             |
+| CRF     |         |             |         |             |
+| GB      | ?       |             |         |             |
+
+## Todo
+
+### General
+
+* Create a proper configuration file
+
+### Forests
+
+* [CART] Set the minimum number of instances per leaf as a parameter
 * Being able to pass non-contiguous Numpy arrays to the C API (not sure if necessary)
-* [ClassificationForest] Create a cross-validation function
-* [ClassificationForest] Create a predict function
-* [ClassificationForest] Use Friedman's formula to compute the gradient
-* Adapt the code of the ClassificationForest to create a RegressionForest class
+* [GB] Create a cross-validation function
+* [GB] Create a predict function
+* [GB] Use Friedman's formula to compute the gradient
+* Adapt the code of the ClassificationGB to create a RegressionGB class
+
+### Deep forests
+
+(Design phase)
 
 ## License
 

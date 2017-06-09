@@ -186,7 +186,7 @@ class ForestConfig(ctypes.Structure):
         ("n_jobs", ctypes.c_size_t),
         ("n_samples_per_leaf", ctypes.c_size_t),
         ("regularization", ctypes.c_int),
-        ("bagging_fraction", ctypes.c_float),
+        ("bag_size", ctypes.c_size_t),
         ("early_stopping_round", ctypes.c_size_t),
         ("boosting_method", ctypes.c_int),
         ("max_depth", ctypes.c_int),
