@@ -23,9 +23,9 @@ namespace gbdf {
     constexpr int GRADIENT_BOOSTING = 0x28FE91;
 
     // Forest type
-    constexpr int RANDOM_FOREST          = 0x8959F0;
-    constexpr int COMPLETE_RANDOM_FOREST = 0x8959F0;
-    constexpr int GRADIENT_BOOSTING      = 0x8959F1;
+    constexpr int RANDOM_FOREST          = 0;
+    constexpr int COMPLETE_RANDOM_FOREST = 1;
+    constexpr int GB_FOREST              = 2;
 }
 
 struct ForestConfig {

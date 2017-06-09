@@ -9,6 +9,7 @@
 #ifndef CLASSIFICATION_RF_HPP_
 #define CLASSIFICATION_RF_HPP_
 
+#include "../misc/sets.hpp"
 #include "forest.hpp"
 #include "../metrics/classification_metrics.hpp"
 #include "../misc/bagging.hpp"
@@ -24,7 +25,7 @@ public:
     void preprocessDensities(TrainingSet dataset);
     void fit(TrainingSet dataset);
     void fitNewTree(TrainingSet dataset, std::shared_ptr<size_t> subset);
-    float* classify(TrainingSet dataset);
+    float* classify(Dataset dataset);
     ~ClassificationRF() = default;
 };
 

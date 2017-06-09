@@ -56,25 +56,24 @@ if __name__ == "__main__":
     preds = tree.predict(testset)
     print("\n%s" % preds)
 
-    # CLASSIFICATION FOREST
+    # GRADIENT BOOSTED FOREST (CLASSFICATION)
     n_instances = 1000
     n_features = 10
     dataset = Dataset(np.random.randint(0, 2, size = (n_instances, n_features)))
     labels  = Labels(np.random.randint(3, size = n_instances))
-
     fconfig = ForestConfig()
-    fconfig.task = CLASSIFICATION_TASK
     fconfig.n_classes = 3
     fconfig.max_depth = 4
     fconfig.max_n_nodes = 500
     fconfig.nan_value = -1.0
     fconfig.n_iter    = 5
     fconfig.learning_rate = 0.05
-    
-    
-    forest_addr = scythe.fit_classification_forest(
-        ctypes.byref(dataset), 
-        ctypes.byref(labels), 
-        ctypes.byref(fconfig))
+
+    forest = Forest(fconfig, "classification", "gradient boosting")
+    forest.fit(dataset, labels)
+
+    # RANDOM FOREST (CLASSIFICATION)
+    forest = Forest(fconfig, "classification", "random forest")
+    forest.fit(dataset, labels)
     
     print("Finished")

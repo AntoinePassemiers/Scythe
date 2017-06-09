@@ -47,22 +47,22 @@ void ClassificationRF::fit(TrainingSet dataset) {
     }
 }
 
-float* ClassificationRF::classify(TrainingSet dataset) {
+float* ClassificationRF::classify(Dataset dataset) {
     size_t n_classes = Forest::config.n_classes;
-    size_t n_instances = dataset.n_instances;
+    size_t n_instances = dataset.n_rows;
     size_t n_probs = n_classes * n_instances;
     size_t n_trees = trees.size();
 
     float* probabilities = new float[n_probs]();
-    for (int i = 0; i < n_trees; i++) {
+    for (unsigned int i = 0; i < n_trees; i++) {
         std::shared_ptr<Tree> tree = trees.at(i);
         data_t* predictions = predict(
             dataset.data,
-            dataset.n_instances, 
-            dataset.n_features,
+            dataset.n_rows, 
+            dataset.n_cols,
             tree.get(),
             &base_tree_config);
-        for (int k = 0; k < n_probs; k++) {
+        for (unsigned int k = 0; k < n_probs; k++) {
             probabilities[k] += predictions[k];
         }
     }

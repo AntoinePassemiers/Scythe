@@ -25,9 +25,14 @@ c_longdouble_p = ctypes.POINTER(ctypes.c_longdouble)
 # Magic numbers
 CLASSIFICATION_TASK = 0xF55A90
 REGRESSION_TASK     = 0xF55A91
+
 QUARTILE_PARTITIONING   = 0xB23A40
 DECILE_PARTITIONING     = 0xB23A41
 PERCENTILE_PARTITIONING = 0xB23A42
+
+RANDOM_FOREST          = 0
+COMPLETE_RANDOM_FOREST = 1
+GRADIENT_BOOSTING      = 2
 
 
 class Dataset(ctypes.Structure):
@@ -175,6 +180,7 @@ class ForestConfig(ctypes.Structure):
         Regularization method
     """
     _fields_ = [
+        ("type", ctypes.c_int),
         ("task", ctypes.c_int),
         ("n_classes", ctypes.c_size_t),
         ("score_metric", ctypes.c_int),

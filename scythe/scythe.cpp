@@ -107,15 +107,16 @@ extern "C" {
                 Parameters of the classification forest
             @return Pointer to the new forest
         */
-        ClassificationGB* forest;
+        Forest* forest;
         if (config->type == gbdf::RANDOM_FOREST) {
             forest = new ClassificationRF(config, dataset->n_rows, dataset->n_cols);
         }
-        else if (config->type == gbdf::GRADIENT_BOOSTING) {
+        else if (config->type == gbdf::GB_FOREST) {
             forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
         }
         else {
             // TODO
+            std::cout << "Error: this type of forest does not exist" << std::endl;
         }
         TrainingSet training_set = {
             dataset->data,
@@ -130,7 +131,7 @@ extern "C" {
         float* probabilites;
         if (config->type == gbdf::RANDOM_FOREST) {
             ClassificationRF* forest = static_cast<ClassificationRF*>(forest_p);
-            probabilites = forest.classify(dataset);
+            probabilites = forest->classify(*dataset);
         }
         else {
             // TODO

@@ -19,6 +19,7 @@ deep forests.
 
 ### Forests
 
+* [CART/RF] Select of subset of features when selecting a split
 * [CART] Set the minimum number of instances per leaf as a parameter
 * Being able to pass non-contiguous Numpy arrays to the C API (not sure if necessary)
 * [GB] Create a cross-validation function

@@ -9,6 +9,10 @@ from utils import *
 REGRESSION     = "regression"
 CLASSIFICATION = "classification"
 
+RF_FOREST  = "random forest"
+CRF_FOREST = "complete random forest"
+GB_FOREST  = "gradient boosting"
+
 
 class Model:
     def __init__(self, config, task):
@@ -30,8 +34,11 @@ class Model:
 
 class Tree(Model):
     def __init__(self, config, task):
+        assert(isinstance(config, TreeConfig))
         Model.__init__(self, config, task)
     def fit(self, X, y):
+        assert(isinstance(X, Dataset))
+        assert(isinstance(y, Labels))
         if self.task == REGRESSION:
             self.predictor_p = scythe.fit_regression_tree(
                 ctypes.byref(X), 
@@ -43,6 +50,7 @@ class Tree(Model):
                 ctypes.byref(y), 
                 ctypes.byref(self.config_p))
     def predict(self, X):
+        assert(isinstance(X, Dataset))
         n_rows = len(X)
         if self.task == REGRESSION:
             preds_addr = scythe.tree_predict(
@@ -63,5 +71,36 @@ class Tree(Model):
 
 
 class Forest(Model):
-    def __init__(self, config, task):
+    def __init__(self, config, task, forest_type):
+        assert(isinstance(config, ForestConfig))
+        assert(forest_type in [RF_FOREST, CRF_FOREST, GB_FOREST])
         Model.__init__(self, config, task)
+        if forest_type == RF_FOREST:
+            config.type = RANDOM_FOREST
+        elif forest_type == CRF_FOREST:
+            config.type = COMPLETE_RANDOM_FOREST
+        else:
+            config.type = GRADIENT_BOOSTING
+    def fit(self, X, y):
+        assert(isinstance(X, Dataset))
+        assert(isinstance(y, Labels))
+        if self.task == REGRESSION:
+            raise NotImplementedError()
+        else:
+            self.predictor_p = scythe.fit_classification_forest(
+                ctypes.byref(X), 
+                ctypes.byref(y), 
+                ctypes.byref(self.config_p))
+    def predict(self, X):
+        assert(isinstance(X, Dataset))
+        if self.task == REGRESSION:
+            raise NotImplementedError()
+        else:
+            n_classes = self.config_p.n_classes
+            preds_addr = scythe.forest_classify(
+                ctypes.byref(X),
+                ctypes.c_void_p(self.predictor_p),
+                ctypes.byref(self.config_p))
+            preds_p = ctypes.cast(preds_addr, c_float_p)
+            preds = np.ctypeslib.as_array(preds_p, shape = (n_rows, n_classes))
+        return preds

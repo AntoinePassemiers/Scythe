@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 
+#include "misc/sets.hpp"
 #include "forest/forest.hpp"
 #include "forest/classification_gb.hpp"
 #include "forest/classification_rf.hpp"
@@ -22,22 +23,7 @@
 #include "forest/regression_rf.hpp"
 #include "forest/regression_complete_rf.hpp"
 
-struct Dataset {
-    data_t* data;
-    size_t n_rows;
-    size_t n_cols;
-};
 
-template <typename T>
-struct Labels {
-    T* data;
-    size_t n_rows;
-};
-
-struct GroundTruth {
-    data_t* data;
-    size_t n_rows;
-};
 
 extern "C" {
     void* fit_classification_tree(Dataset*, Labels<target_t>*, TreeConfig*);
