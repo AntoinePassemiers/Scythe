@@ -311,7 +311,6 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
             }
         }
     }
-    delete[] belongs_to;
     delete[] split_sides;
     return tree;
 }

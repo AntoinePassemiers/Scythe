@@ -11,6 +11,7 @@
 ClassificationRF::ClassificationRF
         (ForestConfig* config, size_t n_instances, size_t n_features) :
         Forest::Forest(config, n_instances, n_features) {
+    Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
             new MultiLogLossError(config->n_classes, n_instances)));

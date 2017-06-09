@@ -11,6 +11,7 @@
 ClassificationGB::ClassificationGB
         (ForestConfig* config, size_t n_instances, size_t n_features) :
         Forest::Forest(config, n_instances, n_features) {
+    Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     grad_trees_config = Forest::base_tree_config;
     grad_trees_config.task = gbdf::REGRESSION_TASK;
     this->score_metric = std::move(

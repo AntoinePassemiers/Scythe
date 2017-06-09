@@ -9,14 +9,17 @@
 #ifndef BAGGING_HPP_
 #define BAGGING_HPP_
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include <string>
 #include <memory>
 #include <limits>
 #include <cassert>
 
 
 constexpr size_t USED_IN_BAG = 0;
-constexpr size_t OUT_OF_BAG  = std::numeric_limits<int>::max();
+constexpr size_t OUT_OF_BAG  = std::numeric_limits<size_t>::max();
 
 
 size_t randomInstance(size_t);

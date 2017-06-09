@@ -74,7 +74,6 @@ public:
         trees(), 
         prediction_state(0) {
             this->config = *config;
-            base_tree_config.task = gbdf::CLASSIFICATION_TASK;
             base_tree_config.nan_value = config->nan_value;
             base_tree_config.n_classes = config->n_classes;
             base_tree_config.is_incremental = false;
