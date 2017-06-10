@@ -24,7 +24,7 @@ float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
     this->base_tree = *CART(dataset, &(Forest::base_tree_config), this->densities.get());
 
     // Predict with the base tree and compute the gradient of the error
-    float* probabilities = classify(
+    float* probabilities = classifyFromTree(
         dataset.data, 
         dataset.n_instances,
         dataset.n_features,

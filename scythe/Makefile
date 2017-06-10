@@ -13,11 +13,11 @@ else
 	TARGET = $(NAME).so
 endif
 
-OBJS := cart.o scythe.o classification_gb.o regression_gb.o
+OBJS := deep_scythe.o scythe.o cart.o classification_gb.o regression_gb.o
 OBJS += classification_metrics.o regression_metrics.o
 OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
-OBJS += bagging.o heuristics.o
+OBJS += bagging.o heuristics.o cascade.o scanner.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(FLAGS) $(CFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
@@ -54,6 +54,12 @@ classification_rf.o: forest/classification_rf.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 classification_complete_rf.o: forest/classification_complete_rf.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+cascade.o: deep_learning/cascade.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+scanner.o: deep_learning/scanner.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 %.o: %.cpp

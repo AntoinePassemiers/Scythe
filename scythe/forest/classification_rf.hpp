@@ -24,7 +24,7 @@ public:
     void init();
     void preprocessDensities(TrainingSet dataset);
     void fit(TrainingSet dataset);
-    void fitNewTree(TrainingSet dataset, std::shared_ptr<size_t> subset);
+    void fitNewTree(TrainingSet dataset);
     float* classify(Dataset dataset);
     ~ClassificationRF() = default;
 };

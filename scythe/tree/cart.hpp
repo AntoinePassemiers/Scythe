@@ -151,8 +151,8 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities);
 
 Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* belongs_to);
 
-float* classify(data_t* const data, size_t n_instances, size_t n_features,
-                Tree* const tree, TreeConfig* config);
+float* classifyFromTree(data_t* const data, size_t n_instances, size_t n_features,
+                        Tree* const tree, TreeConfig* config);
 
 data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);

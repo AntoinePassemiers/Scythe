@@ -31,6 +31,13 @@ deep forests.
 
 (Design phase)
 
+The design is based on the original deep forest article:
+
+Deep Forest: Towards An Alternative to Deep Neural Networks
+Zhi-Hua Zhou, Ji Feng
+arXiv:1702.08835 [cs.LG]
+https://arxiv.org/abs/1702.08835
+
 ## License
 
 Copyright © 2017 Scythe

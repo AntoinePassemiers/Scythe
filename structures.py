@@ -5,7 +5,7 @@
 import numpy as np
 import ctypes
 
-# Load the C interface
+# Load the C interfaces
 scythe = ctypes.cdll.LoadLibrary("scythe/scythe.lib")
 
 # C types

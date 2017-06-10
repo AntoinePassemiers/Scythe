@@ -69,7 +69,7 @@ extern "C" {
                 order : C
         */
         Tree* tree = static_cast<Tree*>(tree_p);
-        float* predictions = classify(dataset->data, dataset->n_rows, dataset->n_cols,
+        float* predictions = classifyFromTree(dataset->data, dataset->n_rows, dataset->n_cols,
             tree, config);
         return predictions;
     }

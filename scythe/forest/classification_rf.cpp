@@ -17,7 +17,9 @@ ClassificationRF::ClassificationRF
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-void ClassificationRF::fitNewTree(TrainingSet dataset, std::shared_ptr<size_t> subset) {
+void ClassificationRF::fitNewTree(TrainingSet dataset) {
+    std::shared_ptr<size_t> subset = createSubsetWithReplacement(
+        dataset.n_instances, config.bag_size);
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,
         &(Forest::base_tree_config),
@@ -42,9 +44,7 @@ void ClassificationRF::fit(TrainingSet dataset) {
 
     uint n_trees = 0;
     while (n_trees++ < Forest::config.n_iter) {
-        std::shared_ptr<size_t> subset = createSubsetWithReplacement(
-            dataset.n_instances, config.bag_size);
-        this->fitNewTree(dataset, subset);
+        this->fitNewTree(dataset);
     }
 }
 
@@ -57,7 +57,7 @@ float* ClassificationRF::classify(Dataset dataset) {
     float* probabilities = new float[n_probs]();
     for (unsigned int i = 0; i < n_trees; i++) {
         std::shared_ptr<Tree> tree = trees.at(i);
-        data_t* predictions = predict(
+        float* predictions = classifyFromTree(
             dataset.data,
             dataset.n_rows, 
             dataset.n_cols,
@@ -67,8 +67,8 @@ float* ClassificationRF::classify(Dataset dataset) {
             probabilities[k] += predictions[k];
         }
     }
-    for (int k = 0; k < n_probs; k++) {
-        probabilities[k] /= n_trees;
+    for (unsigned int k = 0; k < n_probs; k++) {
+        probabilities[k] /= static_cast<float>(n_trees);
     }
     return probabilities;
 }

@@ -245,7 +245,7 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
         splitter.node = current_node;
         splitter.node_space = current_node_space;
 
-        selectFeaturesToConsider(features_to_use, n_features, config->max_n_features);
+        selectFeaturesToConsider(features_to_use, n_features, max_n_features);
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;
             e_cost = evaluateByThreshold(&splitter, &densities[f], data);
@@ -324,7 +324,7 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
     return tree;
 }
 
-float* classify(data_t* const data, size_t n_instances, size_t n_features,
+float* classifyFromTree(data_t* const data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::CLASSIFICATION_TASK);
     Node *current_node;
