@@ -138,6 +138,11 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density,
 
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
+    if (splitter->is_complete_random) {
+        size_t random_bound = lower_bound + (rand() % (upper_bound - lower_bound));
+        lower_bound = random_bound;
+        upper_bound = random_bound + 1;
+    }
     for (uint k = lower_bound; k < upper_bound; k++) {
         if (splitter->task == gbdf::CLASSIFICATION_TASK) {
             cost = evaluatePartitions(data, density, splitter, k);

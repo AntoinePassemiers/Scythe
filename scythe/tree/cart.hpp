@@ -86,6 +86,7 @@ struct TreeConfig {
     size_t max_nodes;
     int    partitioning;
     data_t nan_value;
+    bool   is_complete_random;
 };
 
 struct Density {
@@ -119,6 +120,7 @@ struct Splitter {
     data_t    nan_value;
     int       best_split_id;
     NodeSpace node_space;
+    bool      is_complete_random;
 };
 
 struct Tree {

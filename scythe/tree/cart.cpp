@@ -226,7 +226,8 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
         targets,
         config->nan_value,
         0,
-        current_node_space
+        current_node_space,
+        config->is_complete_random
     };
 
     if (config->max_n_features > n_features) { config->max_n_features = n_features; }

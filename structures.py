@@ -123,6 +123,10 @@ class TreeConfig(ctypes.Structure):
         Type of problem to solve (Regression or classification)
     is_incremental : int
         Indicates whether the tree can learn incrementally or not
+    is_complete_random : int
+        Indicates whether the tree is complete-random or not.
+        A complete-random tree is grown by picking a random split value
+        for each feature considered.
     min_threshold : double
         Minimum gain in the objective function while adding a new node.
         The algorithms stops if this value is not reached.
@@ -147,7 +151,8 @@ class TreeConfig(ctypes.Structure):
         ("n_classes", ctypes.c_size_t),
         ("max_nodes", ctypes.c_size_t),
         ("partitioning", ctypes.c_int),
-        ("nan_value", ctypes.c_double)]
+        ("nan_value", ctypes.c_double),
+        ("is_complete_random", ctypes.c_int)]
 
 
 class ForestConfig(ctypes.Structure):
