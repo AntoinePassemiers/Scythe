@@ -14,6 +14,9 @@
 Ideas of layers
 ---------------
 
+0) Linear
+    No dimensionality shuffling on the input data
+
 1) Grove
     Cascade layer of random forests
 

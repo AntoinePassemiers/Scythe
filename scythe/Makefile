@@ -18,6 +18,7 @@ OBJS += classification_metrics.o regression_metrics.o
 OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
 OBJS += bagging.o heuristics.o cascade.o scanner.o
+OBJS += sets.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(FLAGS) $(CFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
@@ -27,6 +28,9 @@ cart.o : tree/cart.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 heuristics.o : tree/heuristics.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+sets.o : misc/sets.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 bagging.o : misc/bagging.cpp
