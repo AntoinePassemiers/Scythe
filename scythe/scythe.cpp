@@ -25,11 +25,11 @@ extern "C" {
             @return Pointer to the new tree
         */
         config->task = gbdf::CLASSIFICATION_TASK;
-        Density* densities = computeDensities(dataset->data, dataset->n_rows, dataset->n_cols,
+        DirectDataset* direct_dataset = new DirectDataset(
+            dataset->data, dataset->n_rows, dataset->n_cols);
+        Density* densities = computeDensities(direct_dataset, dataset->n_rows, dataset->n_cols,
             config->n_classes, config->nan_value, config->partitioning);
-        return static_cast<void*>(CART(
-            { dataset->data, static_cast<target_t*>(labels->data), dataset->n_rows, dataset->n_cols },
-            config, densities));
+        return static_cast<void*>(CART(direct_dataset, static_cast<target_t*>(labels->data), config, densities));
     }
 
     void* fit_regression_tree(Dataset* dataset, Labels<data_t>* targets, TreeConfig* config) {
@@ -45,11 +45,12 @@ extern "C" {
             @return Pointer to the new tree
         */
         config->task = gbdf::REGRESSION_TASK;
-        Density* densities = computeDensities(dataset->data, dataset->n_rows, dataset->n_cols,
+        DirectDataset* direct_dataset = new DirectDataset(
+            dataset->data, dataset->n_rows, dataset->n_cols);
+        Density* densities = computeDensities(direct_dataset, dataset->n_rows, dataset->n_cols,
             config->n_classes, config->nan_value, config->partitioning);
         return static_cast<void*>(CART(
-            { dataset->data, static_cast<target_t*>(targets->data), dataset->n_rows, dataset->n_cols },
-            config, densities));
+            direct_dataset, static_cast<target_t*>(targets->data), config, densities));
     }
 
     float* tree_classify(Dataset* dataset, void* tree_p, TreeConfig* config) {
@@ -69,7 +70,9 @@ extern "C" {
                 order : C
         */
         Tree* tree = static_cast<Tree*>(tree_p);
-        float* predictions = classifyFromTree(dataset->data, dataset->n_rows, dataset->n_cols,
+        DirectDataset* direct_dataset = new DirectDataset(
+            dataset->data, dataset->n_rows, dataset->n_cols);
+        float* predictions = classifyFromTree(direct_dataset, dataset->n_rows, dataset->n_cols,
             tree, config);
         return predictions;
     }
@@ -88,7 +91,9 @@ extern "C" {
             @return Predictions
         */
         Tree* tree = static_cast<Tree*>(tree_p);
-        data_t* predictions = predict(dataset->data, dataset->n_rows, dataset->n_cols, tree, config);
+        DirectDataset* direct_dataset = new DirectDataset(
+            dataset->data, dataset->n_rows, dataset->n_cols);
+        data_t* predictions = predict(direct_dataset, dataset->n_rows, dataset->n_cols, tree, config);
         return predictions;
     }
 

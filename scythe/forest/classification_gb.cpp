@@ -22,11 +22,17 @@ ClassificationGB::ClassificationGB
 
 float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
     this->prediction_state = 0;
-    this->base_tree = *CART(dataset, &(Forest::base_tree_config), this->densities.get());
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_instances, dataset.n_features);
+    this->base_tree = *CART(
+        direct_dataset, 
+        dataset.targets,
+        &(Forest::base_tree_config), 
+        this->densities.get());
 
     // Predict with the base tree and compute the gradient of the error
     float* probabilities = classifyFromTree(
-        dataset.data, 
+        direct_dataset,
         dataset.n_instances,
         dataset.n_features,
         &(this->base_tree),
@@ -37,16 +43,18 @@ float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
 }
 
 void ClassificationGB::fitNewTree(TrainingSet dataset, data_t* gradient) {
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_instances, dataset.n_features);
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
-        { dataset.data, gradient, dataset.n_instances, dataset.n_features },
-        &grad_trees_config,
-        this->densities.get()));
+        direct_dataset, gradient, &grad_trees_config, this->densities.get()));
     Forest::trees.push_back(new_tree);
 }
 
 data_t* ClassificationGB::predictGradient(std::shared_ptr<Tree> tree, TrainingSet dataset) {
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_instances, dataset.n_features);
     data_t* predictions = predict(
-        dataset.data,
+        direct_dataset,
         dataset.n_instances, 
         dataset.n_features,
         tree.get(),
@@ -70,8 +78,10 @@ void ClassificationGB::applySoftmax(float* probabilities, data_t* F_k) {
 }
 
 void ClassificationGB::preprocessDensities(TrainingSet dataset) {
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_instances, dataset.n_features);
     this->densities = std::move(std::shared_ptr<Density>(computeDensities(
-        dataset.data, 
+        direct_dataset,
         dataset.n_instances, 
         dataset.n_features,
         Forest::base_tree_config.n_classes, 

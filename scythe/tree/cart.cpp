@@ -56,8 +56,8 @@ NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features) {
     return new_space;
 }
 
-Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
-                                 size_t n_classes, data_t nan_value, int partitioning) {
+Density* computeDensities(AbstractDataset* data, size_t n_instances, size_t n_features,
+                          size_t n_classes, data_t nan_value, int partitioning) {
     Density* densities = new Density[n_features];
     data_t* sorted_values;
     for (uint f = 0; f < n_features; f++) {
@@ -73,7 +73,7 @@ Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
         size_t n_acceptable = 0;
         data_t data_point;
         for (uint i = 0; i < n_instances; i++) {
-            data_point = data[i * n_features + f];
+            data_point = (*data)(i, f);
             if (data_point != nan_value) {
                 sorted_values[n_acceptable] = data_point;
                 n_acceptable++;
@@ -180,17 +180,15 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities) {
-    size_t n_instances = dataset.n_instances;
+Tree* CART(AbstractDataset* dataset, target_t* targets, TreeConfig* config, Density* densities) {
+    size_t n_instances = dataset->getNumInstances();
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
-    return CART(dataset, config, densities, belongs_to);
+    return CART(dataset, targets, config, densities, belongs_to);
 }
 
-Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* belongs_to) {
-    data_t* const data = dataset.data;
-    target_t* const targets = dataset.targets;
-    size_t n_instances = dataset.n_instances;
-    size_t n_features  = dataset.n_features;
+Tree* CART(AbstractDataset* dataset, target_t* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
+    size_t n_instances = dataset->getNumInstances();
+    size_t n_features  = dataset->getNumFeatures();
     Node* current_node = new Node(config->n_classes);
     current_node->id = 0;
     current_node->n_instances = n_instances;
@@ -249,14 +247,14 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
         selectFeaturesToConsider(features_to_use, n_features, max_n_features);
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;
-            e_cost = evaluateByThreshold(&splitter, &densities[f], data);
+            e_cost = evaluateByThreshold(&splitter, &densities[f], dataset);
             if (e_cost < lowest_e_cost) {
                 lowest_e_cost = e_cost;
                 best_feature = f;
             }
         }
         splitter.feature_id = best_feature;
-        evaluateByThreshold(&splitter, &densities[best_feature], data); // TODO : redundant calculus
+        evaluateByThreshold(&splitter, &densities[best_feature], dataset); // TODO : redundant calculus
         next_density = &densities[best_feature];
         if ((best_feature != static_cast<uint>(current_node->feature_id))
             || (next_density->split_value != current_node->split_value)) { // TO REMOVE ?
@@ -288,7 +286,7 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
                     current_node_space.feature_right_bounds[best_feature]};
                 for (uint i = 0; i < 2; i++) {
                     for (uint j = 0; j < n_instances; j++) {
-                        bool is_on_the_left = (data[j * n_features + best_feature] < split_value) ? 1 : 0;
+                        bool is_on_the_left = ((*dataset)(j, best_feature) < split_value) ? 1 : 0;
                         if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
                             if (is_on_the_left * (1 - i) + (1 - is_on_the_left) * i) {
                                 belongs_to[j] = tree->n_nodes;
@@ -325,7 +323,7 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
     return tree;
 }
 
-float* classifyFromTree(data_t* const data, size_t n_instances, size_t n_features,
+float* classifyFromTree(AbstractDataset* dataset, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::CLASSIFICATION_TASK);
     Node *current_node;
@@ -338,7 +336,7 @@ float* classifyFromTree(data_t* const data, size_t n_instances, size_t n_feature
         while (improving) {
             feature = current_node->feature_id;
             if (current_node->left_child != NULL) {
-                if (data[k * n_features + feature] >= current_node->split_value) {
+                if ((*dataset)(k, feature) >= current_node->split_value) {
                     current_node = current_node->right_child;
                 }
                 else {
@@ -357,7 +355,7 @@ float* classifyFromTree(data_t* const data, size_t n_instances, size_t n_feature
     return predictions;
 }
 
-data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
+data_t* predict(AbstractDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::REGRESSION_TASK);
     Node *current_node;
@@ -370,7 +368,7 @@ data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
         while (improving) {
             feature = current_node->feature_id;
             if (current_node->left_child != NULL) {
-                if (data[k * n_features + feature] >= current_node->split_value) {
+                if ((*data)(k, feature) >= current_node->split_value) {
                     current_node = current_node->right_child;
                 }
                 else {

@@ -42,7 +42,7 @@ inline float GiniCoefficient(float probability) {
 }
 
 template <typename T>
-double evaluatePartitions(data_t* data, Density* density,
+double evaluatePartitions(AbstractDataset* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
@@ -56,7 +56,7 @@ double evaluatePartitions(data_t* data, Density* density,
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             target_value = splitter->targets[j];
-            data_point = data[j * n_features + i];
+            data_point = (*data)(j, i);
             if (data_point == splitter->nan_value) {
                 density->counters_nan[static_cast<size_t>(target_value)]++;
             }
@@ -72,7 +72,7 @@ double evaluatePartitions(data_t* data, Density* density,
 }
 
 template <typename T>
-double evaluatePartitionsWithRegression(data_t* data, Density* density,
+double evaluatePartitionsWithRegression(AbstractDataset* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
 
     size_t i = splitter->feature_id;
@@ -90,7 +90,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
 
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (belongs_to[j] == id) {
-            data_point = data[j * n_features + i];
+            data_point = (*data)(j, i);
             y = static_cast<double>(splitter->targets[j]);
             // if (data_point == nan_value) {}
             if (data_point >= split_value) {
@@ -112,7 +112,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
     if ((n_left == 0) or (n_right == 0)) { return INFINITY; }
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
-            data_point = data[j * n_features + i];
+            data_point = (*data)(j, i);
             y = splitter->targets[j];
             // if (data_point == splitter->nan_value) {}
             if (data_point >= split_value) {
@@ -128,8 +128,7 @@ double evaluatePartitionsWithRegression(data_t* data, Density* density,
 }
 
 template <typename T>
-double evaluateByThreshold(Splitter<T>* splitter, Density* density,
-                           data_t* const data) {
+double evaluateByThreshold(Splitter<T>* splitter, Density* density, AbstractDataset* data) {
     size_t feature_id = splitter->feature_id;
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;

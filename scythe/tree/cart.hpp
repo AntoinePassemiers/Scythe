@@ -138,7 +138,7 @@ NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);
 
-Density* computeDensities(data_t* data, size_t n_instances, size_t n_features,
+Density* computeDensities(AbstractDataset* data, size_t n_instances, size_t n_features,
                           size_t n_classes, data_t nan_value, int partitioning);
 
 inline float ShannonEntropy(float probability);
@@ -149,26 +149,25 @@ double getFeatureCost(Density* density, size_t n_classes);
 
 void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
 
-Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities);
+Tree* CART(AbstractDataset* dataset, target_t* const targets, TreeConfig* config, Density* densities);
 
-Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* belongs_to);
+Tree* CART(AbstractDataset* dataset, target_t* const targets, TreeConfig* config, Density* densities, size_t* belongs_to);
 
-float* classifyFromTree(data_t* const data, size_t n_instances, size_t n_features,
+float* classifyFromTree(AbstractDataset* data, size_t n_instances, size_t n_features,
                         Tree* const tree, TreeConfig* config);
 
-data_t* predict(data_t* const data, size_t n_instances, size_t n_features,
+data_t* predict(AbstractDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
+
 template <typename T>
-inline double evaluatePartitions(data_t* data, Density* density,
+inline double evaluatePartitions(AbstractDataset* data, Density* density, Splitter<T>* splitter, size_t k);
+
+template <typename T>
+inline double evaluatePartitionsWithRegression(AbstractDataset* data, Density* density,
                                  Splitter<T>* splitter, size_t k);
 
 template <typename T>
-inline double evaluatePartitionsWithRegression(data_t* data, Density* density,
-                                 Splitter<T>* splitter, size_t k);
-
-template <typename T>
-double evaluateByThreshold(Splitter<T>* splitter, Density* density,
-                           data_t* const data);
+double evaluateByThreshold(Splitter<T>* splitter, Density* density, const AbstractDataset* data);
 
 #include "cart.tpp"
 

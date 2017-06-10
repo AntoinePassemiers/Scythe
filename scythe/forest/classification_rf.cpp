@@ -21,8 +21,11 @@ ClassificationRF::ClassificationRF
 void ClassificationRF::fitNewTree(TrainingSet dataset) {
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset.n_instances, config.bag_size);
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_instances, dataset.n_features);
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
-        dataset,
+        direct_dataset,
+        dataset.targets, 
         &(Forest::base_tree_config),
         this->densities.get(),
         subset.get()));
@@ -30,8 +33,10 @@ void ClassificationRF::fitNewTree(TrainingSet dataset) {
 }
 
 void ClassificationRF::preprocessDensities(TrainingSet dataset) {
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_instances, dataset.n_features);
     this->densities = std::move(std::shared_ptr<Density>(computeDensities(
-        dataset.data, 
+        direct_dataset, 
         dataset.n_instances, 
         dataset.n_features,
         Forest::base_tree_config.n_classes, 
@@ -56,12 +61,13 @@ float* ClassificationRF::classify(Dataset dataset) {
     size_t n_instances = dataset.n_rows;
     size_t n_probs = n_classes * n_instances;
     size_t n_trees = trees.size();
-
+    DirectDataset* direct_dataset = new DirectDataset(
+        dataset.data, dataset.n_rows, dataset.n_cols);
     float* probabilities = new float[n_probs]();
     for (unsigned int i = 0; i < n_trees; i++) {
         std::shared_ptr<Tree> tree = trees.at(i);
         float* predictions = classifyFromTree(
-            dataset.data,
+            direct_dataset,
             dataset.n_rows, 
             dataset.n_cols,
             tree.get(),

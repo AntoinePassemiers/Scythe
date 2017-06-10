@@ -38,7 +38,10 @@ public:
     AbstractDataset() {};
     virtual ~AbstractDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
+    virtual size_t getNumInstances() = 0;
+    virtual size_t getNumFeatures() = 0;
 };
+
 
 template <typename T>
 class AbstractTargets {
@@ -57,8 +60,11 @@ private:
     size_t n_cols;
 public:
     DirectDataset(Dataset dataset);
+    DirectDataset(data_t* data, size_t n_instances, size_t n_features);
     ~DirectDataset() = default;
     data_t operator()(const size_t i, const size_t j);
+    size_t getNumInstances() { return n_rows; }
+    size_t getNumFeatures() { return n_cols; }
 };
 
 #endif // SETS_HPP_
