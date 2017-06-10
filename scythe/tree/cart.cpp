@@ -228,7 +228,13 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
         0,
         current_node_space
     };
+
+    if (config->max_n_features > n_features) { config->max_n_features = n_features; }
+    size_t max_n_features = config->max_n_features;
+    size_t* features_to_use = static_cast<size_t*>(malloc(n_features * sizeof(size_t)));
+    memset(features_to_use, 0x01, n_features * sizeof(size_t));
     uint best_feature = 0;
+
     std::queue<NodeSpace> queue;
     queue.push(current_node_space);
     while ((tree->n_nodes < config->max_nodes) && !queue.empty() && still_going) {
@@ -238,6 +244,8 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
         double lowest_e_cost = INFINITY;
         splitter.node = current_node;
         splitter.node_space = current_node_space;
+
+        selectFeaturesToConsider(features_to_use, n_features, config->max_n_features);
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;
             e_cost = evaluateByThreshold(&splitter, &densities[f], data);
@@ -311,6 +319,7 @@ Tree* CART(TrainingSet dataset, TreeConfig* config, Density* densities, size_t* 
             }
         }
     }
+    delete[] features_to_use;
     delete[] split_sides;
     return tree;
 }

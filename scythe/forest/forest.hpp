@@ -36,6 +36,7 @@ struct ForestConfig {
     size_t    n_iter               = 100;
     size_t    max_n_trees          = 150;
     size_t    max_n_nodes          = 30;
+    size_t    max_n_features       = std::numeric_limits<size_t>::max();;
     float     learning_rate        = 0.001f;
     size_t    n_leaves             = 1023;
     size_t    n_jobs               = 1;
@@ -80,6 +81,7 @@ public:
             base_tree_config.min_threshold = 1e-06;
             base_tree_config.max_height = config->max_depth;
             base_tree_config.max_nodes = config->max_n_nodes;
+            base_tree_config.max_n_features = config->max_n_features;
             base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     }
     void configure(ForestConfig* config, size_t n_instances, size_t n_features);

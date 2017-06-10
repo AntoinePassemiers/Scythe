@@ -21,6 +21,7 @@
 #include <limits>
 
 #include "../misc/sets.hpp"
+#include "heuristics.hpp"
 
 constexpr int NO_FEATURE = -1;
 constexpr int NO_INSTANCE = 0;
@@ -80,6 +81,7 @@ struct TreeConfig {
     bool   is_incremental;
     double min_threshold;
     size_t max_height;
+    size_t max_n_features;
     size_t n_classes;
     size_t max_nodes;
     int    partitioning;
