@@ -1,13 +1,9 @@
 /**
-    scanner.hpp
+    scanner3D.cpp
     Multi-grained scanning
 
     @author Antoine Passemiers
     @version 1.0 10/06/2017
 */
 
-#ifndef FOREST_HPP_
-#define FOREST_HPP_
-
-
-#endif // FOREST_HPP_
+#include "scanner3D.hpp"

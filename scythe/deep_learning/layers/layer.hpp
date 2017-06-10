@@ -40,6 +40,6 @@ private:
     size_t bmap_out_shape[DATASET_N_DIMENSIONS]; // Output shape before re-mapping
     size_t amap_in_shape[MAX_N_DIMENSIONS];  // Input shape after re-mapping
     size_t amap_out_shape[MAX_N_DIMENSIONS]; // Output shape after re-mapping
-}
+};
 
 #endif // FOREST_HPP_
