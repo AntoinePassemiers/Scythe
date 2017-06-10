@@ -9,6 +9,9 @@
 #ifndef FOREST_HPP_
 #define FOREST_HPP_
 
+#include <pthread.h>
+#include <omp.h>
+
 #include "../metrics/metrics.hpp"
 #include "../tree/cart.hpp"
 
