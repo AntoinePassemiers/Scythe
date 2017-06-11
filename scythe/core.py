@@ -2,9 +2,9 @@
 # core.py : Interface to the C API
 # author : Antoine Passemiers
 
-from structures import * # TODO
-from utils import *
+import abc
 
+from structures import *
 
 REGRESSION     = "regression"
 CLASSIFICATION = "classification"

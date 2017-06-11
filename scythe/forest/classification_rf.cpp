@@ -48,10 +48,9 @@ void ClassificationRF::fit(TrainingSet dataset) {
     // Compute density functions of all features
     this->preprocessDensities(dataset);
 
-    uint n_trees = 0;
-
-    #pragma omp parallel for num_threads(Forest::base_tree_config.n_jobs)
-    while (n_trees++ < Forest::config.n_iter) {
+    // Fitting each individual tree
+    #pragma omp parallel for num_threads(Forest::config.n_jobs)
+    for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
         this->fitNewTree(dataset);
     }
 }

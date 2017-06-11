@@ -1,7 +1,7 @@
 CC           :=  g++
 FLAGS        :=  -std=c++14 -Iinclude
 CFLAGS       :=  -ggdb3 -Wpedantic -Wall -Wextra -Wconversion -Weffc++ -Wstrict-null-sentinel -Wold-style-cast -Wnoexcept -Wctor-dtor-privacy -Woverloaded-virtual -Wsign-promo -Wzero-as-null-pointer-constant -Wconversion -pthread -O3
-CPPFLAGS     :=  -O2 -g
+CPPFLAGS     :=  -O2 -g -fopenmp
 LDFLAGS      :=  -L. -shared
 DEBUGFLAGS   :=  -O0 -D _DEBUG
 RELEASEFLAGS :=  -O2 -D NDEBUG -combine -fwhole-program
@@ -21,7 +21,7 @@ OBJS += bagging.o heuristics.o sets.o
 OBJS += cascade.o scanner1D.o scanner2D.o scanner3D.o
 
 $(TARGET): $(OBJS)
-	$(CC) $(FLAGS) $(CFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
 	@rm -rf $(OBJS) # clean
 
 cart.o : tree/cart.cpp

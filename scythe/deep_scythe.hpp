@@ -14,9 +14,6 @@
 Ideas of layers
 ---------------
 
-0) Linear
-    No dimensionality shuffling on the input data
-
 1) Grove
     Cascade layer of random forests
 
@@ -24,6 +21,12 @@ Ideas of layers
     Cascade layer of completely-random forests
 
 3) MultiGrainedScanner
+    Equivalent of the CNN's convolutionnal layer
+
+4) MultiGrainedScanner
+    Equivalent of the CNN's convolutionnal layer
+
+5) MultiGrainedScanner
     Equivalent of the CNN's convolutionnal layer
 
 */
