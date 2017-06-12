@@ -42,7 +42,7 @@ inline float GiniCoefficient(float probability) {
 }
 
 template <typename T>
-double evaluatePartitions(AbstractDataset* data, Density* density,
+double evaluatePartitions(VirtualDataset* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
@@ -72,7 +72,7 @@ double evaluatePartitions(AbstractDataset* data, Density* density,
 }
 
 template <typename T>
-double evaluatePartitionsWithRegression(AbstractDataset* data, Density* density,
+double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
 
     size_t i = splitter->feature_id;
@@ -128,7 +128,7 @@ double evaluatePartitionsWithRegression(AbstractDataset* data, Density* density,
 }
 
 template <typename T>
-double evaluateByThreshold(Splitter<T>* splitter, Density* density, AbstractDataset* data) {
+double evaluateByThreshold(Splitter<T>* splitter, Density* density, VirtualDataset* data) {
     size_t feature_id = splitter->feature_id;
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;

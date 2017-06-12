@@ -1,6 +1,6 @@
 /**
     sets.cpp
-    Datasets' structures
+    Virtual datasets
     
     @author Antoine Passemiers
     @version 1.0 09/06/2017
@@ -33,10 +33,10 @@ struct Labels {
 };
 
 
-class AbstractDataset {
+class VirtualDataset {
 public:
-    AbstractDataset() {};
-    virtual ~AbstractDataset() = default;
+    VirtualDataset() {};
+    virtual ~VirtualDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
     virtual size_t getNumInstances() = 0;
     virtual size_t getNumFeatures() = 0;
@@ -53,7 +53,7 @@ public:
 };
 
 
-class DirectDataset : public AbstractDataset {
+class DirectDataset : public VirtualDataset {
 private:
     data_t* data;
     size_t n_rows;

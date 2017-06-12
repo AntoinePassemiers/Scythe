@@ -13,7 +13,7 @@
 #include "layer.hpp"
 
 
-class ScannedDataset2D : public AbstractDataset {
+class ScannedDataset2D : public VirtualDataset {
 private:
     size_t N;  // Number of instances
     size_t M;  // Instance height

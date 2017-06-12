@@ -56,7 +56,7 @@ NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features) {
     return new_space;
 }
 
-Density* computeDensities(AbstractDataset* data, size_t n_instances, size_t n_features,
+Density* computeDensities(VirtualDataset* data, size_t n_instances, size_t n_features,
                           size_t n_classes, data_t nan_value, int partitioning) {
     Density* densities = new Density[n_features];
     data_t* sorted_values;
@@ -180,13 +180,13 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-Tree* CART(AbstractDataset* dataset, target_t* targets, TreeConfig* config, Density* densities) {
+Tree* CART(VirtualDataset* dataset, target_t* targets, TreeConfig* config, Density* densities) {
     size_t n_instances = dataset->getNumInstances();
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     return CART(dataset, targets, config, densities, belongs_to);
 }
 
-Tree* CART(AbstractDataset* dataset, target_t* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
+Tree* CART(VirtualDataset* dataset, target_t* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
     size_t n_instances = dataset->getNumInstances();
     size_t n_features  = dataset->getNumFeatures();
     Node* current_node = new Node(config->n_classes);
@@ -323,7 +323,7 @@ Tree* CART(AbstractDataset* dataset, target_t* targets, TreeConfig* config, Dens
     return tree;
 }
 
-float* classifyFromTree(AbstractDataset* dataset, size_t n_instances, size_t n_features,
+float* classifyFromTree(VirtualDataset* dataset, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::CLASSIFICATION_TASK);
     Node *current_node;
@@ -355,7 +355,7 @@ float* classifyFromTree(AbstractDataset* dataset, size_t n_instances, size_t n_f
     return predictions;
 }
 
-data_t* predict(AbstractDataset* data, size_t n_instances, size_t n_features,
+data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::REGRESSION_TASK);
     Node *current_node;

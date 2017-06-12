@@ -4,6 +4,9 @@
 *.so
 *.pyc
 *.pyd
+
+*.pptx
+
 build/
 dist/
 Scythe.egg-info/

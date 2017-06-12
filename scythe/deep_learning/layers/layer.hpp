@@ -6,9 +6,10 @@
     @version 1.0 10/06/2017
 */
 
-#ifndef FOREST_HPP_
-#define FOREST_HPP_
+#ifndef LAYER_HPP_
+#define LAYER_HPP_
 
+#include <queue>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -16,6 +17,9 @@
 #include <memory>
 #include <limits>
 #include <cassert>
+#include <string.h>
+
+#include "../../forest/forest.hpp"
 
 constexpr size_t DATASET_N_DIMENSIONS = 2;
 constexpr size_t MAX_N_DIMENSIONS     = 7;
@@ -33,13 +37,18 @@ constexpr size_t MAX_N_DIMENSIONS     = 7;
 
 class Layer {
 private:
-    // The product of bmap_in_shape elements must be equal to the product of
-    // amap_in_shape elements. Similarly, the product of bmap_out_shape elements
-    // must be equal to the product of amap_out_shape elements.
-    size_t bmap_in_shape[DATASET_N_DIMENSIONS];  // Input shape before re-mapping
-    size_t bmap_out_shape[DATASET_N_DIMENSIONS]; // Output shape before re-mapping
-    size_t amap_in_shape[MAX_N_DIMENSIONS];  // Input shape after re-mapping
-    size_t amap_out_shape[MAX_N_DIMENSIONS]; // Output shape after re-mapping
+    std::string name; // Layer name
+
+    // The product of in_shape elements must be equal to the product of
+    // virtual_in_shape elements.
+    std::vector<size_t> in_shape;          // Input shape
+    std::vector<size_t> virtual_in_shape;  // Virtual input shape
+    std::vector<size_t> virtual_out_shape; // Virtual output shape
+
+    std::vector<std::shared_ptr<Layer>> children; // children layers
+    std::vector<std::shared_ptr<Forest>> forests; // Intern forests
+
+    std::shared_ptr<VirtualDataset> vdataset; // Virtual dataset
 };
 
-#endif // FOREST_HPP_
+#endif // LAYER_HPP_
