@@ -17,10 +17,11 @@ typedef std::shared_ptr<Layer> layer_p;
 class DeepForest {
 private:
     std::vector<layer_p> layers;
+    int task;
 public:
-    DeepForest();
+    DeepForest(int task);
     ~DeepForest() = default;
-    bool add(layer_p layer);
+    void add(layer_p layer);
 };
 
 #endif // DEEP_FOREST_HPP_

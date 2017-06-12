@@ -23,8 +23,18 @@ private:
     size_t Nprime; // Number of instances after scanning
     size_t Mprime; // Number of features after scanning
 public:
+    ScannedDataset1D(size_t kc);
     ~ScannedDataset1D() = default;
     data_t operator()(size_t i, size_t j);
+    size_t getNumInstances();
+    size_t getNumFeatures();
+};
+
+
+class MultiGrainedScanner1D : public Layer {
+public:
+    MultiGrainedScanner1D(LayerConfig lconfig, size_t kc);
+    ~MultiGrainedScanner1D() = default;
 };
 
 #endif // SCANNER1D_HPP_

@@ -5,13 +5,14 @@
 import abc
 
 from structures import *
+from layers import *
 
 REGRESSION     = "regression"
 CLASSIFICATION = "classification"
 
-RF_FOREST  = "random forest"
-CRF_FOREST = "complete random forest"
-GB_FOREST  = "gradient boosting"
+RF_FOREST  = ["random forest", "rf"]
+CRF_FOREST = ["complete random forest", "crf"]
+GB_FOREST  = ["gradient boosting", "gb"]
 
 
 class Model:
@@ -72,12 +73,13 @@ class Tree(Model):
 
 class Forest(Model):
     def __init__(self, config, task, forest_type):
+        forest_type = forest_type.lower()
         assert(isinstance(config, ForestConfig))
-        assert(forest_type in [RF_FOREST, CRF_FOREST, GB_FOREST])
+        assert(forest_type in RF_FOREST + CRF_FOREST + GB_FOREST)
         Model.__init__(self, config, task)
-        if forest_type == RF_FOREST:
+        if forest_type in RF_FOREST:
             config.type = RANDOM_FOREST
-        elif forest_type == CRF_FOREST:
+        elif forest_type in CRF_FOREST:
             config.type = COMPLETE_RANDOM_FOREST
         else:
             config.type = GRADIENT_BOOSTING
@@ -107,7 +109,11 @@ class Forest(Model):
 
 
 class DeepForest:
-    def __init__(self, task):
+    def __init__(self, task = "classification"):
+        assert(task in [REGRESSION, CLASSIFICATION])
         self.task = task
+        d = CLASSIFICATION_TASK if (self.task == CLASSIFICATION) else REGRESSION_TASK
+        self.deep_forest_p = scythe.c_create_deep_forest(d)
     def add(self, layer):
         assert(isinstance(layer, Layer))
+        layer.addToGraph(self.deep_forest_p)

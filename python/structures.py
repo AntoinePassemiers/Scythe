@@ -6,7 +6,7 @@ import numpy as np
 import ctypes
 
 # Load the C interfaces
-scythe = ctypes.cdll.LoadLibrary("scythe.lib")
+scythe = ctypes.cdll.LoadLibrary("../scythe/scythe.lib")
 
 # C types
 c_int_p        = ctypes.POINTER(ctypes.c_int)

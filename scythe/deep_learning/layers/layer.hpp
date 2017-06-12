@@ -21,8 +21,13 @@
 
 #include "../../forest/forest.hpp"
 
-constexpr size_t DATASET_N_DIMENSIONS = 2;
-constexpr size_t MAX_N_DIMENSIONS     = 7;
+constexpr size_t MAX_N_FORESTS_PER_LAYER = 10000;
+
+
+struct LayerConfig {
+    ForestConfig fconfig;
+    size_t       n_forests;
+};
 
 /**
     Main goal of layers: ensuring that each forest gets
@@ -36,7 +41,7 @@ constexpr size_t MAX_N_DIMENSIONS     = 7;
 */
 
 class Layer {
-private:
+protected:
     std::string name; // Layer name
 
     // The product of in_shape elements must be equal to the product of
@@ -49,6 +54,11 @@ private:
     std::vector<std::shared_ptr<Forest>> forests; // Intern forests
 
     std::shared_ptr<VirtualDataset> vdataset; // Virtual dataset
+    LayerConfig lconfig; // Layer configuration
+
+public:
+    Layer(LayerConfig lconfig);
+    ~Layer() = default;
 };
 
 #endif // LAYER_HPP_

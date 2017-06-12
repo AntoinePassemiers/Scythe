@@ -26,8 +26,16 @@ private:
     size_t Nprime; // Number of instances after scanning
     size_t Mprime; // Number of features after scanning
 public:
+    ScannedDataset2D(LayerConfig lconfig, size_t kc, size_t kr);
     ~ScannedDataset2D() = default;
     data_t operator()(size_t i, size_t j);
+};
+
+
+class MultiGrainedScanner2D : public Layer {
+public:
+    MultiGrainedScanner2D(LayerConfig lconfig, size_t kc, size_t kr);
+    ~MultiGrainedScanner2D() = default;
 };
 
 #endif // SCANNER2D_HPP_

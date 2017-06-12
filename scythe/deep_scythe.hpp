@@ -9,29 +9,28 @@
 #ifndef DEEP_SCYTHE_HPP_
 #define DEEP_SCYTHE_HPP_
 
-/**
+#include "deep_learning/deep_forest.hpp"
+#include "deep_learning/layers/layer.hpp"
+#include "deep_learning/layers/scanner1D.hpp"
+#include "deep_learning/layers/scanner2D.hpp"
+#include "deep_learning/layers/scanner3D.hpp"
 
-Ideas of layers
----------------
-
-1) Grove
-    Cascade layer of random forests
-
-2) CompleteRandomGrove
-    Cascade layer of completely-random forests
-
-3) MultiGrainedScanner
-    Equivalent of the CNN's convolutionnal layer
-
-4) MultiGrainedScanner
-    Equivalent of the CNN's convolutionnal layer
-
-5) MultiGrainedScanner
-    Equivalent of the CNN's convolutionnal layer
-
-*/
 
 extern "C" {
+
+    void* c_create_deep_forest(int task);
+
+    void c_add_scanner_1d(void* forest_p, LayerConfig lconfig, size_t kc);
+
+    /**
+    void c_add_scanner_2d(void* forest_p, LayerConfig lconfig, size_t kc, size_t kr);
+
+    void c_add_scanner_3d(void* forest_p, LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
+
+    void c_add_direct_layer(void* forest_p, LayerConfig lconfig);
+
+    void c_add_cascade_layer(void* forest_p, LayerConfig lconfig);
+    */
 
 }
 

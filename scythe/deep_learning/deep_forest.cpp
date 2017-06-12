@@ -9,8 +9,8 @@
 #include "deep_forest.hpp"
 
 
-DeepForest::DeepForest() : layers() {}
+DeepForest::DeepForest(int task) : layers(), task(task) {}
 
-bool DeepForest::add(layer_p layer) {
-    
+void DeepForest::add(layer_p layer) {
+    layers.push_back(layer);
 }
