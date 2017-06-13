@@ -61,6 +61,8 @@ private:
 public:
     DirectDataset(Dataset dataset);
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
+    DirectDataset(const DirectDataset& other);
+    DirectDataset& operator=(const DirectDataset& other);
     ~DirectDataset() = default;
     data_t operator()(const size_t i, const size_t j);
     size_t getNumInstances() { return n_rows; }

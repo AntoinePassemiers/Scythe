@@ -9,7 +9,12 @@
 #include "layer.hpp"
 
 
-Layer::Layer(LayerConfig lconfig) {
+LayerConfig::LayerConfig() :
+     fconfig(), n_forests(0), forest_type(gbdf::COMPLETE_RANDOM_FOREST) {}
+
+Layer::Layer(LayerConfig lconfig) :
+    name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
+    children(), forests(), vdataset(nullptr), lconfig() {
     this->lconfig = lconfig;
     ForestConfig* fconfig = &(lconfig.fconfig);
     std::shared_ptr<Forest> new_forest;

@@ -67,16 +67,17 @@ protected:
     std::vector<std::shared_ptr<Tree>> trees;
 
     ptrdiff_t prediction_state;
-
-public:
     TreeConfig base_tree_config;
+public:
 
     Forest(ForestConfig* config, size_t n_instances, size_t n_features) : 
         n_instances(n_instances),
         n_features(n_features),
-        config(), 
-        trees(), 
-        prediction_state(0) {
+        config(),
+        base_tree(), 
+        trees(),
+        prediction_state(0),
+        base_tree_config() {
             this->config = *config;
             base_tree_config.nan_value = config->nan_value;
             base_tree_config.n_classes = config->n_classes;
@@ -87,7 +88,6 @@ public:
             base_tree_config.max_n_features = config->max_n_features;
             base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     }
-    void configure(ForestConfig* config, size_t n_instances, size_t n_features);
     virtual void fit(VirtualDataset* dataset, target_t* targets) = 0;
     virtual ~Forest() = default;
 };

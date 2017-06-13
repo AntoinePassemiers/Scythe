@@ -31,6 +31,8 @@ struct LayerConfig {
     ForestConfig fconfig;
     size_t       n_forests;
     int          forest_type;
+
+    LayerConfig();
 };
 
 /**

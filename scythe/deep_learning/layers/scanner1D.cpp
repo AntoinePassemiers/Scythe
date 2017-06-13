@@ -9,7 +9,8 @@
 #include "scanner1D.hpp"
 
 
-ScannedDataset1D::ScannedDataset1D(size_t kc) : kc(kc) {}
+ScannedDataset1D::ScannedDataset1D(size_t kc) : 
+    N(0), M(0), kc(kc), sc(0), Nprime(0), Mprime(0) {}
 
 data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
