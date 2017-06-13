@@ -117,7 +117,8 @@ extern "C" {
             forest = new ClassificationRF(config, dataset->n_rows, dataset->n_cols);
         }
         else if (config->type == gbdf::GB_FOREST) {
-            forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
+            // forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
+            std::cout << "Error: gradient boosting is not supported" << std::endl;
         }
         else if (config->type == gbdf::COMPLETE_RANDOM_FOREST) {
             forest = new ClassificationCompleteRF(config, dataset->n_rows, dataset->n_cols);
@@ -125,12 +126,8 @@ extern "C" {
         else {
             std::cout << "Error: this type of forest does not exist" << std::endl;
         }
-        TrainingSet training_set = {
-            dataset->data,
-            labels->data,
-            dataset->n_rows,
-            dataset->n_cols };
-        forest->fit(training_set);
+        DirectDataset* vdataset = new DirectDataset(*dataset);
+        forest->fit(vdataset, labels->data);
         return static_cast<void*>(forest);
     }
 
@@ -146,6 +143,8 @@ extern "C" {
         else {
             forest = static_cast<ClassificationCompleteRF*>(forest_p);
         }
-        probabilites = forest->classify(*dataset);
+        DirectDataset* vdataset = new DirectDataset(*dataset);
+        probabilites = forest->classify(vdataset);
+        return probabilites;
     }
 }

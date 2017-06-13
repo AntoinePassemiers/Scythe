@@ -22,10 +22,10 @@ private:
 public:
     ClassificationRF(ForestConfig*, size_t, size_t);
     void init();
-    void preprocessDensities(TrainingSet dataset);
-    void fit(TrainingSet dataset);
-    void fitNewTree(TrainingSet dataset);
-    float* classify(Dataset dataset);
+    void preprocessDensities(VirtualDataset* dataset);
+    void fit(VirtualDataset* dataset, target_t* targets);
+    void fitNewTree(VirtualDataset* dataset, target_t* targets);
+    float* classify(VirtualDataset* dataset);
     ~ClassificationRF() = default;
 };
 

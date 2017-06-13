@@ -18,57 +18,51 @@ ClassificationCompleteRF::ClassificationCompleteRF
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-void ClassificationCompleteRF::fitNewTree(TrainingSet dataset) {
+void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, target_t* targets) {
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
-        dataset.n_instances, config.bag_size);
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_instances, dataset.n_features);
+        dataset->getNumInstances(), config.bag_size);
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
-        direct_dataset,
-        dataset.targets, 
+        dataset,
+        targets, 
         &(Forest::base_tree_config),
         this->densities.get(),
         subset.get()));
     Forest::trees.push_back(new_tree);
 }
 
-void ClassificationCompleteRF::preprocessDensities(TrainingSet dataset) {
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_instances, dataset.n_features);
+void ClassificationCompleteRF::preprocessDensities(VirtualDataset* dataset) {
     this->densities = std::move(std::shared_ptr<Density>(computeDensities(
-        direct_dataset, 
-        dataset.n_instances, 
-        dataset.n_features,
+        dataset, 
+        dataset->getNumInstances(), 
+        dataset->getNumFeatures(),
         Forest::base_tree_config.n_classes, 
         Forest::base_tree_config.nan_value, 
         Forest::base_tree_config.partitioning)));
 }
 
-void ClassificationCompleteRF::fit(TrainingSet dataset) {
+void ClassificationCompleteRF::fit(VirtualDataset* dataset, target_t* targets) {
     // Compute density functions of all features
     this->preprocessDensities(dataset);
 
     // Fitting each individual tree
     #pragma omp parallel for num_threads(Forest::config.n_jobs)
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
-        this->fitNewTree(dataset);
+        this->fitNewTree(dataset, targets);
     }
 }
 
-float* ClassificationCompleteRF::classify(Dataset dataset) {
+float* ClassificationCompleteRF::classify(VirtualDataset* dataset) {
     size_t n_classes = Forest::config.n_classes;
-    size_t n_instances = dataset.n_rows;
+    size_t n_instances = dataset->getNumInstances();
     size_t n_probs = n_classes * n_instances;
     size_t n_trees = trees.size();
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_rows, dataset.n_cols);
     float* probabilities = new float[n_probs]();
     for (unsigned int i = 0; i < n_trees; i++) {
         std::shared_ptr<Tree> tree = trees.at(i);
         float* predictions = classifyFromTree(
-            direct_dataset,
-            dataset.n_rows, 
-            dataset.n_cols,
+            dataset,
+            dataset->getNumInstances(), 
+            dataset->getNumFeatures(),
             tree.get(),
             &base_tree_config);
         for (unsigned int k = 0; k < n_probs; k++) {

@@ -20,43 +20,37 @@ ClassificationGB::ClassificationGB
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-float* ClassificationGB::fitBaseTree(TrainingSet dataset) {
+float* ClassificationGB::fitBaseTree(VirtualDataset* dataset, target_t* targets) {
     this->prediction_state = 0;
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_instances, dataset.n_features);
     this->base_tree = *CART(
-        direct_dataset, 
-        dataset.targets,
+        dataset, 
+        targets,
         &(Forest::base_tree_config), 
         this->densities.get());
 
     // Predict with the base tree and compute the gradient of the error
     float* probabilities = classifyFromTree(
-        direct_dataset,
-        dataset.n_instances,
-        dataset.n_features,
+        dataset,
+        dataset->getNumInstances(),
+        dataset->getNumFeatures(),
         &(this->base_tree),
         &(Forest::base_tree_config));
-    loss_t loss = this->score_metric.get()->computeLoss(probabilities, dataset.targets);
+    loss_t loss = this->score_metric.get()->computeLoss(probabilities, targets);
     printf("Iteration %3i / mlog-loss error : %f\n", 0, static_cast<double>(loss));
     return probabilities;
 }
 
-void ClassificationGB::fitNewTree(TrainingSet dataset, data_t* gradient) {
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_instances, dataset.n_features);
+void ClassificationGB::fitNewTree(VirtualDataset* dataset, data_t* gradient) {
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
-        direct_dataset, gradient, &grad_trees_config, this->densities.get()));
+        dataset, gradient, &grad_trees_config, this->densities.get()));
     Forest::trees.push_back(new_tree);
 }
 
-data_t* ClassificationGB::predictGradient(std::shared_ptr<Tree> tree, TrainingSet dataset) {
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_instances, dataset.n_features);
+data_t* ClassificationGB::predictGradient(std::shared_ptr<Tree> tree, VirtualDataset* dataset) {
     data_t* predictions = predict(
-        direct_dataset,
-        dataset.n_instances, 
-        dataset.n_features,
+        dataset,
+        dataset->getNumInstances(),
+        dataset->getNumFeatures(),
         tree.get(),
         &grad_trees_config);
     return predictions;
@@ -77,33 +71,31 @@ void ClassificationGB::applySoftmax(float* probabilities, data_t* F_k) {
     }
 }
 
-void ClassificationGB::preprocessDensities(TrainingSet dataset) {
-    DirectDataset* direct_dataset = new DirectDataset(
-        dataset.data, dataset.n_instances, dataset.n_features);
+void ClassificationGB::preprocessDensities(VirtualDataset* dataset) {
     this->densities = std::move(std::shared_ptr<Density>(computeDensities(
-        direct_dataset,
-        dataset.n_instances, 
-        dataset.n_features,
+        dataset,
+        dataset->getNumInstances(),
+        dataset->getNumFeatures(),
         Forest::base_tree_config.n_classes, 
         Forest::base_tree_config.nan_value, 
         Forest::base_tree_config.partitioning)));
 }
 
-void ClassificationGB::fit(TrainingSet dataset) {
+void ClassificationGB::fit(VirtualDataset* dataset, target_t* targets) {
     // Compute density functions of all features
     this->preprocessDensities(dataset);
 
     // Fit the base classification tree
-    float* probabilities = this->fitBaseTree(dataset);
+    float* probabilities = this->fitBaseTree(dataset, targets);
 
     size_t n_classes = Forest::config.n_classes;
 
     data_t* F_k = static_cast<data_t*>(calloc(
-        n_classes * dataset.n_instances, sizeof(data_t)));
+        n_classes * dataset->getNumInstances(), sizeof(data_t)));
     assert(n_classes == this->score_metric.get()->getNumberOfRequiredTrees());
     uint n_boost = 0;
     while (n_boost++ < Forest::config.n_iter) {
-        this->score_metric.get()->computeGradient(probabilities, dataset.targets);
+        this->score_metric.get()->computeGradient(probabilities, targets);
         for (uint i = 0; i < n_classes; i++) {
             data_t* gradient = dynamic_cast<MultiLogLossError*>(
                 this->score_metric.get())->getGradientAt(i);
@@ -113,7 +105,7 @@ void ClassificationGB::fit(TrainingSet dataset) {
             // Predict with new tree
             data_t* predictions = this->predictGradient(Forest::trees.back(), dataset);
 
-            for (uint p = 0; p < dataset.n_instances; p++) {
+            for (uint p = 0; p < dataset->getNumInstances(); p++) {
                 // TODO : Compute gamma according to Friedman's formulas
                 F_k[p * n_classes + i] -= Forest::config.learning_rate * predictions[p];
             }
@@ -122,7 +114,7 @@ void ClassificationGB::fit(TrainingSet dataset) {
 
         this->applySoftmax(probabilities, F_k);
 
-        loss_t loss = this->score_metric.get()->computeLoss(probabilities, dataset.targets);
+        loss_t loss = this->score_metric.get()->computeLoss(probabilities, targets);
         printf("Iteration %3i / mlog-loss error : %f\n", n_boost, static_cast<double>(loss));
     }
     free(probabilities);

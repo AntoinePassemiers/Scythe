@@ -41,20 +41,6 @@ namespace gbdf {
     constexpr int REGRESSION_TASK     = 0xF55A91;
 }
 
-struct TrainingSet {
-    data_t*   const data;
-    target_t* const targets;
-    size_t    n_instances;
-    size_t    n_features;
-};
-
-struct ValidationSet {
-    data_t*   const data;
-    target_t* const targets;
-    size_t    n_instances;
-    size_t    n_features;
-};
-
 struct Node {
     int     id;
     int     feature_id = NO_FEATURE;

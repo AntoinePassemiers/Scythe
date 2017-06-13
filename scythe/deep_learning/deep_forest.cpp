@@ -9,13 +9,28 @@
 #include "deep_forest.hpp"
 
 
-DeepForest::DeepForest(int task) : layers(), task(task) {}
+DeepForest::DeepForest(int task) : 
+    layers(), task(task), front(nullptr), rear(nullptr) {}
 
 void DeepForest::add(layer_p layer) {
     layers.push_back(layer);
+    if (front == nullptr) {
+        front = layer;
+    }
+    if (rear != nullptr) {
+        rear.get()->add(layer);
+    }
+    rear = layer;
+}
+
+void DeepForest::add(layer_p parent, layer_p child) {
+    assert(parent != child);
+    parent.get()->add(child);
+    rear = child;
 }
 
 void DeepForest::fit(Dataset* dataset, Labels<target_t>* labels) {
+    layer_p current_layer = front;
     // TODO
 }
 

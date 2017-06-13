@@ -88,7 +88,7 @@ public:
             base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     }
     void configure(ForestConfig* config, size_t n_instances, size_t n_features);
-    virtual void fit(TrainingSet) = 0;
+    virtual void fit(VirtualDataset* dataset, target_t* targets) = 0;
     virtual ~Forest() = default;
 };
 
@@ -98,7 +98,7 @@ public:
     ClassificationForest(ForestConfig* config, size_t n_instances, size_t n_features) :
         Forest(config, n_instances, n_features) {}
     ~ClassificationForest() = default;
-    virtual float* classify(Dataset dataset) = 0;
+    virtual float* classify(VirtualDataset* dataset) = 0;
 };
 
 #endif // FOREST_HPP_

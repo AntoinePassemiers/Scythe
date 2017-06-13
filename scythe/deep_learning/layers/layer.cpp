@@ -22,3 +22,7 @@ Layer::Layer(LayerConfig lconfig) {
         }
     }
 }
+
+void Layer::add(layer_p layer) {
+    children.push_back(layer);
+}

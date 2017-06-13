@@ -11,19 +11,20 @@
 
 #include "layers/layer.hpp"
 
-typedef std::shared_ptr<Layer> layer_p;
-
 
 class DeepForest {
 private:
     std::vector<layer_p> layers;
     int task;
+    layer_p front;
+    layer_p rear;
 public:
     DeepForest(int task);
     ~DeepForest() = default;
     void fit(Dataset* dataset, Labels<target_t>* labels);
     float* classify(Dataset* dataset);
     void add(layer_p layer);
+    void add (layer_p parent, layer_p child);
 };
 
 #endif // DEEP_FOREST_HPP_
