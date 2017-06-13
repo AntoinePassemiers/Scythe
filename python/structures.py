@@ -208,3 +208,23 @@ class ForestConfig(ctypes.Structure):
         ("seed", ctypes.c_float),
         ("verbose", ctypes.c_int),
         ("nan_value", ctypes.c_double)]
+
+
+class LayerConfig(ctypes.Structure):
+    """
+    Configuration of a deep forest's layer
+
+    Fields
+    ------
+    fconfig : ForestConfig
+        Configuration of each forest contained in the layer
+    n_forests : size_t
+        Number of forests in the layer
+    forest_type : int
+        Type of forests to be grown
+    """
+    _fields_ = [
+        ("fconfig", ForestConfig),
+        ("n_forests", ctypes.size_t),
+        ("forest_type", ctypes.int)
+    ]

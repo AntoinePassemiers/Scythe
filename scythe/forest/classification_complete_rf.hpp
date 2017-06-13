@@ -1,6 +1,6 @@
 /**
-    classification_rf.cpp
-    Classification complete random forests
+    classification_complete_rf.hpp
+    Classification completely-random forests
     
     @author Antoine Passemiers
     @version 1.0 12/04/2017
@@ -9,8 +9,10 @@
 #ifndef CLASSIFICATION_COMPLETE_RF_HPP_
 #define CLASSIFICATION_COMPLETE_RF_HPP_
 
+#include "../misc/sets.hpp"
 #include "forest.hpp"
 #include "../metrics/classification_metrics.hpp"
+#include "../misc/bagging.hpp"
 
 
 class ClassificationCompleteRF : public Forest {
@@ -22,10 +24,8 @@ public:
     void init();
     void preprocessDensities(TrainingSet dataset);
     void fit(TrainingSet dataset);
-    float* fitBaseTree(TrainingSet dataset);
-    void fitNewTree(TrainingSet dataset, data_t* gradient);
-    data_t* predictGradient(std::shared_ptr<Tree> tree, TrainingSet dataset);
-    void applySoftmax(float* probabilities, data_t* F_k);
+    void fitNewTree(TrainingSet dataset);
+    float* classify(Dataset dataset);
     ~ClassificationCompleteRF() = default;
 };
 

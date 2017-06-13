@@ -6,11 +6,12 @@ from core import * # TODO
 from layers import * # TODO
 
 if __name__ == "__main__":
-    forest = DeepForest(task = "classification")
 
-    forest.add(MultiGrainedScanner1D())
-    # forest.add(DirectLayer())
-    # forest.add(CascadeLayer())
-    # forest.add(CascadeLayer())
+    graph = DeepForest(task = "classification")
+
+    graph.add(MultiGrainedScanner2D())
+    # graph.add(DirectLayer())
+    # graph.add(CascadeLayer())
+    # graph.add(CascadeLayer())
 
     print("Finished")

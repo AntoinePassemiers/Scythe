@@ -32,6 +32,8 @@ public:
     ScannedDataset3D(size_t kc, size_t kr, size_t kd);
     ~ScannedDataset3D() = default;
     data_t operator()(size_t i, size_t j);
+    size_t getNumInstances();
+    size_t getNumFeatures();
 };
 
 

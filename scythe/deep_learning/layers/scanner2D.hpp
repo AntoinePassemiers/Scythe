@@ -26,9 +26,11 @@ private:
     size_t Nprime; // Number of instances after scanning
     size_t Mprime; // Number of features after scanning
 public:
-    ScannedDataset2D(LayerConfig lconfig, size_t kc, size_t kr);
+    ScannedDataset2D(size_t kc, size_t kr);
     ~ScannedDataset2D() = default;
     data_t operator()(size_t i, size_t j);
+    size_t getNumInstances();
+    size_t getNumFeatures();
 };
 
 

@@ -27,6 +27,7 @@ constexpr size_t MAX_N_FORESTS_PER_LAYER = 10000;
 struct LayerConfig {
     ForestConfig fconfig;
     size_t       n_forests;
+    int          forest_type;
 };
 
 /**
