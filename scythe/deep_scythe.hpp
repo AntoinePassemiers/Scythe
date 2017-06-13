@@ -20,13 +20,17 @@ extern "C" {
 
     void* c_create_deep_forest(int task);
 
+    void c_fit_deep_forest(Dataset* dataset, Labels<target_t>* labels, void* forest_p);
+
+    float* c_deep_forest_classify(Dataset* dataset, void* forest_p);
+
     void c_add_scanner_1d(void* forest_p, LayerConfig lconfig, size_t kc);
 
     void c_add_scanner_2d(void* forest_p, LayerConfig lconfig, size_t kc, size_t kr);
 
-    /**
     void c_add_scanner_3d(void* forest_p, LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
 
+    /**
     void c_add_direct_layer(void* forest_p, LayerConfig lconfig);
 
     void c_add_cascade_layer(void* forest_p, LayerConfig lconfig);

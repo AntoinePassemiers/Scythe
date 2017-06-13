@@ -225,6 +225,6 @@ class LayerConfig(ctypes.Structure):
     """
     _fields_ = [
         ("fconfig", ForestConfig),
-        ("n_forests", ctypes.size_t),
-        ("forest_type", ctypes.int)
+        ("n_forests", ctypes.c_size_t),
+        ("forest_type", ctypes.c_int)
     ]

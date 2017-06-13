@@ -56,7 +56,7 @@ if __name__ == "__main__":
     preds = tree.predict(testset)
     print("\n%s" % preds)
 
-    # GRADIENT BOOSTED FOREST (CLASSFICATION)
+    # RANDOM FOREST (CLASSIFICATION)
     n_instances = 1000
     n_features = 10
     dataset = Dataset(np.random.randint(0, 2, size = (n_instances, n_features)))
@@ -69,11 +69,13 @@ if __name__ == "__main__":
     fconfig.n_iter    = 5
     fconfig.learning_rate = 0.05
 
-    forest = Forest(fconfig, "classification", "gradient boosting")
-    forest.fit(dataset, labels)
-
-    # RANDOM FOREST (CLASSIFICATION)
     forest = Forest(fconfig, "classification", "random forest")
     forest.fit(dataset, labels)
+    forest.predict(dataset)
+
+    # COMPLETE RANDOM FOREST (CLASSIFICATION)
+    forest = Forest(fconfig, "classification", "complete random forest")
+    forest.fit(dataset, labels)
+    forest.predict(dataset)
     
     print("Finished")

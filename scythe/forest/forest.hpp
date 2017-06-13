@@ -92,4 +92,13 @@ public:
     virtual ~Forest() = default;
 };
 
+
+class ClassificationForest : public Forest {
+public:
+    ClassificationForest(ForestConfig* config, size_t n_instances, size_t n_features) :
+        Forest(config, n_instances, n_features) {}
+    ~ClassificationForest() = default;
+    virtual float* classify(Dataset dataset) = 0;
+};
+
 #endif // FOREST_HPP_

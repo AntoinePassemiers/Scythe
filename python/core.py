@@ -95,6 +95,8 @@ class Forest(Model):
                 ctypes.byref(self.config_p))
     def predict(self, X):
         assert(isinstance(X, Dataset))
+        n_classes = self.config_p.n_classes
+        n_rows = len(X)
         if self.task == REGRESSION:
             raise NotImplementedError()
         else:

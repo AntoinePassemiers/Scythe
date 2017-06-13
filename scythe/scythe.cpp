@@ -119,8 +119,10 @@ extern "C" {
         else if (config->type == gbdf::GB_FOREST) {
             forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
         }
+        else if (config->type == gbdf::COMPLETE_RANDOM_FOREST) {
+            forest = new ClassificationCompleteRF(config, dataset->n_rows, dataset->n_cols);
+        }
         else {
-            // TODO
             std::cout << "Error: this type of forest does not exist" << std::endl;
         }
         TrainingSet training_set = {
@@ -134,12 +136,16 @@ extern "C" {
 
     float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config) {
         float* probabilites;
+        ClassificationForest* forest;
         if (config->type == gbdf::RANDOM_FOREST) {
-            ClassificationRF* forest = static_cast<ClassificationRF*>(forest_p);
-            probabilites = forest->classify(*dataset);
+            forest = static_cast<ClassificationRF*>(forest_p);
+        }
+        else if (config->type == gbdf::GB_FOREST) {
+            std::cout << "Error: GB predict function is not implemented" << std::endl;
         }
         else {
-            // TODO
+            forest = static_cast<ClassificationCompleteRF*>(forest_p);
         }
+        probabilites = forest->classify(*dataset);
     }
 }

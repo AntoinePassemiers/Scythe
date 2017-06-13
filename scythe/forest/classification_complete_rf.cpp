@@ -10,7 +10,7 @@
 
 ClassificationCompleteRF::ClassificationCompleteRF
         (ForestConfig* config, size_t n_instances, size_t n_features) :
-        Forest::Forest(config, n_instances, n_features) {
+        ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = true;
     this->score_metric = std::move(
@@ -74,6 +74,7 @@ float* ClassificationCompleteRF::classify(Dataset dataset) {
         for (unsigned int k = 0; k < n_probs; k++) {
             probabilities[k] += predictions[k];
         }
+        delete[] predictions;
     }
     for (unsigned int k = 0; k < n_probs; k++) {
         probabilities[k] /= static_cast<float>(n_trees);

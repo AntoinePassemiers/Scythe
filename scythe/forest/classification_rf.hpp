@@ -15,7 +15,7 @@
 #include "../misc/bagging.hpp"
 
 
-class ClassificationRF : public Forest {
+class ClassificationRF : public ClassificationForest {
 private:
     std::shared_ptr<ClassificationError> score_metric;
     std::shared_ptr<Density> densities;

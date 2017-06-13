@@ -16,6 +16,16 @@ extern "C" {
         return static_cast<void*>(forest);
     }
 
+    void c_fit_deep_forest(Dataset* dataset, Labels<target_t>* labels, void* forest_p) {
+        DeepForest* forest = static_cast<DeepForest*>(forest_p);
+        forest->fit(dataset, labels);
+    }
+
+    float* c_deep_forest_classify(Dataset* dataset, void* forest_p) {
+        DeepForest* forest = static_cast<DeepForest*>(forest_p);
+        return forest->classify(dataset);
+    }
+
     void c_add_scanner_1d(void* forest_p, LayerConfig lconfig, size_t kc) {
         DeepForest* forest = static_cast<DeepForest*>(forest_p);
         layer_p layer = std::shared_ptr<MultiGrainedScanner1D>(

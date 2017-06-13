@@ -21,6 +21,8 @@ private:
 public:
     DeepForest(int task);
     ~DeepForest() = default;
+    void fit(Dataset* dataset, Labels<target_t>* labels);
+    float* classify(Dataset* dataset);
     void add(layer_p layer);
 };
 

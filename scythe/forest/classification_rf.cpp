@@ -10,7 +10,7 @@
 
 ClassificationRF::ClassificationRF
         (ForestConfig* config, size_t n_instances, size_t n_features) :
-        Forest::Forest(config, n_instances, n_features) {
+        ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = false;
     this->score_metric = std::move(

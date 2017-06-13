@@ -14,3 +14,11 @@ DeepForest::DeepForest(int task) : layers(), task(task) {}
 void DeepForest::add(layer_p layer) {
     layers.push_back(layer);
 }
+
+void DeepForest::fit(Dataset* dataset, Labels<target_t>* labels) {
+    // TODO
+}
+
+float* DeepForest::classify(Dataset* dataset) {
+    return nullptr; // TODO
+}
