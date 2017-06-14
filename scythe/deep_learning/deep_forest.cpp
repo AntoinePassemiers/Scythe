@@ -10,7 +10,7 @@
 
 
 DeepForest::DeepForest(int task) : 
-    layers(), task(task), front(nullptr), rear(nullptr) {}
+    layers(), task(task), front(nullptr), rear(nullptr), cascade_buffer(nullptr) {}
 
 void DeepForest::add(layer_p layer) {
     layers.push_back(layer);
@@ -29,11 +29,31 @@ void DeepForest::add(layer_p parent, layer_p child) {
     rear = child;
 }
 
-void DeepForest::fit(Dataset* dataset, Labels<target_t>* labels) {
+void DeepForest::allocateCascadeBuffer(MDDataset dataset) {
+    if (cascade_buffer != nullptr) {
+        delete[] cascade_buffer;
+    }
+    size_t required_size = 0;
     layer_p current_layer = front;
-    // TODO
+    std::shared_ptr<VirtualDataset> current_vdataset;
+    do {
+        current_vdataset = current_layer.get()->virtualize(dataset);
+        if (current_layer.get()->getRequiredMemorySize() > required_size) {
+            required_size = current_layer.get()->getRequiredMemorySize();
+        }
+
+    } while (current_layer.get()->getNumChildren() > 0);
+    cascade_buffer = static_cast<data_t*>(malloc(required_size * sizeof(data_t)));
 }
 
-float* DeepForest::classify(Dataset* dataset) {
+void DeepForest::fit(MDDataset dataset, Labels<target_t>* labels) {
+    layer_p current_layer = front;
+    std::shared_ptr<VirtualDataset> current_vdataset;
+    do {
+        current_vdataset = current_layer.get()->virtualize(dataset);
+    } while (current_layer.get()->getNumChildren() > 0);
+}
+
+float* DeepForest::classify(MDDataset dataset) {
     return nullptr; // TODO
 }

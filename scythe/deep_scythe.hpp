@@ -20,9 +20,9 @@ extern "C" {
 
     void* c_create_deep_forest(int task);
 
-    void c_fit_deep_forest(Dataset* dataset, Labels<target_t>* labels, void* forest_p);
+    void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, void* forest_p);
 
-    float* c_deep_forest_classify(Dataset* dataset, void* forest_p);
+    float* c_deep_forest_classify(MDDataset dataset, void* forest_p);
 
     void c_add_scanner_1d(void* forest_p, LayerConfig lconfig, size_t kc);
 

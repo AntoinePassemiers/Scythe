@@ -34,6 +34,7 @@ public:
     data_t operator()(size_t i, size_t j);
     size_t getNumInstances();
     size_t getNumFeatures();
+    size_t getRequiredMemorySize();
 };
 
 
@@ -41,6 +42,8 @@ class MultiGrainedScanner3D : public Layer {
 public:
     MultiGrainedScanner3D(LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
     ~MultiGrainedScanner3D() = default;
+    vdataset_p virtualize(MDDataset dataset);
+    size_t getRequiredMemorySize();
 };
 
 #endif // SCANNER3D_HPP_

@@ -24,7 +24,24 @@ size_t ScannedDataset3D::getNumFeatures() {
     return this->Mprime;
 }
 
+size_t ScannedDataset3D::getRequiredMemorySize() {
+    return this->Nprime * this->Mprime;
+}
+
 MultiGrainedScanner3D::MultiGrainedScanner3D(
         LayerConfig lconfig, size_t kc, size_t kr, size_t kd) : Layer(lconfig) {
     Layer::vdataset = std::shared_ptr<VirtualDataset>(new ScannedDataset3D(kc, kr, kd));
+}
+
+vdataset_p MultiGrainedScanner3D::virtualize(MDDataset dataset) {
+    return nullptr; // TODO
+}
+
+size_t MultiGrainedScanner3D::getRequiredMemorySize() {
+    size_t memory_size = this->vdataset.get()->getNumInstances();
+    assert(memory_size > 0);
+    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+        memory_size *= lconfig.fconfig.n_classes;
+    }
+    return memory_size;
 }

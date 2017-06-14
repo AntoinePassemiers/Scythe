@@ -21,7 +21,7 @@
 
 #include "../../forest/forest.hpp"
 
-constexpr size_t MAX_N_FORESTS_PER_LAYER = 10000;
+    
 
 class Layer; // Forward declaration
 
@@ -31,7 +31,6 @@ struct LayerConfig {
     ForestConfig fconfig;
     size_t       n_forests;
     int          forest_type;
-
     LayerConfig();
 };
 
@@ -59,7 +58,7 @@ protected:
     std::vector<layer_p> children; // children layers
     std::vector<std::shared_ptr<Forest>> forests; // Intern forests
 
-    std::shared_ptr<VirtualDataset> vdataset; // Virtual dataset
+    vdataset_p vdataset; // Virtual dataset
     LayerConfig lconfig; // Layer configuration
 
     bool grown = false; // Indicates whether the layer has learned or not
@@ -68,6 +67,10 @@ public:
     Layer(LayerConfig lconfig);
     ~Layer() = default;
     void add(layer_p layer);
+    virtual vdataset_p virtualize(MDDataset dataset) = 0;
+    size_t getNumChildren();
+    vdataset_p getVirtualDataset();
+    virtual size_t getRequiredMemorySize() = 0;
     // void grow(VirtualDataset vdataset);
 };
 

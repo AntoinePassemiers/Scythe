@@ -16,6 +16,7 @@ Layer::Layer(LayerConfig lconfig) :
     name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
     children(), forests(), vdataset(nullptr), lconfig() {
     this->lconfig = lconfig;
+
     ForestConfig* fconfig = &(lconfig.fconfig);
     std::shared_ptr<Forest> new_forest;
     for (size_t i = 0; i < lconfig.n_forests; i++) {
@@ -30,4 +31,12 @@ Layer::Layer(LayerConfig lconfig) :
 
 void Layer::add(layer_p layer) {
     children.push_back(layer);
+}
+
+vdataset_p Layer::getVirtualDataset() {
+    return this->vdataset;
+}
+
+size_t Layer::getNumChildren() {
+    return this->children.size();
 }

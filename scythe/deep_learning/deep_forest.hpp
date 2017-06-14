@@ -18,13 +18,15 @@ private:
     int task;
     layer_p front;
     layer_p rear;
+    data_t* cascade_buffer;
 public:
     DeepForest(int task);
     ~DeepForest() = default;
-    void fit(Dataset* dataset, Labels<target_t>* labels);
-    float* classify(Dataset* dataset);
+    void fit(MDDataset dataset, Labels<target_t>* labels);
+    float* classify(MDDataset dataset);
     void add(layer_p layer);
-    void add (layer_p parent, layer_p child);
+    void add(layer_p parent, layer_p child);
+    void allocateCascadeBuffer(MDDataset dataset);
 };
 
 #endif // DEEP_FOREST_HPP_

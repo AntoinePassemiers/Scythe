@@ -16,12 +16,12 @@ extern "C" {
         return static_cast<void*>(forest);
     }
 
-    void c_fit_deep_forest(Dataset* dataset, Labels<target_t>* labels, void* forest_p) {
+    void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, void* forest_p) {
         DeepForest* forest = static_cast<DeepForest*>(forest_p);
         forest->fit(dataset, labels);
     }
 
-    float* c_deep_forest_classify(Dataset* dataset, void* forest_p) {
+    float* c_deep_forest_classify(MDDataset dataset, void* forest_p) {
         DeepForest* forest = static_cast<DeepForest*>(forest_p);
         return forest->classify(dataset);
     }

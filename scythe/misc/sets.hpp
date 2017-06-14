@@ -9,20 +9,39 @@
 #ifndef SETS_HPP_
 #define SETS_HPP_
 
+#include <queue>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+#include <memory>
+#include <limits>
+#include <cassert>
+#include <string.h>
+
+
+constexpr size_t MAX_N_DIMS = 7;
 
 typedef unsigned int uint;
 typedef double data_t;
 typedef double target_t;
+
+class VirtualDataset; // Forward declaration
+
+typedef std::shared_ptr<VirtualDataset> vdataset_p;
 
 // Data samples without target values
 struct Dataset {
     data_t* data;
     size_t n_rows;
     size_t n_cols;
+};
+
+// Data samples contained in a multi-dimensional dataset
+struct MDDataset {
+    data_t* data;
+    size_t n_dims;
+    size_t dims[MAX_N_DIMS];
 };
 
 // Target values
@@ -40,6 +59,7 @@ public:
     virtual data_t operator()(const size_t i, const size_t j) = 0;
     virtual size_t getNumInstances() = 0;
     virtual size_t getNumFeatures() = 0;
+    virtual size_t getRequiredMemorySize() = 0;
 };
 
 
@@ -67,6 +87,7 @@ public:
     data_t operator()(const size_t i, const size_t j);
     size_t getNumInstances() { return n_rows; }
     size_t getNumFeatures() { return n_cols; }
+    size_t getRequiredMemorySize() { return n_rows * n_cols; }
 };
 
 #endif // SETS_HPP_
