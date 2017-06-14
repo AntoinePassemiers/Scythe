@@ -34,9 +34,3 @@ https://arxiv.org/abs/1702.08835
 - [ ] Proper Makefile: fix fPIC error for Linux users
 
 - [ ] Python wrapper of the LayerConfig structure
-
-## License
-
-Copyright © 2017 Scythe
-
-Distributed under the Eclipse Public License either version 1.0.
