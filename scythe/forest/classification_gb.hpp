@@ -20,9 +20,9 @@ private:
 public:
     ClassificationGB(ForestConfig*, size_t, size_t);
     void preprocessDensities(VirtualDataset* dataset);
-    void fit(VirtualDataset* dataset, target_t* targets);
-    float* fitBaseTree(VirtualDataset* dataset, target_t* targets);
-    void fitNewTree(VirtualDataset* dataset, data_t* gradient);
+    void fit(VirtualDataset* dataset, VirtualTargets* targets);
+    float* fitBaseTree(VirtualDataset* dataset, VirtualTargets* targets);
+    void fitNewTree(VirtualDataset* dataset, VirtualTargets* gradient);
     data_t* predictGradient(std::shared_ptr<Tree> tree, VirtualDataset* dataset);
     void applySoftmax(float* probabilities, data_t* F_k);
     ~ClassificationGB() = default;

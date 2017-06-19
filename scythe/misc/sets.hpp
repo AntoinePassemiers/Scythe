@@ -26,9 +26,12 @@ typedef unsigned int uint;
 typedef double data_t;
 typedef double target_t;
 
-class VirtualDataset; // Forward declaration
+// Forward declarations
+class VirtualDataset;
+class VirtualTargets;
 
 typedef std::shared_ptr<VirtualDataset> vdataset_p;
+typedef std::shared_ptr<VirtualTargets> vtargets_p;
 
 // Data samples without target values
 struct Dataset {
@@ -63,16 +66,6 @@ public:
 };
 
 
-template <typename T>
-class AbstractTargets {
-private:
-    T* data;
-public: 
-    virtual T operator()(const size_t i) = 0;
-    virtual ~AbstractTargets() = default;
-};
-
-
 class DirectDataset : public VirtualDataset {
 private:
     data_t* data;
@@ -84,10 +77,35 @@ public:
     DirectDataset(const DirectDataset& other);
     DirectDataset& operator=(const DirectDataset& other);
     ~DirectDataset() = default;
-    data_t operator()(const size_t i, const size_t j);
+    inline data_t operator()(const size_t i, const size_t j);
+    inline size_t getNumInstances() { return n_rows; }
+    inline size_t getNumFeatures() { return n_cols; }
+    inline size_t getRequiredMemorySize() { return n_rows * n_cols; }
+};
+
+
+class VirtualTargets {
+public:
+    VirtualTargets() {};
+    virtual ~VirtualTargets() = default;
+    virtual target_t operator[](const size_t i) = 0;
+    virtual size_t getNumInstances() = 0;
+    virtual target_t* getValues() = 0;
+};
+
+
+class DirectTargets : public VirtualTargets {
+private:
+    target_t* data;
+    size_t n_rows;
+public:
+    DirectTargets(data_t* data, size_t n_instances);
+    DirectTargets(const DirectTargets& other);
+    DirectTargets& operator=(const DirectTargets& other);
+    ~DirectTargets() = default;
+    data_t operator[](const size_t i);
     size_t getNumInstances() { return n_rows; }
-    size_t getNumFeatures() { return n_cols; }
-    size_t getRequiredMemorySize() { return n_rows * n_cols; }
+    target_t* getValues() { return data; }
 };
 
 #endif // SETS_HPP_

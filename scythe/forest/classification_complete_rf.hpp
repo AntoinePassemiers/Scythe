@@ -23,8 +23,8 @@ public:
     ClassificationCompleteRF(ForestConfig*, size_t, size_t);
     void init();
     void preprocessDensities(VirtualDataset* dataset);
-    void fit(VirtualDataset* dataset, target_t* targets);
-    void fitNewTree(VirtualDataset* dataset, target_t* targets);
+    void fit(VirtualDataset* dataset, VirtualTargets* targets);
+    void fitNewTree(VirtualDataset* dataset, VirtualTargets* targets);
     float* classify(VirtualDataset* dataset);
     ~ClassificationCompleteRF() = default;
 };

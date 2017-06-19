@@ -27,9 +27,11 @@ extern "C" {
         config->task = gbdf::CLASSIFICATION_TASK;
         DirectDataset* direct_dataset = new DirectDataset(
             dataset->data, dataset->n_rows, dataset->n_cols);
+        DirectTargets* direct_targets = new DirectTargets(
+            labels->data, dataset->n_rows);
         Density* densities = computeDensities(direct_dataset, dataset->n_rows, dataset->n_cols,
             config->n_classes, config->nan_value, config->partitioning);
-        return static_cast<void*>(CART(direct_dataset, static_cast<target_t*>(labels->data), config, densities));
+        return static_cast<void*>(CART(direct_dataset, direct_targets, config, densities));
     }
 
     void* fit_regression_tree(Dataset* dataset, Labels<data_t>* targets, TreeConfig* config) {
@@ -47,10 +49,12 @@ extern "C" {
         config->task = gbdf::REGRESSION_TASK;
         DirectDataset* direct_dataset = new DirectDataset(
             dataset->data, dataset->n_rows, dataset->n_cols);
+        DirectTargets* direct_targets = new DirectTargets(
+            targets->data, dataset->n_rows);
         Density* densities = computeDensities(direct_dataset, dataset->n_rows, dataset->n_cols,
             config->n_classes, config->nan_value, config->partitioning);
         return static_cast<void*>(CART(
-            direct_dataset, static_cast<target_t*>(targets->data), config, densities));
+            direct_dataset, direct_targets, config, densities));
     }
 
     float* tree_classify(Dataset* dataset, void* tree_p, TreeConfig* config) {
@@ -127,7 +131,8 @@ extern "C" {
             std::cout << "Error: this type of forest does not exist" << std::endl;
         }
         DirectDataset* vdataset = new DirectDataset(*dataset);
-        forest->fit(vdataset, labels->data);
+        DirectTargets* vtargets = new DirectTargets(labels->data, dataset->n_rows);
+        forest->fit(vdataset, vtargets);
         return static_cast<void*>(forest);
     }
 

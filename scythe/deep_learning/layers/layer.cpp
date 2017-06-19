@@ -14,7 +14,7 @@ LayerConfig::LayerConfig() :
 
 Layer::Layer(LayerConfig lconfig) :
     name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
-    children(), forests(), vdataset(nullptr), lconfig() {
+    children(), forests(), vdataset(nullptr), vtargets(nullptr), lconfig() {
     this->lconfig = lconfig;
 
     ForestConfig* fconfig = &(lconfig.fconfig);

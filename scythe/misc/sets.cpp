@@ -28,3 +28,19 @@ DirectDataset& DirectDataset::operator=(const DirectDataset& other) {
 data_t DirectDataset::operator()(size_t i, size_t j) {
     return this->data[i * this->n_cols + j];
 }
+
+DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
+    data(data), n_rows(n_instances) {}
+
+DirectTargets::DirectTargets(const DirectTargets& other) :
+    data(other.data), n_rows(other.n_rows) {}
+
+DirectTargets& DirectTargets::operator=(const DirectTargets& other) {
+    this->data = other.data;
+    this->n_rows = other.n_rows;
+    return *this;
+}
+
+data_t DirectTargets::operator[](const size_t i) {
+    return this->data[i];
+}

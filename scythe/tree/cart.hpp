@@ -90,23 +90,23 @@ struct Density {
 
 template <typename T>
 struct Splitter {
-    int       task;
-    Node*     node;
-    size_t    n_instances;
-    data_t*   partition_values;
-    size_t    n_classes;
-    double    mean_left;
-    double    mean_right;
-    size_t    n_left;
-    size_t    n_right;
-    size_t*   belongs_to;
-    size_t    feature_id;
-    size_t    n_features;
-    T*        targets;
-    data_t    nan_value;
-    int       best_split_id;
-    NodeSpace node_space;
-    bool      is_complete_random;
+    int             task;
+    Node*           node;
+    size_t          n_instances;
+    data_t*         partition_values;
+    size_t          n_classes;
+    double          mean_left;
+    double          mean_right;
+    size_t          n_left;
+    size_t          n_right;
+    size_t*         belongs_to;
+    size_t          feature_id;
+    size_t          n_features;
+    VirtualTargets* targets;
+    data_t          nan_value;
+    int             best_split_id;
+    NodeSpace       node_space;
+    bool            is_complete_random;
 };
 
 struct Tree {
@@ -133,11 +133,11 @@ inline float GiniCoefficient(float probability);
 
 double getFeatureCost(Density* density, size_t n_classes);
 
-void initRoot(Node* root, target_t* const targets, size_t n_instances, size_t n_classes);
+void initRoot(Node* root, VirtualTargets* const targets, size_t n_instances, size_t n_classes);
 
-Tree* CART(VirtualDataset* dataset, target_t* const targets, TreeConfig* config, Density* densities);
+Tree* CART(VirtualDataset* dataset, VirtualTargets* const targets, TreeConfig* config, Density* densities);
 
-Tree* CART(VirtualDataset* dataset, target_t* const targets, TreeConfig* config, Density* densities, size_t* belongs_to);
+Tree* CART(VirtualDataset* dataset, VirtualTargets* const targets, TreeConfig* config, Density* densities, size_t* belongs_to);
 
 float* classifyFromTree(VirtualDataset* data, size_t n_instances, size_t n_features,
                         Tree* const tree, TreeConfig* config);

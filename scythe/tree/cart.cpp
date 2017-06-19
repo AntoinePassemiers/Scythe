@@ -180,13 +180,13 @@ double getFeatureCost(Density* density, size_t n_classes) {
     return left_cost + right_cost;
 }
 
-Tree* CART(VirtualDataset* dataset, target_t* targets, TreeConfig* config, Density* densities) {
+Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config, Density* densities) {
     size_t n_instances = dataset->getNumInstances();
     size_t* belongs_to = static_cast<size_t*>(calloc(n_instances, sizeof(size_t)));
     return CART(dataset, targets, config, densities, belongs_to);
 }
 
-Tree* CART(VirtualDataset* dataset, target_t* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
+Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
     size_t n_instances = dataset->getNumInstances();
     size_t n_features  = dataset->getNumFeatures();
     Node* current_node = new Node(config->n_classes);
@@ -196,7 +196,7 @@ Tree* CART(VirtualDataset* dataset, target_t* targets, TreeConfig* config, Densi
     if (config->task == gbdf::CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
         for (uint i = 0; i < n_instances; i++) {
-            current_node->counters[static_cast<size_t>(targets[i])]++;
+            current_node->counters[static_cast<size_t>((*targets)[i])]++;
         }
     }
     Node* child_node;

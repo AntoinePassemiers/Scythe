@@ -88,7 +88,7 @@ public:
             base_tree_config.max_n_features = config->max_n_features;
             base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     }
-    virtual void fit(VirtualDataset* dataset, target_t* targets) = 0;
+    virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
     virtual ~Forest() = default;
 };
 

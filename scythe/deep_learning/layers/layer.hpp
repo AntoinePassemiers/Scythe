@@ -59,6 +59,7 @@ protected:
     std::vector<std::shared_ptr<Forest>> forests; // Intern forests
 
     vdataset_p vdataset; // Virtual dataset
+    vtargets_p vtargets; // Virtual target values
     LayerConfig lconfig; // Layer configuration
 
     bool grown = false; // Indicates whether the layer has learned or not

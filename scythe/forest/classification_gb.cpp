@@ -20,7 +20,7 @@ ClassificationGB::ClassificationGB
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-float* ClassificationGB::fitBaseTree(VirtualDataset* dataset, target_t* targets) {
+float* ClassificationGB::fitBaseTree(VirtualDataset* dataset, VirtualTargets* targets) {
     this->prediction_state = 0;
     this->base_tree = *CART(
         dataset, 
@@ -40,7 +40,8 @@ float* ClassificationGB::fitBaseTree(VirtualDataset* dataset, target_t* targets)
     return probabilities;
 }
 
-void ClassificationGB::fitNewTree(VirtualDataset* dataset, data_t* gradient) {
+void ClassificationGB::fitNewTree(VirtualDataset* dataset, VirtualTargets* gradient) {
+
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset, gradient, &grad_trees_config, this->densities.get()));
     Forest::trees.push_back(new_tree);
@@ -81,7 +82,7 @@ void ClassificationGB::preprocessDensities(VirtualDataset* dataset) {
         Forest::base_tree_config.partitioning)));
 }
 
-void ClassificationGB::fit(VirtualDataset* dataset, target_t* targets) {
+void ClassificationGB::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     // Compute density functions of all features
     this->preprocessDensities(dataset);
 
@@ -95,13 +96,14 @@ void ClassificationGB::fit(VirtualDataset* dataset, target_t* targets) {
     assert(n_classes == this->score_metric.get()->getNumberOfRequiredTrees());
     uint n_boost = 0;
     while (n_boost++ < Forest::config.n_iter) {
-        this->score_metric.get()->computeGradient(probabilities, targets);
+        this->score_metric.get()->computeGradient(probabilities, targets->getValues());
         for (uint i = 0; i < n_classes; i++) {
             data_t* gradient = dynamic_cast<MultiLogLossError*>(
                 this->score_metric.get())->getGradientAt(i);
+            DirectTargets* vgradient = new DirectTargets(gradient, dataset->getNumInstances());
             
             // Fit new tree
-            this->fitNewTree(dataset, gradient);
+            this->fitNewTree(dataset, vgradient);
             // Predict with new tree
             data_t* predictions = this->predictGradient(Forest::trees.back(), dataset);
 

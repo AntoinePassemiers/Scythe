@@ -43,7 +43,7 @@ inline float GiniCoefficient(float probability) {
 
 template <typename T>
 double evaluatePartitions(VirtualDataset* data, Density* density,
-                                 Splitter<T>* splitter, size_t k) {
+                          Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t n_features = splitter->n_features;
     data_t data_point;
@@ -55,7 +55,7 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
     density->split_value = splitter->partition_values[k];
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
-            target_value = splitter->targets[j];
+            target_value = (*splitter->targets)[j];
             data_point = (*data)(j, i);
             if (data_point == splitter->nan_value) {
                 density->counters_nan[static_cast<size_t>(target_value)]++;
@@ -83,7 +83,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     size_t* belongs_to = splitter->belongs_to;
     size_t n_left = 0, n_right = 0;
     density->split_value = splitter->partition_values[k];
-    T* targets = splitter->targets;
+    VirtualTargets* targets = splitter->targets;
     data_t split_value = density->split_value;
     double mean_left = 0, mean_right = 0;
     double cost = 0.0;
@@ -91,7 +91,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (belongs_to[j] == id) {
             data_point = (*data)(j, i);
-            y = static_cast<double>(splitter->targets[j]);
+            y = static_cast<double>((*splitter->targets)[j]);
             // if (data_point == nan_value) {}
             if (data_point >= split_value) {
                 mean_right += y;
@@ -113,7 +113,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = (*data)(j, i);
-            y = splitter->targets[j];
+            y = (*splitter->targets)[j];
             // if (data_point == splitter->nan_value) {}
             if (data_point >= split_value) {
                 cost += std::abs(mean_right - y); // TODO : use squared error ?

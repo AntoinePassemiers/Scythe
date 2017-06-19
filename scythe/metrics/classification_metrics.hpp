@@ -11,6 +11,7 @@
 
 #include "metrics.hpp"
 #include "../tree/cart.hpp"
+#include "../misc/sets.hpp"
 
 /*
 Reference
@@ -29,8 +30,8 @@ public:
     inline size_t getNumberOfClasses() { return this->n_classes; }
     inline size_t getNumberOfInstances() { return this->n_instances; }
     virtual size_t getNumberOfRequiredTrees() = 0;
-    virtual void computeGradient(float* const, target_t* const) = 0;
-    virtual loss_t computeLoss(float* const, target_t* const) = 0;
+    virtual void computeGradient(float* const, data_t* const) = 0;
+    virtual loss_t computeLoss(float* const, VirtualTargets* const) = 0;
     ClassificationError();
     ClassificationError(size_t n_classes, size_t n_instances);
     virtual ~ClassificationError();
@@ -50,11 +51,11 @@ public:
 
     inline double getStabilityThreshold() { return this->stability_threshold; }
 
-    loss_t computeLoss(float* const probabilities, target_t* const targets) {
+    loss_t computeLoss(float* const probabilities, VirtualTargets* const targets) {
         loss_t loss = 0.0;
         for (uint i = 0; i < this->n_instances; i++) {
             for (uint j = 0; j < this->n_classes; j++) {
-                if (static_cast<size_t>(targets[i]) == j) {
+                if (static_cast<size_t>((*targets)[i]) == j) {
                     data_t prob = probabilities[i * this->n_classes + j];
                     prob = std::max(std::min(prob, 1.0 - this->stability_threshold), this->stability_threshold);
                     loss -= std::log(prob);
@@ -64,7 +65,7 @@ public:
         return loss / static_cast<double>(n_instances);
     }
 
-    void computeGradient(float* const probabilities, target_t* const targets) {
+    void computeGradient(float* const probabilities, data_t* const targets) {
         for (uint i = 0; i < this->n_instances; i++) {
             for (uint j = 0; j < this->n_classes; j++) {
                 data_t prob = probabilities[i * this->n_classes + j];

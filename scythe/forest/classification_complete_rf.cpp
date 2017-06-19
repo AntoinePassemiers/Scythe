@@ -18,7 +18,7 @@ ClassificationCompleteRF::ClassificationCompleteRF
             new MultiLogLossError(config->n_classes, n_instances)));
 }
 
-void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, target_t* targets) {
+void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset->getNumInstances(), config.bag_size);
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
@@ -40,7 +40,7 @@ void ClassificationCompleteRF::preprocessDensities(VirtualDataset* dataset) {
         Forest::base_tree_config.partitioning)));
 }
 
-void ClassificationCompleteRF::fit(VirtualDataset* dataset, target_t* targets) {
+void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     // Compute density functions of all features
     this->preprocessDensities(dataset);
 
