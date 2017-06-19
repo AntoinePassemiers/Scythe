@@ -20,7 +20,12 @@
 #include <string.h>
 
 #include "../../forest/forest.hpp"
-
+#include "../../forest/classification_complete_rf.hpp"
+#include "../../forest/classification_rf.hpp"
+#include "../../forest/classification_gb.hpp"
+// #include "../../forest/regression_complete_rf.hpp"
+// #include "../../forest/regression_rf.hpp"
+// #include "../../forest/regression_gb.hpp"
     
 
 class Layer; // Forward declaration
@@ -70,9 +75,10 @@ public:
     void add(layer_p layer);
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
     size_t getNumChildren();
+    std::vector<layer_p> getChildren() { return children; }
     vdataset_p getVirtualDataset();
     virtual size_t getRequiredMemorySize() = 0;
-    // void grow(VirtualDataset vdataset);
+    void grow(VirtualDataset* vdataset, VirtualTargets* vtargets);
 };
 
 #endif // LAYER_HPP_

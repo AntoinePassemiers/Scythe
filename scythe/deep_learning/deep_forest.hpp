@@ -9,6 +9,9 @@
 #ifndef DEEP_FOREST_HPP_
 #define DEEP_FOREST_HPP_
 
+#include <algorithm>
+#include <queue>
+
 #include "layers/layer.hpp"
 
 
@@ -19,6 +22,7 @@ private:
     layer_p front;
     layer_p rear;
     data_t* cascade_buffer;
+    size_t cascade_buffer_size;
 public:
     DeepForest(int task);
     ~DeepForest() = default;
@@ -26,7 +30,8 @@ public:
     float* classify(MDDataset dataset);
     void add(layer_p layer);
     void add(layer_p parent, layer_p child);
-    void allocateCascadeBuffer(MDDataset dataset);
+    size_t allocateCascadeBuffer(MDDataset dataset);
+    size_t getCascadeBufferSize() { return cascade_buffer_size; }
 };
 
 #endif // DEEP_FOREST_HPP_

@@ -18,7 +18,7 @@ OBJS += classification_metrics.o regression_metrics.o
 OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
 OBJS += bagging.o heuristics.o sets.o layer.o
-OBJS += deep_forest.o cascade.o scanner1D.o scanner2D.o scanner3D.o
+OBJS += deep_forest.o scanner1D.o scanner2D.o scanner3D.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
@@ -61,9 +61,6 @@ classification_complete_rf.o: forest/classification_complete_rf.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 layer.o: deep_learning/layers/layer.cpp
-	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
-
-cascade.o: deep_learning/cascade.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 scanner1D.o: deep_learning/layers/scanner1D.cpp
