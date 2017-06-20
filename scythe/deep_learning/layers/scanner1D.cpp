@@ -14,9 +14,28 @@ ScannedDataset1D::ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc) 
     M(M),                // Instance height
     kc(kc),              // Kernel width
     sc(M - kc + 1),      // Number of kernel positions per column
-    Nprime(0), // TODO
-    Mprime(0), // TODO
+    Nprime(N * sc),      // Number of instances after scanning
+    Mprime(kc),          // Number of features after scanning
     data(data) {}
+
+ScannedDataset1D::ScannedDataset1D(const ScannedDataset1D& other) :
+    N(other.N),
+    M(other.M),
+    kc(other.kc),
+    sc(other.sc),
+    Nprime(other.Nprime),
+    Mprime(other.Mprime),
+    data(other.data) {}
+
+ScannedDataset1D& ScannedDataset1D::operator=(const ScannedDataset1D& other) {
+    this->N = other.N;
+    this->M = other.M;
+    this->kc = other.kc;
+    this->sc = other.sc;
+    this->Nprime = other.Nprime;
+    this->Mprime = other.Mprime;
+    this->data = other.data;
+}
 
 data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
@@ -71,7 +90,7 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
     return Layer::vdataset;
 }
 
-vtargets_p MultiGrainedScanner1D::virtualize(Labels<target_t>* targets) {
+vtargets_p MultiGrainedScanner1D::virtualizeTargets(Labels<target_t>* targets) {
     ScannedDataset1D* vdataset = dynamic_cast<ScannedDataset1D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t n_rows = vdataset->getNumInstances();

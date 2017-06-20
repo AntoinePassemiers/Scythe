@@ -62,3 +62,9 @@ vdataset_p Layer::getVirtualDataset() {
 size_t Layer::getNumChildren() {
     return this->children.size();
 }
+
+std::ostream& operator<<(std::ostream& os, Layer* const layer) {
+    std::cout << "VVVVVV" << std::endl;
+    return os << "Layer type: "   << layer->getType() << std::endl
+              << "Virtual size: " << layer->getRequiredMemorySize() << std::endl;
+}

@@ -28,16 +28,20 @@ private:
 
     size_t Nprime; // Number of instances after scanning
     size_t Mprime; // Number of features after scanning
+
+    data_t* data; // Pointer to the raw data
 public:
-    ScannedDataset3D(size_t kc, size_t kr, size_t kd);
-    ~ScannedDataset3D() = default;
-    data_t operator()(size_t i, size_t j);
+    ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd);
+    ScannedDataset3D(const ScannedDataset3D& other);
+    ScannedDataset3D& operator=(const ScannedDataset3D& other);
+    ~ScannedDataset3D() override = default;
     size_t getSc();
     size_t getSr();
     size_t getSd();
-    size_t getNumInstances();
-    size_t getNumFeatures();
-    size_t getRequiredMemorySize();
+    virtual data_t operator()(size_t i, size_t j);
+    virtual size_t getNumInstances();
+    virtual size_t getNumFeatures();
+    virtual size_t getRequiredMemorySize();
 };
 
 
@@ -50,20 +54,25 @@ public:
     ScannedTargets3D(data_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd);
     ScannedTargets3D(const ScannedTargets3D& other);
     ScannedTargets3D& operator=(const ScannedTargets3D& other);
-    ~ScannedTargets3D() = default;
-    data_t operator[](const size_t i);
-    size_t getNumInstances() { return n_rows; }
-    target_t* getValues() { return data; }
+    ~ScannedTargets3D() override = default;
+    virtual data_t operator[](const size_t i);
+    virtual size_t getNumInstances() { return n_rows; }
+    virtual target_t* getValues() { return data; }
 };
 
 
 class MultiGrainedScanner3D : public Layer {
+private:
+    size_t kc; // Kernel width
+    size_t kr; // Kernel height
+    size_t kd; // Kernel depth
 public:
     MultiGrainedScanner3D(LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
     ~MultiGrainedScanner3D() = default;
-    vdataset_p virtualize(MDDataset dataset);
-    vtargets_p virtualize(Labels<target_t>* targets);
-    size_t getRequiredMemorySize();
+    virtual vdataset_p virtualize(MDDataset dataset);
+    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    virtual size_t getRequiredMemorySize();
+    virtual std::string getType() { return std::string("MultiGrainedScanner3D"); }
 };
 
 #endif // SCANNER3D_HPP_

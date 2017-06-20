@@ -9,8 +9,51 @@
 #include "scanner3D.hpp"
 
 
-ScannedDataset3D::ScannedDataset3D(size_t kc, size_t kr, size_t kd) : 
-    N(0), M(0), P(0), Q(0), kc(kc), kr(kr), kd(kd), sc(0), sr(0), sd(0), Nprime(0), Mprime(0) {}
+ScannedDataset3D::ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd) : 
+    N(0), 
+    M(0), 
+    P(0), 
+    Q(0), 
+    kc(kc), 
+    kr(kr), 
+    kd(kd), 
+    sc(0), 
+    sr(0), 
+    sd(0), 
+    Nprime(0), 
+    Mprime(0),
+    data(data) {}
+
+ScannedDataset3D::ScannedDataset3D(const ScannedDataset3D& other) :
+    N(other.N),
+    M(other.M),
+    P(other.P),
+    Q(other.Q),
+    kc(other.kc),
+    kr(other.kr),
+    kd(other.kd),
+    sc(other.sc),
+    sr(other.sr),
+    sd(other.sd),
+    Nprime(other.Nprime),
+    Mprime(other.Mprime),
+    data(other.data) {}
+
+ScannedDataset3D& ScannedDataset3D::operator=(const ScannedDataset3D& other) {
+    this->N = other.N;
+    this->M = other.M;
+    this->P = other.P;
+    this->Q = other.Q;
+    this->kc = other.kc;
+    this->kr = other.kr;
+    this->kd = other.kd;
+    this->sc = other.sc;
+    this->sr = other.sr;
+    this->sd = other.sd;
+    this->Nprime = other.Nprime;
+    this->Mprime = other.Mprime;
+    this->data = other.data;
+}
 
 data_t ScannedDataset3D::operator()(size_t i, size_t j) {
     return 0; // TODO
@@ -56,17 +99,14 @@ data_t ScannedTargets3D::operator[](const size_t i) {
     return data[i / s];
 }
 
-MultiGrainedScanner3D::MultiGrainedScanner3D(
-        LayerConfig lconfig, size_t kc, size_t kr, size_t kd) : Layer(lconfig) {
-    Layer::vdataset = std::shared_ptr<VirtualDataset>(
-        new ScannedDataset3D(kc, kr, kd));
-}
+MultiGrainedScanner3D::MultiGrainedScanner3D(LayerConfig lconfig, size_t kc, size_t kr, size_t kd) : 
+    Layer(lconfig), kc(kc), kr(kr), kd(kd) {}
 
 vdataset_p MultiGrainedScanner3D::virtualize(MDDataset dataset) {
     return nullptr; // TODO
 }
 
-vtargets_p MultiGrainedScanner3D::virtualize(Labels<target_t>* targets) {
+vtargets_p MultiGrainedScanner3D::virtualizeTargets(Labels<target_t>* targets) {
     ScannedDataset3D* vdataset = dynamic_cast<ScannedDataset3D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t sr = vdataset->getSr();

@@ -74,12 +74,15 @@ public:
     ~Layer() = default;
     void add(layer_p layer);
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
-    virtual vtargets_p virtualize(Labels<target_t>* targets) = 0;
+    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets) = 0;
     size_t getNumChildren();
     std::vector<layer_p> getChildren() { return children; }
     vdataset_p getVirtualDataset();
     virtual size_t getRequiredMemorySize() = 0;
+    virtual std::string getType() = 0;
     void grow(VirtualDataset* vdataset, VirtualTargets* vtargets);
 };
+
+std::ostream& operator<<(std::ostream& os, Layer* const layer);
 
 #endif // LAYER_HPP_

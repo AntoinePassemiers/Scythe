@@ -76,11 +76,11 @@ public:
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
     DirectDataset(const DirectDataset& other);
     DirectDataset& operator=(const DirectDataset& other);
-    ~DirectDataset() = default;
-    inline data_t operator()(const size_t i, const size_t j);
-    inline size_t getNumInstances() { return n_rows; }
-    inline size_t getNumFeatures() { return n_cols; }
-    inline size_t getRequiredMemorySize() { return n_rows * n_cols; }
+    ~DirectDataset() override = default;
+    virtual data_t operator()(const size_t i, const size_t j);
+    virtual size_t getNumInstances() { return n_rows; }
+    virtual size_t getNumFeatures() { return n_cols; }
+    virtual size_t getRequiredMemorySize() { return n_rows * n_cols; }
 };
 
 
@@ -102,10 +102,10 @@ public:
     DirectTargets(data_t* data, size_t n_instances);
     DirectTargets(const DirectTargets& other);
     DirectTargets& operator=(const DirectTargets& other);
-    ~DirectTargets() = default;
-    data_t operator[](const size_t i);
-    size_t getNumInstances() { return n_rows; }
-    target_t* getValues() { return data; }
+    ~DirectTargets() override = default;
+    virtual data_t operator[](const size_t i);
+    virtual size_t getNumInstances() { return n_rows; }
+    virtual target_t* getValues() { return data; }
 };
 
 #endif // SETS_HPP_

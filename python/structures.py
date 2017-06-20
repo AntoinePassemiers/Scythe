@@ -89,7 +89,7 @@ class Labels(ctypes.Structure):
         Number of rows in the labels array
     """
     _fields_ = [
-        ("data", ctypes.POINTER(ctypes.c_double)),
+        ("data", c_double_p),
         ("n_rows", ctypes.c_size_t)]
 
     def __init__(self, data):
@@ -111,6 +111,41 @@ class Labels(ctypes.Structure):
     def __len__(self):
         """ Return the number of targets """
         return self.n_rows
+
+
+class MDDataset(ctypes.Structure):
+    """
+    Multi-dimensional dataset, with a maximum of 7 dimensions
+
+    Fields
+    ------
+    data : np.ndarray[dtype = np.double]
+        Multi-dimensional array containing the data samples
+    """
+    _fields_ = [
+        ("data", c_double_p),
+        ("n_dims", ctypes.c_size_t),
+        ("dims", ctypes.c_size_t * 7)]
+
+    def __init__(self, data):
+        """
+        Ensures the data array is C-contiguous and stores the pointer
+        to the first element.
+
+        Parameters
+        ----------
+        data : np.ndarray[dtype = np.double]
+            Array containing the data samples
+        """
+        # Ensuring the data is C-contiguous
+        self.np_data = np.ascontiguousarray(data, dtype = np.double)
+        # Retrieving the pointer to the first element
+        self.data = self.np_data.ctypes.data_as(c_double_p)
+        # Retrieving the number of dimensions
+        self.n_dims = len(self.np_data.shape)
+        # Retrieving the size of each dimension
+        for i in range(7):
+            self.dims[i] = self.np_data.shape[i] if i < self.n_dims else 0
 
 
 class TreeConfig(ctypes.Structure):
@@ -209,6 +244,10 @@ class ForestConfig(ctypes.Structure):
         ("verbose", ctypes.c_int),
         ("nan_value", ctypes.c_double)]
 
+    def __init__(self, **kwargs):
+        for key in kwargs.keys():
+            setattr(self, key, kwargs[key])
+
 
 class LayerConfig(ctypes.Structure):
     """
@@ -226,5 +265,9 @@ class LayerConfig(ctypes.Structure):
     _fields_ = [
         ("fconfig", ForestConfig),
         ("n_forests", ctypes.c_size_t),
-        ("forest_type", ctypes.c_int)
-    ]
+        ("forest_type", ctypes.c_int)]
+
+    def __init__(self, lconfig, n_forests, forest_type):
+        self.lconfig = lconfig
+        self.n_forests = n_forests
+        self.forest_type = forest_type

@@ -22,6 +22,31 @@ ScannedDataset2D::ScannedDataset2D(
     Mprime(kc * kr),     // Number of features after scanning
     data(data) {}
 
+ScannedDataset2D::ScannedDataset2D(const ScannedDataset2D& other) :
+    N(other.N),
+    M(other.M),
+    P(other.P),
+    kc(other.kc),
+    kr(other.kr),
+    sc(other.sc),
+    sr(other.sr),
+    Nprime(other.Nprime),
+    Mprime(other.Mprime),
+    data(other.data) {}
+
+ScannedDataset2D& ScannedDataset2D::operator=(const ScannedDataset2D& other) {
+    this->N = other.N;
+    this->M = other.M;
+    this->P = other.P;
+    this->kc = other.kc;
+    this->kr = other.kr;
+    this->sc = other.sc;
+    this->sr = other.sr;
+    this->Nprime = other.Nprime;
+    this->Mprime = other.Mprime;
+    this->data = other.data;
+}
+
 data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }
@@ -81,7 +106,7 @@ vdataset_p MultiGrainedScanner2D::virtualize(MDDataset dataset) {
     return Layer::vdataset;
 }
 
-vtargets_p MultiGrainedScanner2D::virtualize(Labels<target_t>* targets) {
+vtargets_p MultiGrainedScanner2D::virtualizeTargets(Labels<target_t>* targets) {
     ScannedDataset2D* vdataset = dynamic_cast<ScannedDataset2D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t sr = vdataset->getSr();

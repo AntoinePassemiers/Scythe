@@ -119,3 +119,10 @@ class DeepForest:
     def add(self, layer):
         assert(isinstance(layer, Layer))
         layer.addToGraph(self.deep_forest_p)
+    def fit(self, X, y):
+        assert(isinstance(X, MDDataset))
+        assert(isinstance(y, Labels))
+        scythe.c_fit_deep_forest(
+            ctypes.byref(X),
+            ctypes.byref(y),
+            self.deep_forest_p)

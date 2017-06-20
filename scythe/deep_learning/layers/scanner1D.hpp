@@ -26,12 +26,14 @@ private:
     data_t* data; // Pointer to the raw data
 public:
     ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc);
-    ~ScannedDataset1D() = default;
-    data_t operator()(size_t i, size_t j);
+    ScannedDataset1D(const ScannedDataset1D& other);
+    ScannedDataset1D& operator=(const ScannedDataset1D& other);
+    ~ScannedDataset1D() override = default;
     size_t getSc();
-    size_t getNumInstances();
-    size_t getNumFeatures();
-    size_t getRequiredMemorySize();
+    virtual data_t operator()(size_t i, size_t j);
+    virtual size_t getNumInstances();
+    virtual size_t getNumFeatures();
+    virtual size_t getRequiredMemorySize();
 };
 
 
@@ -44,10 +46,10 @@ public:
     ScannedTargets1D(data_t* data, size_t n_instances, size_t sc);
     ScannedTargets1D(const ScannedTargets1D& other);
     ScannedTargets1D& operator=(const ScannedTargets1D& other);
-    ~ScannedTargets1D() = default;
-    data_t operator[](const size_t i);
-    size_t getNumInstances() { return n_rows; }
-    target_t* getValues() { return data; }
+    ~ScannedTargets1D() override = default;
+    virtual data_t operator[](const size_t i);
+    virtual size_t getNumInstances() { return n_rows; }
+    virtual target_t* getValues() { return data; }
 };
 
 
@@ -57,9 +59,10 @@ private:
 public:
     MultiGrainedScanner1D(LayerConfig lconfig, size_t kc);
     ~MultiGrainedScanner1D() = default;
-    vdataset_p virtualize(MDDataset dataset);
-    vtargets_p virtualize(Labels<target_t>* targets);
-    size_t getRequiredMemorySize();
+    virtual vdataset_p virtualize(MDDataset dataset);
+    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    virtual size_t getRequiredMemorySize();
+    virtual std::string getType() { return std::string("MultiGrainedScanner1D"); }
 };
 
 #endif // SCANNER1D_HPP_
