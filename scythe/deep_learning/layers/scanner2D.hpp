@@ -31,9 +31,27 @@ public:
     ScannedDataset2D(data_t* data, size_t N, size_t M, size_t P, size_t kc, size_t kr);
     ~ScannedDataset2D() = default;
     data_t operator()(size_t i, size_t j);
+    size_t getSc();
+    size_t getSr();
     size_t getNumInstances();
     size_t getNumFeatures();
     size_t getRequiredMemorySize();
+};
+
+
+class ScannedTargets2D : public VirtualTargets {
+private:
+    target_t* data;
+    size_t n_rows;
+    size_t s;
+public:
+    ScannedTargets2D(data_t* data, size_t n_instances, size_t sc, size_t sr);
+    ScannedTargets2D(const ScannedTargets2D& other);
+    ScannedTargets2D& operator=(const ScannedTargets2D& other);
+    ~ScannedTargets2D() = default;
+    data_t operator[](const size_t i);
+    size_t getNumInstances() { return n_rows; }
+    target_t* getValues() { return data; }
 };
 
 
@@ -45,6 +63,7 @@ public:
     MultiGrainedScanner2D(LayerConfig lconfig, size_t kc, size_t kr);
     ~MultiGrainedScanner2D() = default;
     vdataset_p virtualize(MDDataset dataset);
+    vtargets_p virtualize(Labels<target_t>* targets);
     size_t getRequiredMemorySize();
 };
 

@@ -22,6 +22,10 @@ data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }
 
+size_t ScannedDataset1D::getSc() {
+    return this->sc;
+}
+
 size_t ScannedDataset1D::getNumInstances() {
     return this->Nprime;
 }
@@ -32,6 +36,22 @@ size_t ScannedDataset1D::getNumFeatures() {
 
 size_t ScannedDataset1D::getRequiredMemorySize() {
     return this->Nprime * this->Mprime;
+}
+
+ScannedTargets1D::ScannedTargets1D(data_t* data, size_t n_instances, size_t sc) :
+    data(data), n_rows(n_instances), s(sc) {}
+
+ScannedTargets1D::ScannedTargets1D(const ScannedTargets1D& other) :
+    data(other.data), n_rows(other.n_rows), s(other.s) {}
+
+ScannedTargets1D& ScannedTargets1D::operator=(const ScannedTargets1D& other) {
+    this->data = data;
+    this->n_rows = n_rows;
+    this->s = s;
+}
+
+data_t ScannedTargets1D::operator[](const size_t i) {
+    return data[i / s];
 }
 
 MultiGrainedScanner1D::MultiGrainedScanner1D(LayerConfig lconfig, size_t kc) : 
@@ -49,6 +69,14 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
             dataset.dims[1],
             this->kc));
     return Layer::vdataset;
+}
+
+vtargets_p MultiGrainedScanner1D::virtualize(Labels<target_t>* targets) {
+    ScannedDataset1D* vdataset = dynamic_cast<ScannedDataset1D*>((this->vdataset).get());
+    size_t sc = vdataset->getSc();
+    size_t n_rows = vdataset->getNumInstances();
+    assert(sc > 0);
+    return std::shared_ptr<ScannedTargets1D>(new ScannedTargets1D(targets->data, n_rows, sc));
 }
 
 size_t MultiGrainedScanner1D::getRequiredMemorySize() {

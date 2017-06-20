@@ -32,9 +32,28 @@ public:
     ScannedDataset3D(size_t kc, size_t kr, size_t kd);
     ~ScannedDataset3D() = default;
     data_t operator()(size_t i, size_t j);
+    size_t getSc();
+    size_t getSr();
+    size_t getSd();
     size_t getNumInstances();
     size_t getNumFeatures();
     size_t getRequiredMemorySize();
+};
+
+
+class ScannedTargets3D : public VirtualTargets {
+private:
+    target_t* data;
+    size_t n_rows;
+    size_t s;
+public:
+    ScannedTargets3D(data_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd);
+    ScannedTargets3D(const ScannedTargets3D& other);
+    ScannedTargets3D& operator=(const ScannedTargets3D& other);
+    ~ScannedTargets3D() = default;
+    data_t operator[](const size_t i);
+    size_t getNumInstances() { return n_rows; }
+    target_t* getValues() { return data; }
 };
 
 
@@ -43,6 +62,7 @@ public:
     MultiGrainedScanner3D(LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
     ~MultiGrainedScanner3D() = default;
     vdataset_p virtualize(MDDataset dataset);
+    vtargets_p virtualize(Labels<target_t>* targets);
     size_t getRequiredMemorySize();
 };
 

@@ -74,6 +74,7 @@ public:
     ~Layer() = default;
     void add(layer_p layer);
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
+    virtual vtargets_p virtualize(Labels<target_t>* targets) = 0;
     size_t getNumChildren();
     std::vector<layer_p> getChildren() { return children; }
     vdataset_p getVirtualDataset();
