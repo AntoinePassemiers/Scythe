@@ -45,7 +45,6 @@ template <typename T>
 double evaluatePartitions(VirtualDataset* data, Density* density,
                           Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
-    size_t n_features = splitter->n_features;
     data_t data_point;
     target_t target_value;
     size_t id = splitter->node->id;
@@ -76,7 +75,6 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
                                  Splitter<T>* splitter, size_t k) {
 
     size_t i = splitter->feature_id;
-    size_t n_features = splitter->n_features;
     data_t data_point, nan_value = splitter->nan_value;
     double y;
     size_t id = splitter->node->id;
@@ -91,7 +89,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (belongs_to[j] == id) {
             data_point = (*data)(j, i);
-            y = static_cast<double>((*splitter->targets)[j]);
+            y = static_cast<double>((*targets)[j]);
             // if (data_point == nan_value) {}
             if (data_point >= split_value) {
                 mean_right += y;
@@ -113,7 +111,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = (*data)(j, i);
-            y = (*splitter->targets)[j];
+            y = (*targets)[j];
             // if (data_point == splitter->nan_value) {}
             if (data_point >= split_value) {
                 cost += std::abs(mean_right - y); // TODO : use squared error ?

@@ -58,7 +58,7 @@ private:
     size_t kc; // Kernel width
 public:
     MultiGrainedScanner1D(LayerConfig lconfig, size_t kc);
-    ~MultiGrainedScanner1D() = default;
+    ~MultiGrainedScanner1D() {}
     virtual vdataset_p virtualize(MDDataset dataset);
     virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
     virtual size_t getRequiredMemorySize();

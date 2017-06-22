@@ -66,8 +66,8 @@ void ClassificationGB::applySoftmax(float* probabilities, data_t* F_k) {
             softmax_divisor += std::exp(F_k[p * n_classes + i]);
         }
         for (uint i = 0; i < n_classes; i++) {
-            probabilities[p * n_classes + i] = std::exp(
-                F_k[p * n_classes + i]) / softmax_divisor;
+            probabilities[p * n_classes + i] = static_cast<float>(
+                std::exp(F_k[p * n_classes + i]) / softmax_divisor);
         }
     }
 }

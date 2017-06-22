@@ -4,7 +4,7 @@
 
 import abc
 
-from structures import *
+from functions import *
 from layers import *
 
 REGRESSION     = "regression"
@@ -115,14 +115,15 @@ class DeepForest:
         assert(task in [REGRESSION, CLASSIFICATION])
         self.task = task
         d = CLASSIFICATION_TASK if (self.task == CLASSIFICATION) else REGRESSION_TASK
-        self.deep_forest_p = scythe.c_create_deep_forest(d)
+        self.deep_forest_id = scythe.c_create_deep_forest(ctypes.c_int(d))
+        print(self.deep_forest_id)
     def add(self, layer):
         assert(isinstance(layer, Layer))
-        layer.addToGraph(self.deep_forest_p)
+        layer.addToGraph(self.deep_forest_id)
     def fit(self, X, y):
         assert(isinstance(X, MDDataset))
         assert(isinstance(y, Labels))
         scythe.c_fit_deep_forest(
-            ctypes.byref(X),
+            X,
             ctypes.byref(y),
-            self.deep_forest_p)
+            ctypes.c_size_t(self.deep_forest_id))

@@ -16,19 +16,28 @@
 #include "deep_learning/layers/scanner3D.hpp"
 
 
+struct CppClassesInterface {
+    size_t num_df_ptrs;
+    std::vector<DeepForest*> df_ptrs;
+    CppClassesInterface() : num_df_ptrs(0), df_ptrs() {}
+    DeepForest* get(size_t i);
+};
+
+extern CppClassesInterface cpp_classes_interface;
+
 extern "C" {
 
-    void* c_create_deep_forest(int task);
+    size_t c_create_deep_forest(int task);
 
-    void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, void* forest_p);
+    void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, size_t forest_id);
 
     float* c_deep_forest_classify(MDDataset dataset, void* forest_p);
 
-    void c_add_scanner_1d(void* forest_p, LayerConfig lconfig, size_t kc);
+    void c_add_scanner_1d(size_t forest_id, LayerConfig lconfig, size_t kc);
 
-    void c_add_scanner_2d(void* forest_p, LayerConfig lconfig, size_t kc, size_t kr);
+    void c_add_scanner_2d(size_t forest_id, LayerConfig lconfig, size_t kc, size_t kr);
 
-    void c_add_scanner_3d(void* forest_p, LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
+    void c_add_scanner_3d(size_t forest_id, LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
 
     /**
     void c_add_direct_layer(void* forest_p, LayerConfig lconfig);

@@ -16,23 +16,14 @@ Layer::Layer(LayerConfig lconfig) :
     name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
     children(), forests(), vdataset(nullptr), vtargets(nullptr), lconfig() {
     this->lconfig = lconfig;
-
-    ForestConfig* fconfig = &(lconfig.fconfig);
-    std::shared_ptr<Forest> new_forest;
-    for (size_t i = 0; i < lconfig.n_forests; i++) {
-        if (lconfig.forest_type == gbdf::RANDOM_FOREST) {
-            /**
-            new_forest = std::shared_ptr(
-                new )
-            */
-        }
-    }
 }
+
+Layer::~Layer() {}
 
 void Layer::grow(VirtualDataset* vdataset, VirtualTargets* vtargets) {
     assert(forests.size() == 0);
     Forest* forest;
-    for (int i = 0; i < lconfig.n_forests; i++) {
+    for (unsigned int i = 0; i < lconfig.n_forests; i++) {
         if (lconfig.forest_type == gbdf::RANDOM_FOREST) {
             forest = new ClassificationRF(&lconfig.fconfig, vdataset->getNumInstances(), vdataset->getNumFeatures());
         }
@@ -65,6 +56,8 @@ size_t Layer::getNumChildren() {
 
 std::ostream& operator<<(std::ostream& os, Layer* const layer) {
     std::cout << "VVVVVV" << std::endl;
+    std::cout << layer->getType() << std::endl;
+    std::cout << layer->getRequiredMemorySize() << std::endl;
     return os << "Layer type: "   << layer->getType() << std::endl
               << "Virtual size: " << layer->getRequiredMemorySize() << std::endl;
 }

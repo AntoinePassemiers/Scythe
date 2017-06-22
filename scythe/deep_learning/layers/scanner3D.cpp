@@ -53,6 +53,7 @@ ScannedDataset3D& ScannedDataset3D::operator=(const ScannedDataset3D& other) {
     this->Nprime = other.Nprime;
     this->Mprime = other.Mprime;
     this->data = other.data;
+    return *this;
 }
 
 data_t ScannedDataset3D::operator()(size_t i, size_t j) {
@@ -93,6 +94,7 @@ ScannedTargets3D& ScannedTargets3D::operator=(const ScannedTargets3D& other) {
     this->data = data;
     this->n_rows = n_rows;
     this->s = s;
+    return *this;
 }
 
 data_t ScannedTargets3D::operator[](const size_t i) {

@@ -19,9 +19,9 @@ private:
 public:
     RegressionGB(ForestConfig*, size_t, size_t);
     void init();
-    void fit(VirtualDataset* dataset, target_t* targets);
-    float* fitBaseTree(VirtualDataset* dataset, target_t* targets);
-    void fitNewTree(VirtualDataset* dataset, data_t* gradient);
+    void fit(VirtualDataset* dataset, VirtualTargets* targets);
+    float* fitBaseTree(VirtualDataset* dataset, VirtualTargets* targets);
+    void fitNewTree(VirtualDataset* dataset, VirtualTargets* gradient);
     data_t* predictGradient(std::shared_ptr<Tree> tree, VirtualDataset* dataset);
     ~RegressionGB() = default;
 };

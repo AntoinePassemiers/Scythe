@@ -71,7 +71,7 @@ protected:
 
 public:
     Layer(LayerConfig lconfig);
-    ~Layer() = default;
+    virtual ~Layer() = 0;
     void add(layer_p layer);
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
     virtual vtargets_p virtualizeTargets(Labels<target_t>* targets) = 0;

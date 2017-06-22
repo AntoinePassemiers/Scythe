@@ -69,10 +69,10 @@ private:
 public:
     MultiGrainedScanner3D(LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
     ~MultiGrainedScanner3D() = default;
-    virtual vdataset_p virtualize(MDDataset dataset);
-    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
-    virtual size_t getRequiredMemorySize();
-    virtual std::string getType() { return std::string("MultiGrainedScanner3D"); }
+    vdataset_p virtualize(MDDataset dataset);
+    vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    size_t getRequiredMemorySize();
+    std::string getType() { return std::string("MultiGrainedScanner3D"); }
 };
 
 #endif // SCANNER3D_HPP_

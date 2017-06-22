@@ -12,7 +12,7 @@ class Layer(object):
         self.config = None
         # TODO
     @abc.abstractmethod
-    def addToGraph(self, graph):
+    def addToGraph(self, graph_id):
         return None
 
 
@@ -20,7 +20,7 @@ class DirectLayer(Layer):
     def __init__(self, lconfig, **kwargs):
         Layer.__init__(self, **kwargs)
         self.lconfig = lconfig
-    def addToGraph(self, graph):
+    def addToGraph(self, graph_id):
         raise NotImplementedError()
 
 
@@ -28,7 +28,7 @@ class CascadeLayer(Layer):
     def __init__(self, lconfig, **kwargs):
         Layer.__init__(self, **kwargs)
         self.lconfig
-    def addToGraph(self, graph):
+    def addToGraph(self, graph_id):
         raise NotImplementedError()
 
 
@@ -40,9 +40,9 @@ class MultiGrainedScanner1D(Layer):
         assert(len(kernel_shape) == 1)
         self.kernel_shape = kernel_shape
         self.lconfig = lconfig
-    def addToGraph(self, graph):
+    def addToGraph(self, graph_id):
         scythe.c_add_scanner_1d(
-            ctypes.c_void_p(graph),
+            ctypes.c_size_t(int(graph_id)),
             self.lconfig,
             self.kernel_shape[0])
 
@@ -55,9 +55,9 @@ class MultiGrainedScanner2D(Layer):
         assert(len(kernel_shape) == 2)
         self.kernel_shape = kernel_shape
         self.lconfig = lconfig
-    def addToGraph(self, graph):
+    def addToGraph(self, graph_id):
         scythe.c_add_scanner_2d(
-            ctypes.c_void_p(graph),
+            ctypes.c_size_t(int(graph_id)),
             self.lconfig,
             self.kernel_shape[0],
             self.kernel_shape[1])
@@ -71,9 +71,9 @@ class MultiGrainedScanner3D(Layer):
         assert(len(kernel_shape) == 3)
         self.kernel_shape = kernel_shape
         self.lconfig = lconfig
-    def addToGraph(self, graph):
+    def addToGraph(self, graph_id):
         scythe.c_add_scanner_3d(
-            ctypes.c_void_p(graph),
+            ctypes.c_size_t(int(graph_id)),
             self.lconfig,
             self.kernel_shape[0],
             self.kernel_shape[1],

@@ -25,6 +25,8 @@ private:
     size_t cascade_buffer_size;
 public:
     DeepForest(int task);
+    DeepForest(const DeepForest& other);
+    DeepForest& operator=(const DeepForest& other);
     ~DeepForest() = default;
     void fit(MDDataset dataset, Labels<target_t>* labels);
     float* classify(MDDataset dataset);
@@ -32,6 +34,7 @@ public:
     void add(layer_p parent, layer_p child);
     size_t allocateCascadeBuffer(MDDataset dataset);
     size_t getCascadeBufferSize() { return cascade_buffer_size; }
+    layer_p getFront() { return front; }
 };
 
 #endif // DEEP_FOREST_HPP_
