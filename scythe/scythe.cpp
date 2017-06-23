@@ -29,8 +29,8 @@ extern "C" {
             dataset->data, dataset->n_rows, dataset->n_cols);
         DirectTargets* direct_targets = new DirectTargets(
             labels->data, dataset->n_rows);
-        Density* densities = computeDensities(direct_dataset, dataset->n_rows, dataset->n_cols,
-            config->n_classes, config->nan_value, config->partitioning);
+        Density* densities = computeDensities(
+            direct_dataset, config->n_classes, config->nan_value, config->partitioning);
         return static_cast<void*>(CART(direct_dataset, direct_targets, config, densities));
     }
 
@@ -51,8 +51,8 @@ extern "C" {
             dataset->data, dataset->n_rows, dataset->n_cols);
         DirectTargets* direct_targets = new DirectTargets(
             targets->data, dataset->n_rows);
-        Density* densities = computeDensities(direct_dataset, dataset->n_rows, dataset->n_cols,
-            config->n_classes, config->nan_value, config->partitioning);
+        Density* densities = computeDensities(
+            direct_dataset, config->n_classes, config->nan_value, config->partitioning);
         return static_cast<void*>(CART(
             direct_dataset, direct_targets, config, densities));
     }

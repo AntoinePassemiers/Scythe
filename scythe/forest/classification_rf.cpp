@@ -30,19 +30,9 @@ void ClassificationRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targe
     Forest::trees.push_back(new_tree);
 }
 
-void ClassificationRF::preprocessDensities(VirtualDataset* dataset) {
-    this->densities = std::move(std::shared_ptr<Density>(computeDensities(
-        dataset, 
-        dataset->getNumInstances(), 
-        dataset->getNumFeatures(),
-        Forest::base_tree_config.n_classes, 
-        Forest::base_tree_config.nan_value, 
-        Forest::base_tree_config.partitioning)));
-}
-
 void ClassificationRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     // Compute density functions of all features
-    this->preprocessDensities(dataset);
+    Forest::preprocessDensities(dataset);
 
     // Fitting each individual tree
     #pragma omp parallel for num_threads(Forest::config.n_jobs)

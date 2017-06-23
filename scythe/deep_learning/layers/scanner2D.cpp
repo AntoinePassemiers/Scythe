@@ -10,7 +10,7 @@
 
 
 ScannedDataset2D::ScannedDataset2D(
-    data_t* data, size_t N, size_t M, size_t P, size_t kc, size_t kr) : 
+    data_t* data, size_t N, size_t M, size_t P, size_t kc, size_t kr, int dtype) : 
     N(N),                // Number of instances
     M(M),                // Instance height
     P(P),                // Instance width
@@ -20,7 +20,8 @@ ScannedDataset2D::ScannedDataset2D(
     sr(M - kr + 1),      // Number of kernel positions per row
     Nprime(N * sr * sc), // Number of instances after scanning
     Mprime(kc * kr),     // Number of features after scanning
-    data(data) {}
+    data(data),
+    dtype(dtype) {}
 
 ScannedDataset2D::ScannedDataset2D(const ScannedDataset2D& other) :
     N(other.N),
@@ -32,7 +33,8 @@ ScannedDataset2D::ScannedDataset2D(const ScannedDataset2D& other) :
     sr(other.sr),
     Nprime(other.Nprime),
     Mprime(other.Mprime),
-    data(other.data) {}
+    data(other.data),
+    dtype(other.dtype) {}
 
 ScannedDataset2D& ScannedDataset2D::operator=(const ScannedDataset2D& other) {
     this->N = other.N;
@@ -45,6 +47,7 @@ ScannedDataset2D& ScannedDataset2D::operator=(const ScannedDataset2D& other) {
     this->Nprime = other.Nprime;
     this->Mprime = other.Mprime;
     this->data = other.data;
+    this->dtype = other.dtype;
     return *this;
 }
 
@@ -104,7 +107,8 @@ vdataset_p MultiGrainedScanner2D::virtualize(MDDataset dataset) {
             dataset.dims[1],
             dataset.dims[2],
             this->kc,
-            this->kr));
+            this->kr,
+            dataset.dtype));
     return Layer::vdataset;
 }
 

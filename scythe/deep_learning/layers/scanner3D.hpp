@@ -30,8 +30,9 @@ private:
     size_t Mprime; // Number of features after scanning
 
     data_t* data; // Pointer to the raw data
+    int dtype;    // Raw data type
 public:
-    ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd);
+    ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd, int dtype);
     ScannedDataset3D(const ScannedDataset3D& other);
     ScannedDataset3D& operator=(const ScannedDataset3D& other);
     ~ScannedDataset3D() override = default;
@@ -42,6 +43,7 @@ public:
     virtual size_t getNumInstances();
     virtual size_t getNumFeatures();
     virtual size_t getRequiredMemorySize();
+    virtual int getDataType() { return dtype; }
 };
 
 

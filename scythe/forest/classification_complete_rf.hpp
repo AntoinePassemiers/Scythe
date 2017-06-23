@@ -18,7 +18,6 @@
 class ClassificationCompleteRF : public ClassificationForest {
 private:
     std::shared_ptr<ClassificationError> score_metric;
-    std::shared_ptr<Density> densities;
 public:
     ClassificationCompleteRF(ForestConfig*, size_t, size_t);
     void init();

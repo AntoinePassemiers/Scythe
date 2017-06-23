@@ -9,14 +9,16 @@
 #include "scanner1D.hpp"
 
 
-ScannedDataset1D::ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc) : 
+ScannedDataset1D::ScannedDataset1D(
+    data_t* data, size_t N, size_t M, size_t kc, int dtype) : 
     N(N),                // Number of instances
     M(M),                // Instance height
     kc(kc),              // Kernel width
     sc(M - kc + 1),      // Number of kernel positions per column
     Nprime(N * sc),      // Number of instances after scanning
     Mprime(kc),          // Number of features after scanning
-    data(data) {}
+    data(data),
+    dtype(dtype) {}
 
 ScannedDataset1D::ScannedDataset1D(const ScannedDataset1D& other) :
     N(other.N),
@@ -25,7 +27,8 @@ ScannedDataset1D::ScannedDataset1D(const ScannedDataset1D& other) :
     sc(other.sc),
     Nprime(other.Nprime),
     Mprime(other.Mprime),
-    data(other.data) {}
+    data(other.data),
+    dtype(other.dtype) {}
 
 ScannedDataset1D& ScannedDataset1D::operator=(const ScannedDataset1D& other) {
     this->N = other.N;
@@ -35,6 +38,7 @@ ScannedDataset1D& ScannedDataset1D::operator=(const ScannedDataset1D& other) {
     this->Nprime = other.Nprime;
     this->Mprime = other.Mprime;
     this->data = other.data;
+    this->dtype = other.dtype;
     return *this;
 }
 
@@ -88,7 +92,8 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
             dataset.data,
             dataset.dims[0],
             dataset.dims[1],
-            this->kc));
+            this->kc,
+            dataset.dtype));
     return Layer::vdataset;
 }
 

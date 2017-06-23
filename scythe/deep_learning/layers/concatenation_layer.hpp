@@ -18,6 +18,7 @@ private:
     size_t n_instances;
     size_t n_virtual_cols;
     size_t stride;
+    int dtype;
 public:
     ConcatenationDataset(size_t n_instances, size_t n_virtual_features);
     ConcatenationDataset(const ConcatenationDataset& other);
@@ -28,6 +29,7 @@ public:
     virtual size_t getNumInstances() { return n_instances; }
     virtual size_t getNumFeatures() { return stride; }
     virtual size_t getRequiredMemorySize() { return n_instances * n_virtual_cols; }
+    virtual int getDataType() { return dtype; }
 };
 
 #endif // CONCATENATION_LAYER_HPP_

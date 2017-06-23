@@ -9,7 +9,8 @@
 #include "scanner3D.hpp"
 
 
-ScannedDataset3D::ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd) : 
+ScannedDataset3D::ScannedDataset3D(
+    data_t* data, size_t kc, size_t kr, size_t kd, int dtype) : 
     N(0), 
     M(0), 
     P(0), 
@@ -22,7 +23,8 @@ ScannedDataset3D::ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd
     sd(0), 
     Nprime(0), 
     Mprime(0),
-    data(data) {}
+    data(data),
+    dtype(dtype) {}
 
 ScannedDataset3D::ScannedDataset3D(const ScannedDataset3D& other) :
     N(other.N),
@@ -37,7 +39,8 @@ ScannedDataset3D::ScannedDataset3D(const ScannedDataset3D& other) :
     sd(other.sd),
     Nprime(other.Nprime),
     Mprime(other.Mprime),
-    data(other.data) {}
+    data(other.data),
+    dtype(other.dtype) {}
 
 ScannedDataset3D& ScannedDataset3D::operator=(const ScannedDataset3D& other) {
     this->N = other.N;
@@ -53,6 +56,7 @@ ScannedDataset3D& ScannedDataset3D::operator=(const ScannedDataset3D& other) {
     this->Nprime = other.Nprime;
     this->Mprime = other.Mprime;
     this->data = other.data;
+    this->dtype = other.dtype;
     return *this;
 }
 

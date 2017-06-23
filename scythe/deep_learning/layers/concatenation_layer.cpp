@@ -14,19 +14,22 @@ ConcatenationDataset::ConcatenationDataset(size_t n_instances, size_t n_virtual_
     this->n_instances = n_instances;
     this->n_virtual_cols = n_virtual_features;
     this->stride = 0;
+    this->dtype = gbdf::DTYPE_PROBA; // TODO : dtype in case of a regression
 }
 
 ConcatenationDataset::ConcatenationDataset(const ConcatenationDataset& other) :
     data(other.data),
     n_instances(other.n_instances),
     n_virtual_cols(other.n_virtual_cols),
-    stride(other.stride) {}
+    stride(other.stride),
+    dtype(other.stride) {}
 
 ConcatenationDataset& ConcatenationDataset::operator=(const ConcatenationDataset& other) {
     this->data = other.data;
     this->n_instances = other.n_instances;
     this->n_virtual_cols = other.n_virtual_cols;
     this->stride = other.stride;
+    this->dtype = other.dtype;
     return *this;
 }
 

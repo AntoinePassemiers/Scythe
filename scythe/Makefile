@@ -13,12 +13,14 @@ else
 	TARGET = $(NAME).so
 endif
 
-OBJS := deep_scythe.o scythe.o cart.o classification_gb.o regression_gb.o
+OBJS := deep_scythe.o scythe.o cart.o forest.o
+OBJS += classification_gb.o regression_gb.o
 OBJS += classification_metrics.o regression_metrics.o
 OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
 OBJS += bagging.o heuristics.o sets.o layer.o concatenation_layer.o
 OBJS += deep_forest.o scanner1D.o scanner2D.o scanner3D.o
+OBJS += grayscale.o continuous.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
@@ -27,7 +29,16 @@ $(TARGET): $(OBJS)
 cart.o : tree/cart.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
+forest.o : forest/forest.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
 heuristics.o : tree/heuristics.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+continuous.o : densities/continuous.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+grayscale.o : densities/grayscale.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 sets.o : misc/sets.cpp

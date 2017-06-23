@@ -34,6 +34,10 @@ RANDOM_FOREST          = 0
 COMPLETE_RANDOM_FOREST = 1
 GRADIENT_BOOSTING      = 2
 
+DTYPE_PROBA  = 0;
+DTYPE_DOUBLE = 1;
+DTYPE_UINT_8  = 2;
+
 
 class Dataset(ctypes.Structure):
     """
@@ -102,6 +106,9 @@ class Labels(ctypes.Structure):
         data : np.ndarray[ndim = 1, dtype = np.double]
             Array containing the labels
         """
+        m, M = np.min(data), np.max(data)
+        assert(m == 0)
+        self.n_classes = M + 1
         # Ensuring the data is C-contiguous
         self.np_data = np.ascontiguousarray(data, dtype = np.double)
         # Retrieving the number of rows
@@ -125,7 +132,8 @@ class MDDataset(ctypes.Structure):
     _fields_ = [
         ("data", c_double_p),
         ("n_dims", ctypes.c_size_t),
-        ("dims", ctypes.c_size_t * 7)]
+        ("dims", ctypes.c_size_t * 7),
+        ("dtype", ctypes.c_int)]
 
     def __init__(self, data):
         """
@@ -137,6 +145,8 @@ class MDDataset(ctypes.Structure):
         data : np.ndarray[dtype = np.double]
             Array containing the data samples
         """
+        # Retrieving the raw data type
+        self.dtype = DTYPE_UINT_8 if data.dtype == np.uint8 else DTYPE_DOUBLE
         # Ensuring the data is C-contiguous
         self.np_data = np.ascontiguousarray(data, dtype = np.double)
         # Retrieving the pointer to the first element

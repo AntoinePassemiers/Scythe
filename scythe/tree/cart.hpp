@@ -22,6 +22,7 @@
 
 #include "../misc/sets.hpp"
 #include "heuristics.hpp"
+#include "../densities/continuous.hpp"
 
 constexpr int NO_FEATURE = -1;
 constexpr int NO_INSTANCE = 0;
@@ -31,11 +32,6 @@ constexpr int COST_OF_EMPTINESS = std::numeric_limits<int>::max();
 constexpr int INFINITE_DEPTH = -1;
 
 namespace gbdf {
-    // Partitioning of the input's density function
-    constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
-    constexpr int DECILE_PARTITIONING     = 0xB23A41;
-    constexpr int PERCENTILE_PARTITIONING = 0xB23A42;
-
     // Task of the tree / forest
     constexpr int CLASSIFICATION_TASK = 0xF55A90;
     constexpr int REGRESSION_TASK     = 0xF55A91;
@@ -75,19 +71,6 @@ struct TreeConfig {
     bool   is_complete_random;
 };
 
-struct Density {
-    bool    is_categorical;
-    data_t  split_value;
-    data_t* quartiles;
-    data_t* deciles;
-    data_t* percentiles;
-    data_t* values;
-    size_t  n_values;
-    size_t* counters_left;
-    size_t* counters_right;
-    size_t* counters_nan;
-};
-
 template <typename T>
 struct Splitter {
     int             task;
@@ -123,9 +106,6 @@ NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
 inline size_t sum_counts(size_t* counters, size_t n_counters);
-
-Density* computeDensities(VirtualDataset* data, size_t n_instances, size_t n_features,
-                          size_t n_classes, data_t nan_value, int partitioning);
 
 inline float ShannonEntropy(float probability);
 

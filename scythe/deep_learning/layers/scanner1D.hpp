@@ -24,8 +24,9 @@ private:
     size_t Mprime; // Number of features after scanning
 
     data_t* data; // Pointer to the raw data
+    int dtype;    // Raw data type
 public:
-    ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc);
+    ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc, int dtype);
     ScannedDataset1D(const ScannedDataset1D& other);
     ScannedDataset1D& operator=(const ScannedDataset1D& other);
     ~ScannedDataset1D() override = default;
@@ -34,6 +35,7 @@ public:
     virtual size_t getNumInstances();
     virtual size_t getNumFeatures();
     virtual size_t getRequiredMemorySize();
+    virtual int getDataType() { return dtype; }
 };
 
 

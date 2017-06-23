@@ -14,6 +14,8 @@
 
 #include "../metrics/metrics.hpp"
 #include "../tree/cart.hpp"
+#include "../densities/continuous.hpp"
+#include "../densities/grayscale.hpp"
 
 
 namespace gbdf {
@@ -68,6 +70,7 @@ protected:
 
     ptrdiff_t prediction_state;
     TreeConfig base_tree_config;
+    std::shared_ptr<Density> densities;
 public:
 
     Forest(ForestConfig* config, size_t n_instances, size_t n_features) : 
@@ -77,7 +80,8 @@ public:
         base_tree(), 
         trees(),
         prediction_state(0),
-        base_tree_config() {
+        base_tree_config(),
+        densities() {
             this->config = *config;
             base_tree_config.nan_value = config->nan_value;
             base_tree_config.n_classes = config->n_classes;
@@ -90,9 +94,9 @@ public:
     }
     virtual ~Forest() = default;
     virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
+    void preprocessDensities(VirtualDataset* dataset);
     virtual size_t getInstanceStride() = 0;
 };
-
 
 class ClassificationForest : public Forest {
 public:

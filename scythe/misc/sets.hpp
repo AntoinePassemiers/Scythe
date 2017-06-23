@@ -22,6 +22,12 @@
 
 constexpr size_t MAX_N_DIMS = 7;
 
+namespace gbdf {
+    constexpr int DTYPE_PROBA  = 0;
+    constexpr int DTYPE_DOUBLE = 1;
+    constexpr int DTYPE_UINT_8  = 2;
+}
+
 typedef unsigned int uint;
 typedef double data_t;
 typedef double target_t;
@@ -45,6 +51,7 @@ struct MDDataset {
     data_t* data;
     size_t n_dims;
     size_t dims[MAX_N_DIMS];
+    int dtype;
 };
 
 // Target values
@@ -63,6 +70,7 @@ public:
     virtual size_t getNumInstances() = 0;
     virtual size_t getNumFeatures() = 0;
     virtual size_t getRequiredMemorySize() = 0;
+    virtual int getDataType() = 0;
 };
 
 
@@ -71,6 +79,7 @@ private:
     data_t* data;
     size_t n_rows;
     size_t n_cols;
+    int dtype;
 public:
     DirectDataset(Dataset dataset);
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
@@ -81,6 +90,7 @@ public:
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
     virtual size_t getRequiredMemorySize() { return n_rows * n_cols; }
+    virtual int getDataType() { return dtype; }
 };
 
 

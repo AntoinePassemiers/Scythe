@@ -72,19 +72,9 @@ void ClassificationGB::applySoftmax(float* probabilities, data_t* F_k) {
     }
 }
 
-void ClassificationGB::preprocessDensities(VirtualDataset* dataset) {
-    this->densities = std::move(std::shared_ptr<Density>(computeDensities(
-        dataset,
-        dataset->getNumInstances(),
-        dataset->getNumFeatures(),
-        Forest::base_tree_config.n_classes, 
-        Forest::base_tree_config.nan_value, 
-        Forest::base_tree_config.partitioning)));
-}
-
 void ClassificationGB::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     // Compute density functions of all features
-    this->preprocessDensities(dataset);
+    Forest::preprocessDensities(dataset);
 
     // Fit the base classification tree
     float* probabilities = this->fitBaseTree(dataset, targets);

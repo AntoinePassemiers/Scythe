@@ -19,7 +19,7 @@ def loadMNISTTrainingSet(location = "."):
         images = np.fromfile(
             X_file, dtype = np.uint8).reshape(
                 len(labels), instances, features)
-
+    print("MNIST training set loaded: %i images" % len(images))
     return images, labels
 
 
