@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # graph.add(CascadeLayer())
     # graph.add(CascadeLayer())
 
-    X = MDDataset(np.random.rand(800, 10))
+    X = MDDataset(np.asarray(np.random.randint(0, 100, size = (800, 50)), dtype = np.double))
     y = Labels(np.random.randint(0, 3, size = 800))
 
     print("Fit gcForest")

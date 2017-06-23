@@ -62,6 +62,8 @@ public:
     virtual vdataset_p virtualize(MDDataset dataset);
     virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
     virtual size_t getRequiredMemorySize();
+    virtual size_t getNumVirtualFeatures();
+    virtual bool isConcatenable() { return false; }
     virtual std::string getType() { return std::string("MultiGrainedScanner1D"); }
 };
 

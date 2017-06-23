@@ -13,6 +13,7 @@
 #include <queue>
 
 #include "layers/layer.hpp"
+#include "layers/concatenation_layer.hpp"
 
 
 class DeepForest {
@@ -21,8 +22,7 @@ private:
     int task;
     layer_p front;
     layer_p rear;
-    data_t* cascade_buffer;
-    size_t cascade_buffer_size;
+    std::shared_ptr<ConcatenationDataset> cascade_buffer;
 public:
     DeepForest(int task);
     DeepForest(const DeepForest& other);
@@ -33,7 +33,7 @@ public:
     void add(layer_p layer);
     void add(layer_p parent, layer_p child);
     size_t allocateCascadeBuffer(MDDataset dataset);
-    size_t getCascadeBufferSize() { return cascade_buffer_size; }
+    void transfer(layer_p, vdataset_p, std::shared_ptr<ConcatenationDataset>);
     layer_p getFront() { return front; }
 };
 

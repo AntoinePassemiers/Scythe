@@ -101,10 +101,19 @@ vtargets_p MultiGrainedScanner1D::virtualizeTargets(Labels<target_t>* targets) {
 }
 
 size_t MultiGrainedScanner1D::getRequiredMemorySize() {
-    size_t memory_size = this->vdataset.get()->getNumInstances();
+    size_t memory_size = vdataset->getNumInstances();
     assert(memory_size > 0);
     if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
         memory_size *= lconfig.fconfig.n_classes;
     }
-    return memory_size;
+    return memory_size * lconfig.n_forests;
+}
+
+size_t MultiGrainedScanner1D::getNumVirtualFeatures() {
+    size_t n_vfeatures = dynamic_cast<ScannedDataset1D*>(vdataset.get())->getSc();
+    assert(n_vfeatures > 0);
+    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+        n_vfeatures *= lconfig.fconfig.n_classes;
+    }
+    return n_vfeatures * lconfig.n_forests;
 }

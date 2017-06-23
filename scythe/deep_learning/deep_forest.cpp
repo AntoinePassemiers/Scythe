@@ -14,16 +14,14 @@ DeepForest::DeepForest(int task) :
     task(task), 
     front(nullptr), 
     rear(nullptr), 
-    cascade_buffer(nullptr),
-    cascade_buffer_size(0) {}
+    cascade_buffer(nullptr) {}
 
 DeepForest::DeepForest(const DeepForest& other) :
     layers(other.layers),
     task(other.task),
     front(other.front),
     rear(other.rear),
-    cascade_buffer(other.cascade_buffer),
-    cascade_buffer_size(other.cascade_buffer_size) {}
+    cascade_buffer(other.cascade_buffer) {}
 
 DeepForest& DeepForest::operator=(const DeepForest& other) {
     this->layers = other.layers;
@@ -31,7 +29,6 @@ DeepForest& DeepForest::operator=(const DeepForest& other) {
     this->front = other.front;
     this->rear = other.rear;
     this->cascade_buffer = other.cascade_buffer;
-    this->cascade_buffer_size = other.cascade_buffer_size;
     return *this;
 }
 
@@ -56,9 +53,7 @@ void DeepForest::add(layer_p parent, layer_p child) {
 }
 
 size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
-    if (cascade_buffer != nullptr) {
-        delete[] cascade_buffer;
-    }
+    size_t n_virtual_features = 0;
     size_t required_size = 0;
     std::shared_ptr<VirtualDataset> current_vdataset;
     std::queue<layer_p> queue;
@@ -66,36 +61,72 @@ size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
     while (!queue.empty()) {
         layer_p current_layer = queue.front(); queue.pop();
         assert(current_layer.get() != nullptr);
-        Layer* l = current_layer.get();
-        current_vdataset = l->virtualize(dataset);
-        if (current_layer.get()->getRequiredMemorySize() > required_size) {
-            required_size = current_layer.get()->getRequiredMemorySize();
-        }
-        for (layer_p child : current_layer.get()->getChildren()) {
+        current_vdataset = current_layer->virtualize(dataset);
+        required_size += current_layer->getRequiredMemorySize();
+        n_virtual_features += current_layer->getNumVirtualFeatures();
+        for (layer_p child : current_layer->getChildren()) {
             queue.push(child);
         }
     }
-    cascade_buffer = static_cast<data_t*>(malloc(required_size * sizeof(data_t)));
+    assert(required_size == dataset.dims[0] * n_virtual_features);
+    cascade_buffer = std::shared_ptr<ConcatenationDataset>(
+        new ConcatenationDataset(dataset.dims[0], n_virtual_features));
     return required_size;
 }
 
+void DeepForest::transfer(layer_p layer, vdataset_p vdataset, std::shared_ptr<ConcatenationDataset> buffer) {
+    for (std::shared_ptr<Forest> forest_p : layer->getForests()) {
+        if (layer->isClassifier()) {
+            float* predictions = dynamic_cast<ClassificationForest*>(
+                forest_p.get())->classify(vdataset.get());
+            size_t stride = forest_p->getInstanceStride();
+            buffer->concatenate(predictions, stride);
+        }
+        // TODO : regression
+    }
+}
+
 void DeepForest::fit(MDDataset dataset, Labels<target_t>* labels) {
-    this->cascade_buffer_size = allocateCascadeBuffer(dataset);
+    allocateCascadeBuffer(dataset);
     vdataset_p current_vdataset;
     vtargets_p current_vtargets;
     std::queue<layer_p> queue;
     queue.push(front);
+    current_vdataset = front->virtualize(dataset);
+    current_vtargets = front->virtualizeTargets(labels);
+    front->grow(current_vdataset, current_vtargets);
     while (!queue.empty()) {
         layer_p current_layer = queue.front(); queue.pop();
-        current_vdataset = current_layer.get()->virtualize(dataset);
-        current_vtargets = current_layer.get()->virtualizeTargets(labels);
-        for (layer_p child : current_layer.get()->getChildren()) {
+        transfer(current_layer, current_vdataset, cascade_buffer);
+        current_vdataset = cascade_buffer;
+        for (layer_p child : current_layer->getChildren()) {
+            child->grow(current_vdataset, current_vtargets);
+            current_vdataset = child->virtualize(dataset);
+            current_vtargets = child->virtualizeTargets(labels);
             queue.push(child);
         }
     }
 }
 
 float* DeepForest::classify(MDDataset dataset) {
-    this->cascade_buffer_size = allocateCascadeBuffer(dataset);
-    return nullptr; // TODO
+    allocateCascadeBuffer(dataset);
+    std::queue<layer_p> queue;
+    queue.push(front);
+    layer_p current_layer;
+    vdataset_p current_vdataset;
+    while (!queue.empty()) {
+        current_vdataset = front->virtualize(dataset);
+        current_layer = queue.front(); queue.pop();
+        if (current_layer->getChildren().size() > 0) {
+            transfer(current_layer, current_vdataset, cascade_buffer);
+            for (layer_p child : current_layer->getChildren()) {
+                queue.push(child);
+            }
+        }
+        else {
+            break;
+        }
+        current_vdataset = cascade_buffer;
+    }
+    return current_layer->classify(current_vdataset);
 }

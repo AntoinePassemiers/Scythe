@@ -88,8 +88,9 @@ public:
             base_tree_config.max_n_features = config->max_n_features;
             base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
     }
-    virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
     virtual ~Forest() = default;
+    virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
+    virtual size_t getInstanceStride() = 0;
 };
 
 
@@ -99,6 +100,7 @@ public:
         Forest(config, n_instances, n_features) {}
     ~ClassificationForest() = default;
     virtual float* classify(VirtualDataset* dataset) = 0;
+    virtual size_t getInstanceStride() { return config.n_classes; }
 };
 
 #endif // FOREST_HPP_

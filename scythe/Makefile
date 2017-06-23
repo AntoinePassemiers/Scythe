@@ -17,7 +17,7 @@ OBJS := deep_scythe.o scythe.o cart.o classification_gb.o regression_gb.o
 OBJS += classification_metrics.o regression_metrics.o
 OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
-OBJS += bagging.o heuristics.o sets.o layer.o
+OBJS += bagging.o heuristics.o sets.o layer.o concatenation_layer.o
 OBJS += deep_forest.o scanner1D.o scanner2D.o scanner3D.o
 
 $(TARGET): $(OBJS)
@@ -61,6 +61,9 @@ classification_complete_rf.o: forest/classification_complete_rf.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 layer.o: deep_learning/layers/layer.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+concatenation_layer.o: deep_learning/layers/concatenation_layer.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 scanner1D.o: deep_learning/layers/scanner1D.cpp

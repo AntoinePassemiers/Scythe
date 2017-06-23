@@ -64,10 +64,12 @@ private:
 public:
     MultiGrainedScanner2D(LayerConfig lconfig, size_t kc, size_t kr);
     ~MultiGrainedScanner2D() {}
-    vdataset_p virtualize(MDDataset dataset);
-    vtargets_p virtualizeTargets(Labels<target_t>* targets);
-    size_t getRequiredMemorySize();
-    std::string getType() { return std::string("MultiGrainedScanner2D"); }
+    virtual vdataset_p virtualize(MDDataset dataset);
+    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    virtual size_t getRequiredMemorySize();
+    virtual size_t getNumVirtualFeatures();
+    virtual bool isConcatenable() { return false; }
+    virtual std::string getType() { return std::string("MultiGrainedScanner2D"); }
 };
 
 #endif // SCANNER2D_HPP_

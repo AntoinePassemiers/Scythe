@@ -28,7 +28,9 @@
 // #include "../../forest/regression_gb.hpp"
     
 
-class Layer; // Forward declaration
+// Forward declarations
+class Layer;
+class ConcatenationDataset;
 
 typedef std::shared_ptr<Layer> layer_p;
 
@@ -76,11 +78,17 @@ public:
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
     virtual vtargets_p virtualizeTargets(Labels<target_t>* targets) = 0;
     size_t getNumChildren();
-    std::vector<layer_p> getChildren() { return children; }
     vdataset_p getVirtualDataset();
     virtual size_t getRequiredMemorySize() = 0;
+    virtual size_t getNumVirtualFeatures() = 0;
     virtual std::string getType() = 0;
-    void grow(VirtualDataset* vdataset, VirtualTargets* vtargets);
+    virtual bool isConcatenable() = 0;
+    void grow(vdataset_p vdataset, vtargets_p vtargets);
+    float* classify(vdataset_p vdataset);
+
+    std::vector<layer_p> getChildren() { return children; }
+    std::vector<std::shared_ptr<Forest>> getForests() { return forests; }
+    bool isClassifier() { return (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK); }
 };
 
 std::ostream& operator<<(std::ostream& os, Layer* const layer);

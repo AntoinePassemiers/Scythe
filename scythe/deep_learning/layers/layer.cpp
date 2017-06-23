@@ -20,26 +20,50 @@ Layer::Layer(LayerConfig lconfig) :
 
 Layer::~Layer() {}
 
-void Layer::grow(VirtualDataset* vdataset, VirtualTargets* vtargets) {
+void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
+    assert(!grown);
     assert(forests.size() == 0);
     Forest* forest;
     for (unsigned int i = 0; i < lconfig.n_forests; i++) {
         if (lconfig.forest_type == gbdf::RANDOM_FOREST) {
-            forest = new ClassificationRF(&lconfig.fconfig, vdataset->getNumInstances(), vdataset->getNumFeatures());
+            forest = new ClassificationRF(
+                &lconfig.fconfig, 
+                vdataset->getNumInstances(), 
+                vdataset->getNumFeatures());
         }
         else if (lconfig.forest_type == gbdf::GB_FOREST) {
             // forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
             std::cout << "Error: gradient boosting is not supported" << std::endl;
         }
         else if (lconfig.forest_type == gbdf::COMPLETE_RANDOM_FOREST) {
-            forest = new ClassificationCompleteRF(&lconfig.fconfig, vdataset->getNumInstances(), vdataset->getNumFeatures());
+            forest = new ClassificationCompleteRF(
+                &lconfig.fconfig, 
+                vdataset->getNumInstances(), 
+                vdataset->getNumFeatures());
         }
         else {
             std::cout << "Error: this type of forest does not exist" << std::endl;
         }
-        forest->fit(vdataset, vtargets);
+        forest->fit(vdataset.get(), vtargets.get());
         forests.push_back(std::shared_ptr<Forest>(forest));
     }
+    grown = true;
+}
+
+float* Layer::classify(vdataset_p vdataset) {
+    assert(grown);
+    size_t n_instances = vdataset->getNumInstances();
+    size_t n_classes = lconfig.fconfig.n_classes;
+    float* predictions = static_cast<float*>(calloc(n_instances * n_classes, sizeof(float)));
+    ClassificationForest* forest_p;
+    for (unsigned int i = 0; i < lconfig.n_forests; i++) {
+        forest_p = dynamic_cast<ClassificationForest*>(forests.at(i).get());
+        float* local_predictions = forest_p->classify(vdataset.get());
+        for (unsigned int j = 0; j < n_instances * n_classes; j++) {
+            predictions[j] += local_predictions[j];
+        }
+    }
+    return predictions;
 }
 
 void Layer::add(layer_p layer) {

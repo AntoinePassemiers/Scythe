@@ -120,10 +120,20 @@ vtargets_p MultiGrainedScanner2D::virtualizeTargets(Labels<target_t>* targets) {
 }
 
 size_t MultiGrainedScanner2D::getRequiredMemorySize() {
-    size_t memory_size = this->vdataset.get()->getNumInstances();
+    size_t memory_size = vdataset->getNumInstances();
     assert(memory_size > 0);
     if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
         memory_size *= lconfig.fconfig.n_classes;
     }
-    return memory_size;
+    return memory_size * lconfig.n_forests;
+}
+
+size_t MultiGrainedScanner2D::getNumVirtualFeatures() {
+    ScannedDataset2D* sdataset = dynamic_cast<ScannedDataset2D*>(vdataset.get());
+    size_t n_vfeatures = sdataset->getSc() * sdataset->getSr();
+    assert(n_vfeatures > 0);
+    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+        n_vfeatures *= lconfig.fconfig.n_classes;
+    }
+    return n_vfeatures * lconfig.n_forests;
 }
