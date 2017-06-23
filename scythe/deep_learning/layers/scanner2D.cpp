@@ -52,7 +52,10 @@ ScannedDataset2D& ScannedDataset2D::operator=(const ScannedDataset2D& other) {
 }
 
 data_t ScannedDataset2D::operator()(size_t i, size_t j) {
-    return 0; // TODO
+    size_t n = i / (sr * sc);
+    size_t m = (i % sc) + (j % kc);
+    size_t p = ((i % (sr * sc)) / sr) + (j / kr);
+    return data[(M * P) * n + P * m + p]; // TODO : optimization
 }
 
 size_t ScannedDataset2D::getSc() {

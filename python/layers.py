@@ -19,6 +19,7 @@ class Layer(object):
 class DirectLayer(Layer):
     def __init__(self, lconfig, **kwargs):
         Layer.__init__(self, **kwargs)
+        assert(isinstance(lconfig, LayerConfig))
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
         raise NotImplementedError()
@@ -27,9 +28,12 @@ class DirectLayer(Layer):
 class CascadeLayer(Layer):
     def __init__(self, lconfig, **kwargs):
         Layer.__init__(self, **kwargs)
-        self.lconfig
+        assert(isinstance(lconfig, LayerConfig))
+        self.lconfig = lconfig
     def addToGraph(self, graph_id):
-        raise NotImplementedError()
+        scythe.c_add_cascade_layer(
+            ctypes.c_size_t(int(graph_id)),
+            self.lconfig)
 
 
 class MultiGrainedScanner1D(Layer):

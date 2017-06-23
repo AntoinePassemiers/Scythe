@@ -14,7 +14,7 @@ if __name__ == "__main__":
         print("Warning: provide the path to the MNIST dataset")
 
     fconfig = ForestConfig(
-        n_classes   =  3,
+        n_classes   = 10,
         n_iter      = 50,
         max_n_trees = 10,
         max_depth   = 6)
@@ -23,16 +23,24 @@ if __name__ == "__main__":
     print("Create gcForest")
     graph = DeepForest(task = "classification")
     
-    print("Add layer")
+    print("Add 2D Convolutional layer")
     graph.add(MultiGrainedScanner2D(lconfig, (10, 10)))
-    # graph.add(DirectLayer())
-    # graph.add(CascadeLayer())
+
+    print("Add cascade layer")
+    graph.add(CascadeLayer(lconfig))
     # graph.add(CascadeLayer())
     
-    X, y = loadMNISTTrainingSet(location = sys.argv[1])
-    X, y = MDDataset(X), Labels(y)
+    X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
+    X_train, y_train = MDDataset(X_train), Labels(y_train)
 
     print("Fit gcForest")
-    graph.fit(X, y)
+    graph.fit(X_train, y_train)
+
+    X_test, y_test = loadMNISTTestSet(location = sys.argv[1])
+    X_test, y_test = MDDataset(X_test), Labels(y_test)
+
+    print("Classify with gcForest")
+    probas = graph.classify(X_test)
+    print(probas)
 
     print("Finished")

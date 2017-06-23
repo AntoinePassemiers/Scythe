@@ -29,9 +29,16 @@ extern "C" {
         forest->fit(dataset, labels);
     }
 
-    float* c_deep_forest_classify(MDDataset dataset, void* forest_p) {
-        DeepForest* forest = static_cast<DeepForest*>(forest_p);
+    float* c_deep_forest_classify(MDDataset dataset, size_t forest_id) {
+        DeepForest* forest = cpp_classes_interface.get(forest_id);
         return forest->classify(dataset);
+    }
+
+    void c_add_cascade_layer(size_t forest_id, LayerConfig lconfig) {
+        DeepForest* forest = cpp_classes_interface.get(forest_id);
+        layer_p layer = std::shared_ptr<CascadeLayer>(
+            new CascadeLayer(lconfig));
+        forest->add(layer);
     }
 
     void c_add_scanner_1d(size_t forest_id, LayerConfig lconfig, size_t kc) {

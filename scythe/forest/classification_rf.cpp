@@ -13,9 +13,11 @@ ClassificationRF::ClassificationRF
         ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = false;
+    /*
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
             new MultiLogLossError(config->n_classes, n_instances)));
+    */
 }
 
 void ClassificationRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
@@ -35,7 +37,7 @@ void ClassificationRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     Forest::preprocessDensities(dataset);
 
     // Fitting each individual tree
-    #pragma omp parallel for num_threads(Forest::config.n_jobs)
+    // #pragma omp parallel for num_threads(Forest::config.n_jobs)
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
         this->fitNewTree(dataset, targets);
     }

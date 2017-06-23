@@ -32,4 +32,17 @@ public:
     virtual int getDataType() { return dtype; }
 };
 
+
+class CascadeLayer : public Layer {
+public:
+    CascadeLayer(LayerConfig lconfig);
+    ~CascadeLayer() {}
+    virtual vdataset_p virtualize(MDDataset dataset);
+    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    virtual size_t getRequiredMemorySize();
+    virtual size_t getNumVirtualFeatures();
+    virtual bool isConcatenable() { return true; }
+    virtual std::string getType() { return std::string("CascadeLayer"); }
+};
+
 #endif // CONCATENATION_LAYER_HPP_

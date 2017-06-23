@@ -11,6 +11,7 @@
 
 #include "deep_learning/deep_forest.hpp"
 #include "deep_learning/layers/layer.hpp"
+#include "deep_learning/layers/concatenation_layer.hpp"
 #include "deep_learning/layers/scanner1D.hpp"
 #include "deep_learning/layers/scanner2D.hpp"
 #include "deep_learning/layers/scanner3D.hpp"
@@ -31,7 +32,9 @@ extern "C" {
 
     void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, size_t forest_id);
 
-    float* c_deep_forest_classify(MDDataset dataset, void* forest_p);
+    float* c_deep_forest_classify(MDDataset dataset, size_t forest_id);
+
+    void c_add_cascade_layer(size_t forest_id, LayerConfig lconfig);
 
     void c_add_scanner_1d(size_t forest_id, LayerConfig lconfig, size_t kc);
 
@@ -41,8 +44,6 @@ extern "C" {
 
     /**
     void c_add_direct_layer(void* forest_p, LayerConfig lconfig);
-
-    void c_add_cascade_layer(void* forest_p, LayerConfig lconfig);
     */
 
 }

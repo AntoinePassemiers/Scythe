@@ -277,7 +277,7 @@ class LayerConfig(ctypes.Structure):
         ("n_forests", ctypes.c_size_t),
         ("forest_type", ctypes.c_int)]
 
-    def __init__(self, lconfig, n_forests, forest_type):
-        self.lconfig = lconfig
+    def __init__(self, fconfig, n_forests, forest_type):
+        self.fconfig = fconfig
         self.n_forests = n_forests
         self.forest_type = forest_type

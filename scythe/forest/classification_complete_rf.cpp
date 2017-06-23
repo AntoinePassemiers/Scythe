@@ -13,34 +13,39 @@ ClassificationCompleteRF::ClassificationCompleteRF
         ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = true;
+    /*
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
             new MultiLogLossError(config->n_classes, n_instances)));
+    */
 }
 
 void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
+    std::cout << "AAAA" << std::endl;
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset->getNumInstances(), config.bag_size);
+    std::cout << "BBBB" << std::endl;
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,
         targets, 
         &(Forest::base_tree_config),
         this->densities.get(),
         subset.get()));
+    std::cout << "CCCC" << std::endl;
     Forest::trees.push_back(new_tree);
 }
 
 void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
-    std::cout << "AAAAAA" << std::endl;
+    std::cout << "AAA" << std::endl;
     // Compute density functions of all features
     Forest::preprocessDensities(dataset);
-    std::cout << "BBBBBB" << std::endl;
+    std::cout << "BBB" << std::endl;
     // Fitting each individual tree
-    #pragma omp parallel for num_threads(Forest::config.n_jobs)
+    // #pragma omp parallel for num_threads(Forest::config.n_jobs)
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
         this->fitNewTree(dataset, targets);
     }
-    std::cout << "CCCCCC" << std::endl;
+    std::cout << "CCC" << std::endl;
 }
 
 float* ClassificationCompleteRF::classify(VirtualDataset* dataset) {
