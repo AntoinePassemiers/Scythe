@@ -2,10 +2,16 @@
 # example.py : Scythe example of use
 # author : Antoine Passemiers
 
-from core import * # TODO
+import os, sys
+
+from core import *   # TODO
 from layers import * # TODO
+from MNIST import *  # TODO
+
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Warning: provide the path to the MNIST dataset")
 
     fconfig = ForestConfig(
         n_classes   =  3,
@@ -18,13 +24,13 @@ if __name__ == "__main__":
     graph = DeepForest(task = "classification")
     
     print("Add layer")
-    graph.add(MultiGrainedScanner1D(lconfig, (3,)))
+    graph.add(MultiGrainedScanner2D(lconfig, (10, 10)))
     # graph.add(DirectLayer())
     # graph.add(CascadeLayer())
     # graph.add(CascadeLayer())
-
-    X = MDDataset(np.asarray(np.random.randint(0, 100, size = (800, 50)), dtype = np.double))
-    y = Labels(np.random.randint(0, 3, size = 800))
+    
+    X, y = loadMNISTTrainingSet(location = sys.argv[1])
+    X, y = MDDataset(X), Labels(y)
 
     print("Fit gcForest")
     graph.fit(X, y)
