@@ -14,7 +14,7 @@
 
 class ConcatenationDataset : public VirtualDataset {    
 private:
-    data_t* data;
+    proba_t* data;
     size_t n_instances;
     size_t n_virtual_cols;
     size_t stride;

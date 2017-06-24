@@ -15,6 +15,16 @@ CRF_FOREST = ["complete random forest", "crf"]
 GB_FOREST  = ["gradient boosting", "gb"]
 
 
+def bytesToStr(nbytes):
+    if nbytes >= 10e9:
+        return "%.2f Go" % (nbytes / (10e9))
+    elif nbytes >= 10e6:
+        return "%.2f Mo" % (nbytes / 10e6)
+    elif nbytes >= 10e3:
+        return "%.2f Ko" % (nbytes / 10e3)
+    else:
+        return "%i o" % nbytes
+
 class Model:
     def __init__(self, config, task):
         assert(task.lower() in [CLASSIFICATION, REGRESSION])

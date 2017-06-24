@@ -31,6 +31,7 @@ namespace gbdf {
 typedef unsigned int uint;
 typedef double data_t;
 typedef double target_t;
+typedef float proba_t;
 
 // Forward declarations
 class VirtualDataset;

@@ -65,6 +65,11 @@ class MultiGrainedScanner2D(Layer):
             self.lconfig,
             self.kernel_shape[0],
             self.kernel_shape[1])
+    @staticmethod
+    def estimateRequiredBufferSize(N, M, P, kc, kr, n_classes, n_forests):
+        sc = M - kc + 1
+        sr = P - kr + 1
+        return N * sc * sr * n_forests * n_classes
 
 
 class MultiGrainedScanner3D(Layer):

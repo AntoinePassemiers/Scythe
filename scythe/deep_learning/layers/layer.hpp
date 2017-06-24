@@ -83,6 +83,7 @@ public:
     virtual size_t getNumVirtualFeatures() = 0;
     virtual std::string getType() = 0;
     virtual bool isConcatenable() = 0;
+    void setTask(int task) { lconfig.fconfig.task = task; }
     void grow(vdataset_p vdataset, vtargets_p vtargets);
     float* classify(vdataset_p vdataset);
 

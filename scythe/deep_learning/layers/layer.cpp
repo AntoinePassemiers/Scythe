@@ -67,6 +67,7 @@ float* Layer::classify(vdataset_p vdataset) {
         for (unsigned int j = 0; j < n_instances * n_classes; j++) {
             predictions[j] += local_predictions[j];
         }
+        delete[] local_predictions;
     }
     return predictions;
 }
@@ -84,7 +85,6 @@ size_t Layer::getNumChildren() {
 }
 
 std::ostream& operator<<(std::ostream& os, Layer* const layer) {
-    std::cout << "VVVVVV" << std::endl;
     std::cout << layer->getType() << std::endl;
     std::cout << layer->getRequiredMemorySize() << std::endl;
     return os << "Layer type: "   << layer->getType() << std::endl

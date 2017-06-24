@@ -33,6 +33,7 @@ DeepForest& DeepForest::operator=(const DeepForest& other) {
 }
 
 void DeepForest::add(layer_p layer) {
+    layer->setTask(task);
     layers.push_back(layer);
     if (front.get() == nullptr) {
         front = layer;
@@ -61,11 +62,13 @@ size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
     while (!queue.empty()) {
         layer_p current_layer = queue.front(); queue.pop();
         assert(current_layer.get() != nullptr);
-        current_vdataset = current_layer->virtualize(dataset);
-        required_size += current_layer->getRequiredMemorySize();
-        n_virtual_features += current_layer->getNumVirtualFeatures();
-        for (layer_p child : current_layer->getChildren()) {
-            queue.push(child);
+        if (current_layer->getChildren().size() > 0) {
+            current_vdataset = current_layer->virtualize(dataset);
+            required_size += current_layer->getRequiredMemorySize();
+            n_virtual_features += current_layer->getNumVirtualFeatures();
+            for (layer_p child : current_layer->getChildren()) {
+                queue.push(child);
+            }
         }
     }
     assert(required_size == dataset.dims[0] * n_virtual_features);
@@ -81,12 +84,16 @@ void DeepForest::transfer(layer_p layer, vdataset_p vdataset, std::shared_ptr<Co
                 forest_p.get())->classify(vdataset.get());
             size_t stride = forest_p->getInstanceStride();
             buffer->concatenate(predictions, stride);
+            delete[] predictions;
         }
         // TODO : regression
     }
 }
 
 void DeepForest::fit(MDDataset dataset, Labels<target_t>* labels) {
+    size_t n_instances = dataset.dims[0];
+    DirectTargets* direct_targets = new DirectTargets(
+        labels->data, n_instances);
     std::cout << "A" << std::endl;
     allocateCascadeBuffer(dataset);
     std::cout << "B" << std::endl;
@@ -106,6 +113,7 @@ void DeepForest::fit(MDDataset dataset, Labels<target_t>* labels) {
         transfer(current_layer, current_vdataset, cascade_buffer);
         current_vdataset = cascade_buffer;
         std::cout << "G" << std::endl;
+        current_vtargets = std::shared_ptr<VirtualTargets>(direct_targets);
         for (layer_p child : current_layer->getChildren()) {
             std::cout << "H" << std::endl;
             current_vtargets = child->virtualizeTargets(labels);
