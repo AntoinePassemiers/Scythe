@@ -11,7 +11,6 @@
 
 ConcatenationDataset::ConcatenationDataset(size_t n_instances, size_t n_virtual_features) {
     size_t n_elements = n_instances * n_virtual_features;
-    std::cout << "Cascade buffer allocation : " << n_elements << " elements" << std::endl;
     this->data = new proba_t[n_elements];
     this->n_instances = n_instances;
     this->n_virtual_cols = n_virtual_features;
@@ -39,9 +38,6 @@ void ConcatenationDataset::concatenate(float* new_data, size_t width) {
     size_t k = this->stride;
     for (unsigned int i = 0; i < this->n_instances; i++) {
         for (unsigned int j = 0; j < width; j++) {
-            std::cout << k + j << " - " << i * width + j << ", ";
-            std::cout << data[k + j] << std::endl;
-            std::cout << new_data[i * width + j] << std::endl;
             this->data[k + j] = static_cast<data_t>(new_data[i * width + j]);
         }
         k += this->n_virtual_cols;
@@ -58,11 +54,14 @@ CascadeLayer::CascadeLayer(LayerConfig lconfig) :
 }
 
 vdataset_p CascadeLayer::virtualize(MDDataset dataset) {
-    return nullptr; // TODO
+    // TODO : throw exception
+    return nullptr;
 }
 
 vtargets_p CascadeLayer::virtualizeTargets(Labels<target_t>* targets) {
-    return nullptr; // TODO
+    DirectTargets* direct_targets = new DirectTargets(
+        targets->data, targets->n_rows);
+    return std::shared_ptr<VirtualTargets>(direct_targets);
 }
 
 size_t CascadeLayer::getRequiredMemorySize() {

@@ -13,7 +13,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Warning: provide the path to the MNIST dataset")
 
-    kc, kr = 20, 20
+    kc, kr = 22, 22
     required_nbytes = MultiGrainedScanner2D.estimateRequiredBufferSize(
         60000, 28, 28, kc, kr, 10, 3) * 8
     nbytes = bytesToStr(required_nbytes)

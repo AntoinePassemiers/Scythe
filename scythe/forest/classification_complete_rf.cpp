@@ -25,6 +25,9 @@ void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTarget
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset->getNumInstances(), config.bag_size);
     std::cout << "BBBB" << std::endl;
+    std::cout << "v-dataset shape : " << dataset->getNumInstances() << ", ";
+    std::cout << dataset->getNumFeatures() << std::endl;
+    std::cout << "v-targets length : " << targets->getNumInstances() << std::endl;
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,
         targets, 

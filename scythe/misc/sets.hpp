@@ -18,6 +18,7 @@
 #include <limits>
 #include <cassert>
 #include <string.h>
+#include <stdexcept>
 
 
 constexpr size_t MAX_N_DIMS = 7;
