@@ -8,6 +8,7 @@
 
 #include "scanner2D.hpp"
 
+Parameters parameters;
 
 ScannedDataset2D::ScannedDataset2D(
     data_t* data, size_t N, size_t M, size_t P, size_t kc, size_t kr, int dtype) : 
@@ -21,7 +22,17 @@ ScannedDataset2D::ScannedDataset2D(
     Nprime(N * sr * sc), // Number of instances after scanning
     Mprime(kc * kr),     // Number of features after scanning
     data(data),
-    dtype(dtype) {}
+    dtype(dtype) {
+    if (parameters.print_layer_info) {
+        #pragma omp critical(scanned_dataset_2d_display_info)
+        {
+            std::cout << "\tKernel width  : " << kc << std::endl;
+            std::cout << "\tKernel height : " << kr << std::endl;
+            std::cout << "\tN prime       : " << Nprime << std::endl;
+            std::cout << "\tM prime       : " << Mprime << std::endl;
+        }
+    }
+}
 
 ScannedDataset2D::ScannedDataset2D(const ScannedDataset2D& other) :
     N(other.N),
@@ -76,6 +87,10 @@ size_t ScannedDataset2D::getNumFeatures() {
 
 size_t ScannedDataset2D::getRequiredMemorySize() {
     return this->Nprime * this->Mprime;
+}
+
+size_t ScannedDataset2D::getNumVirtualInstancesPerInstance() {
+    return sc * sr;
 }
 
 ScannedTargets2D::ScannedTargets2D(data_t* data, size_t n_instances, size_t sc, size_t sr) :

@@ -26,6 +26,9 @@ c_longdouble_p = ctypes.POINTER(ctypes.c_longdouble)
 CLASSIFICATION_TASK = 0xF55A90
 REGRESSION_TASK     = 0xF55A91
 
+MLOG_LOSS = 0x7711A0
+MSE       = 0xC97B00
+
 QUARTILE_PARTITIONING   = 0xB23A40
 DECILE_PARTITIONING     = 0xB23A41
 PERCENTILE_PARTITIONING = 0xB23A42
@@ -34,9 +37,15 @@ RANDOM_FOREST          = 0
 COMPLETE_RANDOM_FOREST = 1
 GRADIENT_BOOSTING      = 2
 
-DTYPE_PROBA  = 0;
-DTYPE_DOUBLE = 1;
-DTYPE_UINT_8  = 2;
+REG_L1 = 0x778C10
+REG_L2 = 0x778C11
+
+ADABOOST          = 0x28FE90
+GRADIENT_BOOSTING = 0x28FE91
+
+DTYPE_PROBA  = 0
+DTYPE_DOUBLE = 1
+DTYPE_UINT_8  = 2
 
 
 class Dataset(ctypes.Structure):
@@ -107,7 +116,8 @@ class Labels(ctypes.Structure):
             Array containing the labels
         """
         m, M = np.min(data), np.max(data)
-        assert(m == 0)
+        # TODO: different treatment in case of classification and regression
+        # assert(m == 0)
         self.n_classes = M + 1
         # Ensuring the data is C-contiguous
         self.np_data = np.ascontiguousarray(data, dtype = np.double)
@@ -254,9 +264,37 @@ class ForestConfig(ctypes.Structure):
         ("verbose", ctypes.c_int),
         ("nan_value", ctypes.c_double)]
 
-    def __init__(self, **kwargs):
-        for key in kwargs.keys():
-            setattr(self, key, kwargs[key])
+    def __init__(self, ftype = RANDOM_FOREST, task = CLASSIFICATION_TASK,
+                 n_classes = 2, score_metric = MLOG_LOSS, n_iter = 100,
+                 max_n_trees = 150, max_n_nodes = 9999999, max_n_features = 9999999,
+                 learning_rate = 0.001, n_leaves = 9999999, n_jobs = 1, n_samples_per_leaf = 50,
+                 regularization = REG_L1, bag_size = 100, early_stopping_round = 300,
+                 boosting_method = GRADIENT_BOOSTING, max_depth = 100, l1_lambda = 0.1,
+                 l2_lambda = 0.1, seed = 4.0, verbose = True, nan_value = np.nan):
+        self.type = ftype
+        self.task = task
+        self.n_classes = n_classes
+        self.score_metric = score_metric
+        self.n_iter = n_iter
+        self.max_n_trees = max_n_trees
+        self.max_n_nodes = max_n_nodes
+        self.max_n_features = max_n_features
+        self.learning_rate = learning_rate
+        self.n_leaves = n_leaves
+        self.n_jobs = n_jobs
+        self.n_samples_per_leaf = n_samples_per_leaf
+        self.regularization = regularization
+        self.bag_size = bag_size
+        self.early_stopping_round = early_stopping_round
+        self.boosting_method = boosting_method
+        self.max_depth = max_depth
+        self.l1_lambda = l1_lambda
+        self.l2_lambda = l2_lambda
+        self.seed = seed
+        self.verbose = verbose
+        self.nan_value = nan_value
+
+
 
 
 class LayerConfig(ctypes.Structure):

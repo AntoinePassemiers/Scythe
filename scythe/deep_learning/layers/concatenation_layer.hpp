@@ -29,6 +29,7 @@ public:
     virtual size_t getNumInstances() { return n_instances; }
     virtual size_t getNumFeatures() { return stride; }
     virtual size_t getRequiredMemorySize() { return n_instances * n_virtual_cols; }
+    virtual size_t getNumVirtualInstancesPerInstance() { return 1; }
     virtual int getDataType() { return dtype; }
 };
 

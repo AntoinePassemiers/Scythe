@@ -62,6 +62,10 @@ size_t ScannedDataset1D::getRequiredMemorySize() {
     return this->Nprime * this->Mprime;
 }
 
+size_t ScannedDataset1D::getNumVirtualInstancesPerInstance() {
+    return sc;
+}
+
 ScannedTargets1D::ScannedTargets1D(data_t* data, size_t n_instances, size_t sc) :
     data(data), n_rows(n_instances), s(sc) {}
 

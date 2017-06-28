@@ -82,7 +82,8 @@ void DeepForest::transfer(layer_p layer, vdataset_p vdataset, std::shared_ptr<Co
         if (layer->isClassifier()) {
             float* predictions = dynamic_cast<ClassificationForest*>(
                 forest_p.get())->classify(vdataset.get());
-            size_t stride = forest_p->getInstanceStride();
+            size_t vipi = vdataset->getNumVirtualInstancesPerInstance();
+            size_t stride = vipi * forest_p->getInstanceStride();
             buffer->concatenate(predictions, stride);
             delete[] predictions;
         }
@@ -110,17 +111,19 @@ void DeepForest::fit(MDDataset dataset, Labels<target_t>* labels) {
     while (!queue.empty()) {
         std::cout << "F" << std::endl;
         layer_p current_layer = queue.front(); queue.pop();
-        transfer(current_layer, current_vdataset, cascade_buffer);
-        current_vdataset = cascade_buffer;
-        std::cout << "G" << std::endl;
-        current_vtargets = std::shared_ptr<VirtualTargets>(direct_targets);
-        for (layer_p child : current_layer->getChildren()) {
-            std::cout << "H" << std::endl;
-            current_vtargets = child->virtualizeTargets(labels);
-            std::cout << "I" << std::endl;
-            child->grow(cascade_buffer, current_vtargets);
-            queue.push(child);
-            std::cout << "J" << std::endl;
+        if (current_layer->getChildren().size() > 0) {
+            transfer(current_layer, current_vdataset, cascade_buffer);
+            current_vdataset = cascade_buffer;
+            std::cout << "G" << std::endl;
+            current_vtargets = std::shared_ptr<VirtualTargets>(direct_targets);
+            for (layer_p child : current_layer->getChildren()) {
+                std::cout << "H" << std::endl;
+                current_vtargets = child->virtualizeTargets(labels);
+                std::cout << "I" << std::endl;
+                child->grow(cascade_buffer, current_vtargets);
+                queue.push(child);
+                std::cout << "J" << std::endl;
+            }
         }
         std::cout << "K" << std::endl;
     }

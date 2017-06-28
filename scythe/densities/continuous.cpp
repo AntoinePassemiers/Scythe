@@ -13,9 +13,9 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
     size_t n_instances = data->getNumInstances();
     size_t n_features  = data->getNumFeatures();
     Density* densities = new Density[n_features];
-    data_t* sorted_values;
+    #pragma omp parallel for num_threads(parameters.n_jobs)
     for (uint f = 0; f < n_features; f++) {
-        sorted_values = new data_t[n_instances];
+        data_t* sorted_values = new data_t[n_instances];
         densities[f].quartiles = new data_t[4];
         densities[f].deciles = new data_t[10];
         densities[f].percentiles = new data_t[100];

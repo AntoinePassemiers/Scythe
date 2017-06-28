@@ -60,11 +60,11 @@ double getFeatureCost(Density* density, size_t n_classes) {
     size_t n_left = sum_counts(density->counters_left, n_classes);
     size_t n_right = sum_counts(density->counters_right, n_classes);
     size_t total = n_left + n_right;
-    float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
-    float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
     if (n_left == 0 || n_right == 0) {
         return COST_OF_EMPTINESS;
     }
+    float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
+    float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
     double left_cost = 0.0, right_cost = 0.0;
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;

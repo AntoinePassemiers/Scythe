@@ -154,10 +154,14 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density, VirtualDatas
     splitter->best_split_id = best_split_id;
     }
     if (splitter->task == gbdf::CLASSIFICATION_TASK) {
-        evaluatePartitions(data, density, splitter, best_split_id);
+        if (!(splitter->is_complete_random)) {
+            evaluatePartitions(data, density, splitter, best_split_id);
+        }
     }
     else {
-        evaluatePartitionsWithRegression(data, density, splitter, best_split_id);
+        if (!(splitter->is_complete_random)) {
+            evaluatePartitionsWithRegression(data, density, splitter, best_split_id);
+        }
     }
     return lowest_cost;
 }

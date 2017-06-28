@@ -35,6 +35,7 @@ public:
     virtual size_t getNumInstances();
     virtual size_t getNumFeatures();
     virtual size_t getRequiredMemorySize();
+    virtual size_t getNumVirtualInstancesPerInstance();
     virtual int getDataType() { return dtype; }
 };
 

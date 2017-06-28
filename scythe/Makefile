@@ -20,7 +20,7 @@ OBJS += classification_rf.o regression_rf.o
 OBJS += classification_complete_rf.o regression_complete_rf.o
 OBJS += bagging.o heuristics.o sets.o layer.o concatenation_layer.o
 OBJS += deep_forest.o scanner1D.o scanner2D.o scanner3D.o
-OBJS += grayscale.o continuous.o
+OBJS += grayscale.o continuous.o proba.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(DEBUGFLAGS) -o $(TARGET) $(OBJS)
@@ -39,6 +39,9 @@ continuous.o : densities/continuous.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 grayscale.o : densities/grayscale.cpp
+	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
+
+proba.o : densities/proba.cpp
 	$(CC) $(FLAGS) $(CFLAGS) $(CPPFLAGS) -c $<
 
 sets.o : misc/sets.cpp

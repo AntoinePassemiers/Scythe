@@ -69,6 +69,9 @@ float* Layer::classify(vdataset_p vdataset) {
         }
         delete[] local_predictions;
     }
+    for (unsigned int j = 0; j < n_instances * n_classes; j++) {
+        predictions[j] /= lconfig.n_forests;
+    }
     return predictions;
 }
 
