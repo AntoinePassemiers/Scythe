@@ -8,6 +8,7 @@
 
 #include "cart.hpp"
 
+
 // Constructor for struct Node
 Node::Node(size_t n_classes):
     id(0),
@@ -69,9 +70,9 @@ double getFeatureCost(Density* density, size_t n_classes) {
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;
     if (n_left > 0) {
-        size_t n_p;
+        #pragma omp parallel reduction(+:left_cost) num_threads(parameters.n_jobs)
         for (uint i = 0; i < n_classes; i++) {
-            n_p = counters_left[i];
+            size_t n_p = counters_left[i];
             if (n_p > 0) {
                 left_cost += ShannonEntropy(static_cast<float>(n_p) / static_cast<float>(n_left));
             }
@@ -79,9 +80,9 @@ double getFeatureCost(Density* density, size_t n_classes) {
         left_cost *= left_rate;
     }
     if (n_right > 0) {
-        size_t n_n;
+        #pragma omp parallel reduction(+:right_cost) num_threads(parameters.n_jobs)
         for (uint i = 0; i < n_classes; i++) {
-            n_n = counters_right[i];
+            size_t n_n = counters_right[i];
             if (n_n > 0) {
                 right_cost += ShannonEntropy(static_cast<float>(n_n) / static_cast<float>(n_right));
             }
@@ -106,7 +107,9 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     current_node->mean = 0.0; // TODO : mean of all the samples
     if (config->task == gbdf::CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
+        #pragma omp parallel for num_threads(parameters.n_jobs)
         for (uint i = 0; i < n_instances; i++) {
+            #pragma omp atomic
             current_node->counters[static_cast<size_t>((*targets)[i])]++;
         }
     }
@@ -117,6 +120,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     tree->n_nodes = 1;
     tree->n_classes = config->n_classes;
     tree->n_features = n_features;
+    tree->level = 1;
     bool still_going = 1;
     size_t** split_sides = new size_t*[2];
     Density* next_density;
@@ -138,6 +142,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         current_node_space,
         config->is_complete_random
     };
+    Splitter<target_t> best_splitter = splitter;
 
     if (config->max_n_features > n_features) { config->max_n_features = n_features; }
     size_t max_n_features = config->max_n_features;
@@ -148,13 +153,13 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     std::queue<NodeSpace> queue;
     queue.push(current_node_space);
     while ((tree->n_nodes < config->max_nodes) && !queue.empty() && still_going) {
+
         current_node_space = queue.front(); queue.pop();
         current_node = current_node_space.owner;
         double e_cost = INFINITY;
         double lowest_e_cost = INFINITY;
         splitter.node = current_node;
         splitter.node_space = current_node_space;
-
         selectFeaturesToConsider(features_to_use, n_features, max_n_features);
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;
@@ -162,73 +167,79 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
             if (e_cost < lowest_e_cost) {
                 lowest_e_cost = e_cost;
                 best_feature = f;
+                best_splitter = splitter;
             }
         }
         splitter.feature_id = best_feature;
-        evaluateByThreshold(&splitter, &densities[best_feature], dataset); // TODO : redundant calculus
         next_density = &densities[best_feature];
-        if ((best_feature != static_cast<uint>(current_node->feature_id))
-            || (next_density->split_value != current_node->split_value)) { // TO REMOVE ?
-            next_density = &densities[best_feature];
-            size_t split_totals[2] = {
-                sum_counts(next_density->counters_left, config->n_classes),
-                sum_counts(next_density->counters_right, config->n_classes)
-            };
-            if ((tree->n_nodes < config->max_nodes) &&
-                (current_node_space.current_depth < config->max_height) &&
-                (((split_totals[0] && split_totals[1])
-                    && (config->task == gbdf::CLASSIFICATION_TASK))
-                    || ((config->task == gbdf::REGRESSION_TASK)
-                    && (splitter.n_left > 0) && (splitter.n_right > 0)))) { 
-                Node* new_children = new Node[2];
-                data_t split_value = next_density->split_value;
-                current_node->feature_id = static_cast<int>(best_feature);
-                current_node->split_value = split_value;
-                current_node->left_child = &new_children[0];
-                current_node->right_child = &new_children[1];
 
-                split_sides[0] = next_density->counters_left;
-                split_sides[1] = next_density->counters_right;
-                int new_left_bounds[2] = { 
-                    current_node_space.feature_left_bounds[best_feature],
-                    splitter.best_split_id + 1};
-                int new_right_bounds[2] = { 
-                    splitter.best_split_id,
-                    current_node_space.feature_right_bounds[best_feature]};
-                for (uint i = 0; i < 2; i++) {
-                    for (uint j = 0; j < n_instances; j++) {
-                        bool is_on_the_left = ((*dataset)(j, best_feature) < split_value) ? 1 : 0;
-                        if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
-                            if (is_on_the_left * (1 - i) + (1 - is_on_the_left) * i) {
-                                belongs_to[j] = tree->n_nodes;
-                            }
+        // TODO : remove
+        // evaluateByThreshold(&splitter, &densities[best_feature], dataset);
+        // best_splitter = splitter;
+
+        size_t split_totals[2] = {
+            sum_counts(next_density->counters_left, config->n_classes),
+            sum_counts(next_density->counters_right, config->n_classes)
+        };
+        if ((tree->n_nodes < config->max_nodes) &&
+            (current_node_space.current_depth < config->max_height) &&
+            (((split_totals[0] && split_totals[1])
+                && (config->task == gbdf::CLASSIFICATION_TASK))
+                || ((config->task == gbdf::REGRESSION_TASK)
+                && (best_splitter.n_left > 0) && (best_splitter.n_right > 0)))) {
+            Node* new_children = new Node[2];
+            data_t split_value = next_density->split_value;
+            current_node->feature_id = static_cast<int>(best_feature);
+            current_node->split_value = split_value;
+            current_node->left_child = &new_children[0];
+            current_node->right_child = &new_children[1];
+
+            split_sides[0] = next_density->counters_left;
+            split_sides[1] = next_density->counters_right;
+            int new_left_bounds[2] = {
+                current_node_space.feature_left_bounds[best_feature],
+                best_splitter.best_split_id + 1};
+            int new_right_bounds[2] = { 
+                best_splitter.best_split_id,
+                current_node_space.feature_right_bounds[best_feature]};
+            for (uint i = 0; i < 2; i++) {
+                #pragma omp parallel for num_threads(parameters.n_jobs)
+                for (uint j = 0; j < n_instances; j++) {
+                    bool is_on_the_left = ((*dataset)(j, best_feature) < split_value) ? 1 : 0;
+                    if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
+                        if (is_on_the_left * (1 - i) + (1 - is_on_the_left) * i) {
+                            belongs_to[j] = tree->n_nodes;
                         }
                     }
-                    child_node = &new_children[i];
-                    child_node->id = static_cast<int>(tree->n_nodes);
-                    child_node->split_value = split_value;
-                    child_node->n_instances = split_totals[i];
-                    child_node->score = COST_OF_EMPTINESS;
-                    child_node->feature_id = static_cast<int>(best_feature);
-                    child_node->left_child = nullptr;
-                    child_node->right_child = nullptr;
-                    child_node->counters = new size_t[config->n_classes];
-                    memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
-                    if (lowest_e_cost > config->min_threshold) {
-                        NodeSpace child_space = copyNodeSpace(current_node_space, n_features);
-                        child_space.owner = child_node;
-                        child_space.current_depth = current_node_space.current_depth + 1;
-                        child_space.feature_left_bounds[best_feature] = new_left_bounds[i];
-                        child_space.feature_right_bounds[best_feature] = new_right_bounds[i];
-                        queue.push(child_space);
-                    }
-                    ++tree->n_nodes;
                 }
-                new_children[0].mean = splitter.mean_left;
-                new_children[1].mean = splitter.mean_right;
+                child_node = &new_children[i];
+                child_node->id = static_cast<int>(tree->n_nodes);
+                child_node->split_value = split_value;
+                child_node->n_instances = split_totals[i];
+                child_node->score = COST_OF_EMPTINESS;
+                child_node->feature_id = static_cast<int>(best_feature);
+                child_node->left_child = nullptr;
+                child_node->right_child = nullptr;
+                child_node->counters = new size_t[config->n_classes];
+                memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
+                if (lowest_e_cost > config->min_threshold) {
+                    NodeSpace child_space = copyNodeSpace(current_node_space, n_features);
+                    child_space.owner = child_node;
+                    child_space.current_depth = current_node_space.current_depth + 1;
+                    child_space.feature_left_bounds[best_feature] = new_left_bounds[i];
+                    child_space.feature_right_bounds[best_feature] = new_right_bounds[i];
+                    queue.push(child_space);
+                    if (child_space.current_depth > tree->level) {
+                        tree->level = child_space.current_depth;
+                    }
+                }
+                ++tree->n_nodes;
             }
+            new_children[0].mean = best_splitter.mean_left;
+            new_children[1].mean = best_splitter.mean_right;
         }
     }
+    std::cout << "Tree depth : " << tree->level << std::endl;
     delete[] features_to_use;
     delete[] split_sides;
     return tree;

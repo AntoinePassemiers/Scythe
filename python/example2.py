@@ -15,7 +15,6 @@ if __name__ == "__main__":
     config.max_nodes = 30
     config.partitioning = PERCENTILE_PARTITIONING
     config.nan_value = -1.0
-
     
     X_train = np.asarray(np.array([
         [0, 0, 0], # 0    1    5.6   6.65  0.5 0.0 0.5
@@ -45,9 +44,10 @@ if __name__ == "__main__":
     # CLASSIFICATION TREE
     tree = Tree(config, "classification")
     tree.fit(dataset, labels)
-    preds = tree.predict(testset)
+    preds = tree.predict(dataset)
     print("\n%s" % preds)
 
+    """
     # REGRESSION TREE
     targets = np.array([5.6, 7.8, 4.2, 3.5, 9.8, 5.4, 2.1, 7.7, 8.8, 6.0, 5.7, 7.0, 6.9, 6.3])
     targets  = Labels(targets)
@@ -77,5 +77,6 @@ if __name__ == "__main__":
     forest = Forest(fconfig, "classification", "complete random forest")
     forest.fit(dataset, labels)
     forest.predict(dataset)
-    
+    """
+
     print("Finished")

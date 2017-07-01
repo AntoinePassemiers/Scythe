@@ -32,10 +32,11 @@ def main():
     print("Required number of bytes in the convolutional layer : %s" % nbytes)
 
     fconfig = ForestConfig(
+        bag_size    = 60000,
         n_classes   = 10,
-        n_iter      = 10,
-        max_n_trees = 5,
-        max_depth   = 100)
+        n_iter      = 4,
+        max_n_trees = 4,
+        max_depth   = 11)
     lconfig = LayerConfig(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     X_test, y_test = loadMNISTTestSet(location = sys.argv[1])

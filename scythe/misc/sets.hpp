@@ -73,19 +73,21 @@ struct Labels {
 class VirtualDataset {
 public:
     template<typename T>
-    class VirtualIterator {
+    class Iterator {
     public:
         virtual T operator*();
-        virtual VirtualIterator& operator++();
-        VirtualIterator operator++(int);
-        virtual VirtualIterator& operator--();
-        VirtualIterator operator--(int);
+        virtual Iterator& operator++();
+        Iterator operator++(int);
+        virtual Iterator& operator--();
+        Iterator operator--(int);
+        virtual bool operator==(const Iterator& other);
+        virtual bool operator!=(const Iterator& other);
     };
     VirtualDataset() {};
     virtual ~VirtualDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
     template<typename T>
-    VirtualIterator<T> operator()(const size_t j); // TODO: set as pure virtual
+    Iterator<T> operator()(const size_t j); // TODO: set as pure virtual
     virtual size_t getNumInstances() = 0;
     virtual size_t getNumFeatures() = 0;
     virtual size_t getRequiredMemorySize() = 0;
@@ -102,18 +104,18 @@ private:
     int dtype;
 public:
     template<typename T>
-    class VirtualIterator : public VirtualDataset::VirtualIterator<T> {
+    class Iterator : public VirtualDataset::Iterator<T> {
     private:
         size_t cursor;
         size_t n_cols;
         T* data;
     public:
-        VirtualIterator(T* data, size_t n_cols, size_t j) : 
-            VirtualDataset::VirtualIterator<T>::cursor(j), n_cols(n_cols), data(data) {}
-        ~VirtualIterator() = default;
+        Iterator(T* data, size_t n_cols, size_t j) : 
+            VirtualDataset::Iterator<T>::cursor(j), n_cols(n_cols), data(data) {}
+        ~Iterator() = default;
         T operator*() { return data[cursor]; }
-        VirtualIterator& operator++();
-        VirtualIterator& operator--();
+        Iterator& operator++();
+        Iterator& operator--();
     };
     DirectDataset(Dataset dataset);
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
@@ -154,25 +156,25 @@ public:
 };
 
 template<typename T>
-VirtualDataset::VirtualIterator<T> VirtualDataset::VirtualIterator<T>::operator++(int) {
+VirtualDataset::Iterator<T> VirtualDataset::Iterator<T>::operator++(int) {
     ++(*this);
     return *this;
 }
 
 template<typename T>
-VirtualDataset::VirtualIterator<T> VirtualDataset::VirtualIterator<T>::operator--(int) {
+VirtualDataset::Iterator<T> VirtualDataset::Iterator<T>::operator--(int) {
     --(*this);
     return *this;
 }
 
 template<typename T>
-DirectDataset::VirtualIterator<T>& DirectDataset::VirtualIterator<T>::operator++() {
+DirectDataset::Iterator<T>& DirectDataset::Iterator<T>::operator++() {
     cursor += n_cols;
     return *this;
 }
 
 template<typename T>
-DirectDataset::VirtualIterator<T>& DirectDataset::VirtualIterator<T>::operator--() {
+DirectDataset::Iterator<T>& DirectDataset::Iterator<T>::operator--() {
     cursor -= n_cols;
     return *this;
 }

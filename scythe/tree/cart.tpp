@@ -45,25 +45,30 @@ template <typename T>
 double evaluatePartitions(VirtualDataset* data, Density* density,
                           Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
-    data_t data_point;
-    target_t target_value;
     size_t id = splitter->node->id;
     std::fill(density->counters_left, density->counters_left + splitter->n_classes, 0);
     std::fill(density->counters_right, density->counters_right + splitter->n_classes, 0);
     std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     density->split_value = splitter->partition_values[k];
+    
+    VirtualDataset::Iterator<data_t> v_iterator; // TODO
+
+    #pragma omp parallel for num_threads(parameters.n_jobs)
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
-            target_value = (*splitter->targets)[j];
-            data_point = (*data)(j, i);
+            size_t target_value = static_cast<size_t>((*splitter->targets)[j]);
+            data_t data_point = (*data)(j, i);
             if (data_point == splitter->nan_value) {
-                density->counters_nan[static_cast<size_t>(target_value)]++;
+                #pragma omp atomic
+                density->counters_nan[target_value]++;
             }
             else if (data_point >= density->split_value) {
-                density->counters_right[static_cast<size_t>(target_value)]++;
+                #pragma omp atomic
+                density->counters_right[target_value]++;
             }
             else {
-                density->counters_left[static_cast<size_t>(target_value)]++;
+                #pragma omp atomic
+                density->counters_left[target_value]++;
             }   
         }
     }
@@ -83,7 +88,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     density->split_value = splitter->partition_values[k];
     VirtualTargets* targets = splitter->targets;
     data_t split_value = density->split_value;
-    double mean_left = 0, mean_right = 0;
+    double mean_left = 0.0, mean_right = 0.0;
     double cost = 0.0;
 
     for (uint j = 0; j < splitter->n_instances; j++) {
@@ -136,6 +141,7 @@ double evaluateByThreshold(Splitter<T>* splitter, Density* density, VirtualDatas
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
     if (splitter->is_complete_random) {
+        if (lower_bound == upper_bound) { return INFINITY; }
         size_t random_bound = lower_bound + (rand() % (upper_bound - lower_bound));
         lower_bound = random_bound;
         upper_bound = random_bound + 1;
