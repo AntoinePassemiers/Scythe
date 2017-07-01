@@ -80,8 +80,6 @@ public:
         Iterator operator++(int);
         virtual Iterator& operator--();
         Iterator operator--(int);
-        virtual bool operator==(const Iterator& other);
-        virtual bool operator!=(const Iterator& other);
     };
     VirtualDataset() {};
     virtual ~VirtualDataset() = default;
@@ -115,8 +113,8 @@ public:
         size_t n_cols;
         T* data;
     public:
-        Iterator(T* data, size_t n_cols, size_t j) : 
-            VirtualDataset::Iterator<T>::cursor(j), n_cols(n_cols), data(data) {}
+        Iterator(T* data, size_t n_cols) : 
+            cursor(0), n_cols(n_cols), data(data) {}
         ~Iterator() = default;
         T operator*() { return data[cursor]; }
         Iterator& operator++();
@@ -165,10 +163,6 @@ template<typename T>
 VirtualDataset::Iterator<T> VirtualDataset::operator()(const size_t j) {
     void* it = VirtualDataset::_operator_ev(j).get();
     return static_cast<VirtualDataset::Iterator<T>>(it);
-}
-
-std::shared_ptr<void> DirectDataset::_operator_ev(const size_t j) {
-    return nullptr; // TODO
 }
 
 template<typename T>

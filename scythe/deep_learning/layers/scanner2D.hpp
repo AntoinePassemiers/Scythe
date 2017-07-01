@@ -29,10 +29,26 @@ private:
     data_t* data; // Pointer to the raw data
     int dtype;    // Raw data pointer
 public:
+    /*
+    template<typename T>
+    class Iterator : public VirtualDataset::Iterator<T> {
+    private:
+        size_t cursor;
+        size_t n_virtual_cols;
+        T* data;
+    public:
+        Iterator(T* data, size_t n_virtual_cols) : 
+            cursor(0), n_virtual_cols(n_virtual_cols), data(data) {}
+        ~Iterator() = default;
+        T operator*() { return data[cursor]; }
+        Iterator& operator++();
+        Iterator& operator--();
+    };
+    */
     ScannedDataset2D(data_t* data, size_t N, size_t M, 
         size_t P, size_t kc, size_t kr, int dtype);
-    ScannedDataset2D(const ScannedDataset2D& other);
-    ScannedDataset2D& operator=(const ScannedDataset2D& other);
+    ScannedDataset2D(const ScannedDataset2D& other) = default;
+    ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;
     ~ScannedDataset2D() override = default;
     size_t getSc();
     size_t getSr();

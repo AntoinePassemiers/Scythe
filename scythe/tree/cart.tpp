@@ -46,6 +46,7 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
                           Splitter<T>* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t id = splitter->node->id;
+    size_t* belongs_to = splitter->belongs_to;
     std::fill(density->counters_left, density->counters_left + splitter->n_classes, 0);
     std::fill(density->counters_right, density->counters_right + splitter->n_classes, 0);
     std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
@@ -55,21 +56,16 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
 
     #pragma omp parallel for num_threads(parameters.n_jobs)
     for (uint j = 0; j < splitter->n_instances; j++) {
-        if (splitter->belongs_to[j] == id) {
+        if (belongs_to[j] == id) {
             size_t target_value = static_cast<size_t>((*splitter->targets)[j]);
-            data_t data_point = (*data)(j, i);
-            if (data_point == splitter->nan_value) {
-                #pragma omp atomic
-                density->counters_nan[target_value]++;
-            }
-            else if (data_point >= density->split_value) {
+            if ((*data)(j, i) >= density->split_value) {
                 #pragma omp atomic
                 density->counters_right[target_value]++;
             }
             else {
                 #pragma omp atomic
                 density->counters_left[target_value]++;
-            }   
+            }
         }
     }
     return getFeatureCost(density, splitter->n_classes);

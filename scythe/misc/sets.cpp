@@ -29,6 +29,11 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
     return this->data[i * this->n_cols + j];
 }
 
+std::shared_ptr<void> DirectDataset::_operator_ev(const size_t j) {
+    return std::shared_ptr<void>(
+        new DirectDataset::Iterator<data_t>(data, n_cols));
+}
+
 DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
     data(data), n_rows(n_instances) {}
 

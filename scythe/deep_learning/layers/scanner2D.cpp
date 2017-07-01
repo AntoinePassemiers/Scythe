@@ -34,34 +34,6 @@ ScannedDataset2D::ScannedDataset2D(
     }
 }
 
-ScannedDataset2D::ScannedDataset2D(const ScannedDataset2D& other) :
-    N(other.N),
-    M(other.M),
-    P(other.P),
-    kc(other.kc),
-    kr(other.kr),
-    sc(other.sc),
-    sr(other.sr),
-    Nprime(other.Nprime),
-    Mprime(other.Mprime),
-    data(other.data),
-    dtype(other.dtype) {}
-
-ScannedDataset2D& ScannedDataset2D::operator=(const ScannedDataset2D& other) {
-    this->N = other.N;
-    this->M = other.M;
-    this->P = other.P;
-    this->kc = other.kc;
-    this->kr = other.kr;
-    this->sc = other.sc;
-    this->sr = other.sr;
-    this->Nprime = other.Nprime;
-    this->Mprime = other.Mprime;
-    this->data = other.data;
-    this->dtype = other.dtype;
-    return *this;
-}
-
 data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     size_t n = i / (sr * sc);
     size_t m = (i % sc) + (j % kc);

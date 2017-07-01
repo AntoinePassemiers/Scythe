@@ -27,8 +27,8 @@ private:
     int dtype;    // Raw data type
 public:
     ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc, int dtype);
-    ScannedDataset1D(const ScannedDataset1D& other);
-    ScannedDataset1D& operator=(const ScannedDataset1D& other);
+    ScannedDataset1D(const ScannedDataset1D& other) = default;
+    ScannedDataset1D& operator=(const ScannedDataset1D& other) = default;
     ~ScannedDataset1D() override = default;
     size_t getSc();
     virtual data_t operator()(size_t i, size_t j);

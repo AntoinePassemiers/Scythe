@@ -20,28 +20,6 @@ ScannedDataset1D::ScannedDataset1D(
     data(data),
     dtype(dtype) {}
 
-ScannedDataset1D::ScannedDataset1D(const ScannedDataset1D& other) :
-    N(other.N),
-    M(other.M),
-    kc(other.kc),
-    sc(other.sc),
-    Nprime(other.Nprime),
-    Mprime(other.Mprime),
-    data(other.data),
-    dtype(other.dtype) {}
-
-ScannedDataset1D& ScannedDataset1D::operator=(const ScannedDataset1D& other) {
-    this->N = other.N;
-    this->M = other.M;
-    this->kc = other.kc;
-    this->sc = other.sc;
-    this->Nprime = other.Nprime;
-    this->Mprime = other.Mprime;
-    this->data = other.data;
-    this->dtype = other.dtype;
-    return *this;
-}
-
 data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }

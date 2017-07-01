@@ -18,22 +18,6 @@ ConcatenationDataset::ConcatenationDataset(size_t n_instances, size_t n_virtual_
     this->dtype = gbdf::DTYPE_PROBA; // TODO : dtype in case of a regression
 }
 
-ConcatenationDataset::ConcatenationDataset(const ConcatenationDataset& other) :
-    data(other.data),
-    n_instances(other.n_instances),
-    n_virtual_cols(other.n_virtual_cols),
-    stride(other.stride),
-    dtype(other.stride) {}
-
-ConcatenationDataset& ConcatenationDataset::operator=(const ConcatenationDataset& other) {
-    this->data = other.data;
-    this->n_instances = other.n_instances;
-    this->n_virtual_cols = other.n_virtual_cols;
-    this->stride = other.stride;
-    this->dtype = other.dtype;
-    return *this;
-}
-
 void ConcatenationDataset::concatenate(float* new_data, size_t width) {
     // TODO: parallel computing
     std::cout << "Concatenation : " << n_instances << ", ";
@@ -53,7 +37,9 @@ data_t ConcatenationDataset::operator()(const size_t i, const size_t j) {
 }
 
 std::shared_ptr<void> ConcatenationDataset::_operator_ev(const size_t j) {
-    return nullptr; // TODO
+    // TODO : regression case
+    return std::shared_ptr<void>(
+        new ConcatenationDataset::Iterator<proba_t>(data, n_virtual_cols));
 }
 
 CascadeLayer::CascadeLayer(LayerConfig lconfig) : 

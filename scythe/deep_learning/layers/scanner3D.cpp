@@ -26,40 +26,6 @@ ScannedDataset3D::ScannedDataset3D(
     data(data),
     dtype(dtype) {}
 
-ScannedDataset3D::ScannedDataset3D(const ScannedDataset3D& other) :
-    N(other.N),
-    M(other.M),
-    P(other.P),
-    Q(other.Q),
-    kc(other.kc),
-    kr(other.kr),
-    kd(other.kd),
-    sc(other.sc),
-    sr(other.sr),
-    sd(other.sd),
-    Nprime(other.Nprime),
-    Mprime(other.Mprime),
-    data(other.data),
-    dtype(other.dtype) {}
-
-ScannedDataset3D& ScannedDataset3D::operator=(const ScannedDataset3D& other) {
-    this->N = other.N;
-    this->M = other.M;
-    this->P = other.P;
-    this->Q = other.Q;
-    this->kc = other.kc;
-    this->kr = other.kr;
-    this->kd = other.kd;
-    this->sc = other.sc;
-    this->sr = other.sr;
-    this->sd = other.sd;
-    this->Nprime = other.Nprime;
-    this->Mprime = other.Mprime;
-    this->data = other.data;
-    this->dtype = other.dtype;
-    return *this;
-}
-
 data_t ScannedDataset3D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }

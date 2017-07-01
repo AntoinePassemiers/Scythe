@@ -33,8 +33,8 @@ private:
     int dtype;    // Raw data type
 public:
     ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd, int dtype);
-    ScannedDataset3D(const ScannedDataset3D& other);
-    ScannedDataset3D& operator=(const ScannedDataset3D& other);
+    ScannedDataset3D(const ScannedDataset3D& other) = default;
+    ScannedDataset3D& operator=(const ScannedDataset3D& other) = default;
     ~ScannedDataset3D() override = default;
     size_t getSc();
     size_t getSr();
