@@ -52,6 +52,10 @@ data_t ConcatenationDataset::operator()(const size_t i, const size_t j) {
     return static_cast<data_t>(data[i * this->stride + j]);
 }
 
+std::shared_ptr<void> ConcatenationDataset::_operator_ev(const size_t j) {
+    return nullptr; // TODO
+}
+
 CascadeLayer::CascadeLayer(LayerConfig lconfig) : 
     Layer(lconfig) {
 }

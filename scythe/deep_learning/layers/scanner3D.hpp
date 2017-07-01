@@ -40,6 +40,7 @@ public:
     size_t getSr();
     size_t getSd();
     virtual data_t operator()(size_t i, size_t j);
+    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
     virtual size_t getNumInstances();
     virtual size_t getNumFeatures();
     virtual size_t getRequiredMemorySize();

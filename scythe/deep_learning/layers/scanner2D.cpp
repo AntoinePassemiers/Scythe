@@ -69,6 +69,10 @@ data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     return data[(M * P) * n + P * m + p]; // TODO : optimization
 }
 
+std::shared_ptr<void> ScannedDataset2D::_operator_ev(const size_t j) {
+    return nullptr; // TODO
+}
+
 size_t ScannedDataset2D::getSc() {
     return this->sc;
 }

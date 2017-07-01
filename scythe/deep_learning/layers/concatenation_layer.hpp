@@ -26,6 +26,7 @@ public:
     ~ConcatenationDataset() override = default;
     void concatenate(float* new_data, size_t width);
     virtual data_t operator()(const size_t i, const size_t j);
+    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
     virtual size_t getNumInstances() { return n_instances; }
     virtual size_t getNumFeatures() { return stride; }
     virtual size_t getRequiredMemorySize() { return n_instances * n_virtual_cols; }

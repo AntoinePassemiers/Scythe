@@ -24,6 +24,7 @@
 #include "heuristics.hpp"
 #include "../densities/continuous.hpp"
 
+
 constexpr int NO_FEATURE = -1;
 constexpr int NO_INSTANCE = 0;
 constexpr int NO_SPLIT_VALUE = std::numeric_limits<int>::max();

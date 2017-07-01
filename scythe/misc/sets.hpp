@@ -86,8 +86,13 @@ public:
     VirtualDataset() {};
     virtual ~VirtualDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
+
+    // Type erasure of operator()(const size_t)
     template<typename T>
-    Iterator<T> operator()(const size_t j); // TODO: set as pure virtual
+    Iterator<T> operator()(const size_t j);
+    virtual std::shared_ptr<void> _operator_ev(const size_t j) = 0;
+
+    // Getters
     virtual size_t getNumInstances() = 0;
     virtual size_t getNumFeatures() = 0;
     virtual size_t getRequiredMemorySize() = 0;
@@ -123,6 +128,7 @@ public:
     DirectDataset& operator=(const DirectDataset& other);
     ~DirectDataset() override = default;
     virtual data_t operator()(const size_t i, const size_t j);
+    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
     virtual size_t getRequiredMemorySize() { return n_rows * n_cols; }
@@ -154,6 +160,16 @@ public:
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
 };
+
+template<typename T>
+VirtualDataset::Iterator<T> VirtualDataset::operator()(const size_t j) {
+    void* it = VirtualDataset::_operator_ev(j).get();
+    return static_cast<VirtualDataset::Iterator<T>>(it);
+}
+
+std::shared_ptr<void> DirectDataset::_operator_ev(const size_t j) {
+    return nullptr; // TODO
+}
 
 template<typename T>
 VirtualDataset::Iterator<T> VirtualDataset::Iterator<T>::operator++(int) {

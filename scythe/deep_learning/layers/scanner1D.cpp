@@ -46,6 +46,10 @@ data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }
 
+std::shared_ptr<void> ScannedDataset1D::_operator_ev(const size_t j) {
+    return nullptr; // TODO
+}
+
 size_t ScannedDataset1D::getSc() {
     return this->sc;
 }
