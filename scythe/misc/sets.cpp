@@ -34,6 +34,16 @@ std::shared_ptr<void> DirectDataset::_operator_ev(const size_t j) {
         new DirectDataset::Iterator<data_t>(data, n_cols));
 }
 
+label_t* VirtualTargets::toLabels() {
+    if (labels == nullptr) {
+        labels = new label_t[getNumInstances()];
+        for (unsigned int i = 0; i < getNumInstances(); i++) {
+            labels[i] = static_cast<int>(operator[](i));
+        }
+    }
+    return labels;
+}
+
 DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
     data(data), n_rows(n_instances) {}
 

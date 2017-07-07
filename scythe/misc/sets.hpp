@@ -31,9 +31,10 @@ namespace gbdf {
 }
 
 typedef unsigned int uint;
-typedef double data_t;
-typedef double target_t;
-typedef float proba_t;
+typedef double       data_t;
+typedef double       target_t;
+typedef float        proba_t;
+typedef int          label_t;
 
 // Forward declarations
 class VirtualDataset;
@@ -133,12 +134,17 @@ public:
 
 
 class VirtualTargets {
+private:
+    label_t* labels = nullptr;
 public:
     VirtualTargets() {};
+    VirtualTargets(const VirtualTargets&) = default;
+    VirtualTargets& operator=(const VirtualTargets&) = default;
     virtual ~VirtualTargets() = default;
     virtual target_t operator[](const size_t i) = 0;
     virtual size_t getNumInstances() = 0;
     virtual target_t* getValues() = 0;
+    label_t* toLabels();
 };
 
 

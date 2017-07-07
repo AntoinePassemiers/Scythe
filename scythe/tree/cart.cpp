@@ -103,15 +103,15 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
     density->split_value = splitter->partition_values[k];
     
     VirtualDataset::Iterator<data_t> v_iterator; // TODO
+    label_t* labels = (*(splitter->targets)).toLabels();
 
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (belongs_to[j] == id) {
-            size_t target_value = static_cast<size_t>((*splitter->targets)[j]);
             if ((*data)(j, i) >= density->split_value) {
-                density->counters_right[target_value]++;
+                density->counters_right[labels[j]]++;
             }
             else {
-                density->counters_left[target_value]++;
+                density->counters_left[labels[j]]++;
             }
         }
     }
