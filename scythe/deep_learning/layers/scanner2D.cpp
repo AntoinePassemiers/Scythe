@@ -38,11 +38,13 @@ data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     size_t n = i / (sr * sc);
     size_t m = (i % sc) + (j % kc);
     size_t p = ((i % (sr * sc)) / sr) + (j / kr);
-    return data[(M * P) * n + P * m + p]; // TODO : optimization
+    return data[(M * P) * n + (P * m) + p];
 }
 
 std::shared_ptr<void> ScannedDataset2D::_operator_ev(const size_t j) {
-    return nullptr; // TODO
+    return std::shared_ptr<void>(
+        new ScannedDataset2D::Iterator<data_t>(
+            data, P * (j % kc) + (j / kr), M, P, sc, sr));
 }
 
 size_t ScannedDataset2D::getSc() {

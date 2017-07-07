@@ -10,6 +10,15 @@
 
 
 Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_value, int partitioning) {
+    /**
+        TODO
+        ----
+        Use STL containers such as vectors
+        std::vector<data_t> data;
+        data.assign(data_ptr, data_ptr + len);
+        std::sort(data.begin(), data.end());
+    */
+
     size_t n_instances = data->getNumInstances();
     size_t n_features  = data->getNumFeatures();
     Density* densities = new Density[n_features];
@@ -25,9 +34,8 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
         // Putting nan values aside
         bool is_categorical = true;
         size_t n_acceptable = 0;
-        data_t data_point;
         for (uint i = 0; i < n_instances; i++) {
-            data_point = (*data)(i, f);
+            data_t data_point = (*data)(i, f);
             if (data_point != nan_value) {
                 sorted_values[n_acceptable] = data_point;
                 n_acceptable++;
@@ -38,11 +46,9 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
         }
         densities[f].is_categorical = is_categorical;
         // Sorting acceptable values
-        size_t k;
-        data_t x;
         for (uint i = 0; i < n_acceptable; i++) {
-            x = sorted_values[i];
-            k = i;
+            data_t x = sorted_values[i];
+            size_t k = i;
             while (k > 0 && sorted_values[k - 1] > x) {
                 sorted_values[k] = sorted_values[k - 1];
                 k--;
@@ -63,7 +69,7 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
         }
 
         size_t n_distinct = 1;
-        x = sorted_values[0];
+        data_t x = sorted_values[0];
         for (uint i = 1; i < n_acceptable; i++) {
             if (sorted_values[n_distinct - 1] != sorted_values[i]) {
                 sorted_values[n_distinct++] = sorted_values[i];

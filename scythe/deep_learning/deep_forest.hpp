@@ -25,8 +25,8 @@ private:
     std::shared_ptr<ConcatenationDataset> cascade_buffer;
 public:
     DeepForest(int task);
-    DeepForest(const DeepForest& other);
-    DeepForest& operator=(const DeepForest& other);
+    DeepForest(const DeepForest& other) = default;
+    DeepForest& operator=(const DeepForest& other) = default;
     ~DeepForest() = default;
     void fit(MDDataset dataset, Labels<target_t>* labels);
     float* classify(MDDataset dataset);

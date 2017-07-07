@@ -45,7 +45,7 @@ void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targ
     Forest::preprocessDensities(dataset);
     std::cout << "BBB" << std::endl;
     // Fitting each individual tree
-    // #pragma omp parallel for num_threads(parameters.n_jobs)
+    #pragma omp parallel for num_threads(parameters.n_jobs)
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
         this->fitNewTree(dataset, targets);
     }

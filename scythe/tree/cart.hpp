@@ -41,16 +41,20 @@ namespace gbdf {
 struct Node {
     int     id;
     int     feature_id = NO_FEATURE;
-    size_t* counters;
     size_t  n_instances = NO_INSTANCE;
-    double  score = INFINITY;
     data_t  split_value = NO_SPLIT_VALUE;
+
+    size_t* counters; // TODO : anonymous union
     data_t  mean;
+    
     Node*   left_child = nullptr;
     Node*   right_child = nullptr;
 
     Node(size_t n_classes = 0);
 };
+
+// Nodes with reasonable size
+static_assert(sizeof(Node) < 100, "Node size is too large");
 
 struct NodeSpace {
     Node*   owner;
@@ -72,7 +76,6 @@ struct TreeConfig {
     bool   is_complete_random;
 };
 
-template <typename T>
 struct Splitter {
     int             task;
     Node*           node;
@@ -126,16 +129,47 @@ float* classifyFromTree(VirtualDataset* data, size_t n_instances, size_t n_featu
 data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
 
-template <typename T>
-inline double evaluatePartitions(VirtualDataset* data, Density* density, Splitter<T>* splitter, size_t k);
+double evaluatePartitions(VirtualDataset* data, Density* density, Splitter* splitter, size_t k);
 
-template <typename T>
-inline double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
-                                 Splitter<T>* splitter, size_t k);
+double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
+                                 Splitter* splitter, size_t k);
 
-template <typename T>
-double evaluateByThreshold(Splitter<T>* splitter, Density* density, const VirtualDataset* data);
+double evaluateByThreshold(Splitter* splitter, Density* density, const VirtualDataset* data);
 
-#include "cart.tpp"
+
+inline size_t sum_counts(size_t* counters, size_t n_counters) {
+    /**
+        Sums the integer values stored in counters
+
+        @param counters
+            Counters of instances per class (for classification)
+        @param n_counters
+            Number of counters
+        @return Sum of the counters
+    */
+    return std::accumulate(counters, counters + n_counters, 0);
+}
+
+inline float ShannonEntropy(float probability) {
+    /**
+        Computes a single term of the Shannon entropy
+
+        @param probability
+            Probability of belonging to a certain class
+        @return The ith term of the Shannon entropy
+    */
+    return -probability * std::log2(probability);
+}
+
+inline float GiniCoefficient(float probability) {
+    /**
+        Computes a single term of the Gini coefficient
+
+        @param probability
+            Probability of belonging to a certain class
+        @return The ith term of the Gini coefficient
+    */
+    return 1.f - probability * probability;
+}
 
 #endif // CART_HPP_

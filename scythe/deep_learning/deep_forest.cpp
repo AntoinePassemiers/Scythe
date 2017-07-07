@@ -16,22 +16,6 @@ DeepForest::DeepForest(int task) :
     rear(nullptr), 
     cascade_buffer(nullptr) {}
 
-DeepForest::DeepForest(const DeepForest& other) :
-    layers(other.layers),
-    task(other.task),
-    front(other.front),
-    rear(other.rear),
-    cascade_buffer(other.cascade_buffer) {}
-
-DeepForest& DeepForest::operator=(const DeepForest& other) {
-    this->layers = other.layers;
-    this->task = other.task;
-    this->front = other.front;
-    this->rear = other.rear;
-    this->cascade_buffer = other.cascade_buffer;
-    return *this;
-}
-
 void DeepForest::add(layer_p layer) {
     layer->setTask(task);
     layers.push_back(layer);

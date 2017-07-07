@@ -32,7 +32,6 @@ public:
         ~Iterator() = default;
         T operator*() { return data[cursor]; }
         Iterator& operator++();
-        Iterator& operator--();
     };
     ConcatenationDataset(size_t n_instances, size_t n_virtual_features);
     ConcatenationDataset(const ConcatenationDataset& other) = default;
@@ -65,12 +64,6 @@ public:
 template<typename T>
 ConcatenationDataset::Iterator<T>& ConcatenationDataset::Iterator<T>::operator++() {
     cursor += n_virtual_cols;
-    return *this;
-}
-
-template<typename T>
-ConcatenationDataset::Iterator<T>& ConcatenationDataset::Iterator<T>::operator--() {
-    cursor -= n_virtual_cols;
     return *this;
 }
 

@@ -78,8 +78,6 @@ public:
         virtual T operator*();
         virtual Iterator& operator++();
         Iterator operator++(int);
-        virtual Iterator& operator--();
-        Iterator operator--(int);
     };
     VirtualDataset() {};
     virtual ~VirtualDataset() = default;
@@ -118,7 +116,6 @@ public:
         ~Iterator() = default;
         T operator*() { return data[cursor]; }
         Iterator& operator++();
-        Iterator& operator--();
     };
     DirectDataset(Dataset dataset);
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
@@ -159,6 +156,7 @@ public:
     virtual target_t* getValues() { return data; }
 };
 
+
 template<typename T>
 VirtualDataset::Iterator<T> VirtualDataset::operator()(const size_t j) {
     void* it = VirtualDataset::_operator_ev(j).get();
@@ -167,25 +165,12 @@ VirtualDataset::Iterator<T> VirtualDataset::operator()(const size_t j) {
 
 template<typename T>
 VirtualDataset::Iterator<T> VirtualDataset::Iterator<T>::operator++(int) {
-    ++(*this);
-    return *this;
-}
-
-template<typename T>
-VirtualDataset::Iterator<T> VirtualDataset::Iterator<T>::operator--(int) {
-    --(*this);
-    return *this;
+    return ++(*this);
 }
 
 template<typename T>
 DirectDataset::Iterator<T>& DirectDataset::Iterator<T>::operator++() {
     cursor += n_cols;
-    return *this;
-}
-
-template<typename T>
-DirectDataset::Iterator<T>& DirectDataset::Iterator<T>::operator--() {
-    cursor -= n_cols;
     return *this;
 }
 
