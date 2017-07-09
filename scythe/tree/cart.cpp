@@ -9,13 +9,17 @@
 #include "cart.hpp"
 
 
-// Constructor for struct Node
-Node::Node(size_t n_classes):
-    id(0),
-    counters(n_classes > 0 ? new (std::nothrow) size_t[n_classes] : nullptr),
-    mean(0) {}
+Tree::Tree(Node* root, TreeConfig* config, size_t n_features) :
+    root(root), config(config), n_nodes(1), n_classes(config->n_classes),
+    n_features(n_features), level(1) {}
 
-NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities) {
+Node::Node(size_t n_classes, int id, size_t n_instances, data_t mean):
+    id(id),
+    n_instances(n_instances),
+    counters(n_classes > 0 ? new (std::nothrow) size_t[n_classes] : nullptr),
+    mean(mean) {}
+
+NodeSpace::NodeSpace(Node* owner, size_t n_features, Density* densities) {
     /**
         Factory function for struct NodeSpace. This is being called while
         instantiating the tree's root. When evaluating the split values for
@@ -32,30 +36,46 @@ NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities) {
             There are supposed to be n_features densities
         @return A new NodeSpace for the tree's root
     */
-    NodeSpace new_space;
-    new_space.current_depth = 1;
-    new_space.owner = owner;
+    current_depth = 1;
+    this->owner = owner;
     size_t n_bytes = n_features * sizeof(size_t);
-    new_space.feature_left_bounds = static_cast<size_t*>(malloc(n_bytes));
-    new_space.feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
+    feature_left_bounds = static_cast<size_t*>(malloc(n_bytes));
+    feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
     for (uint f = 0; f < n_features; f++) {
-        new_space.feature_left_bounds[f] = 1;
-        new_space.feature_right_bounds[f] = densities[f].n_values;
+        feature_left_bounds[f] = 1;
+        feature_right_bounds[f] = densities[f].n_values;
     }
-    return new_space;
 }
 
-NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features) {
-    NodeSpace new_space;
-    new_space.owner = node_space.owner;
-    new_space.current_depth = node_space.current_depth;
+NodeSpace::NodeSpace(const NodeSpace& node_space, size_t n_features) {
+    owner = node_space.owner;
+    current_depth = node_space.current_depth;
     size_t n_bytes = n_features * sizeof(size_t);
-    new_space.feature_left_bounds = static_cast<size_t*>(malloc(n_bytes));
-    new_space.feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
-    memcpy(new_space.feature_left_bounds, node_space.feature_left_bounds, n_bytes);
-    memcpy(new_space.feature_right_bounds, node_space.feature_right_bounds, n_bytes);
-    return new_space;
+    feature_left_bounds = static_cast<size_t*>(malloc(n_bytes));
+    feature_right_bounds = static_cast<size_t*>(malloc(n_bytes));
+    memcpy(feature_left_bounds, node_space.feature_left_bounds, n_bytes);
+    memcpy(feature_right_bounds, node_space.feature_right_bounds, n_bytes);
 }
+
+Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
+        size_t n_features, size_t* belongs_to, VirtualTargets* targets) :
+    task(config->task), 
+    node(node_space.owner),
+    n_instances(n_instances),
+    partition_values(nullptr),
+    n_classes(config->n_classes),
+    mean_left(0.0),
+    mean_right(0.0),
+    n_left(0),
+    n_right(0),
+    belongs_to(belongs_to),
+    feature_id(static_cast<size_t>(NO_FEATURE)),
+    n_features(n_features),
+    targets(targets),
+    nan_value(config->nan_value),
+    best_split_id(0),
+    node_space(node_space),
+    is_complete_random(config->is_complete_random) {}
 
 double getFeatureCost(Density* density, size_t n_classes) {
     size_t n_left = sum_counts(density->counters_left, n_classes);
@@ -64,8 +84,6 @@ double getFeatureCost(Density* density, size_t n_classes) {
     if (n_left == 0 || n_right == 0) {
         return COST_OF_EMPTINESS;
     }
-    float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
-    float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
     double left_cost = 0.0, right_cost = 0.0;
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;
@@ -74,38 +92,41 @@ double getFeatureCost(Density* density, size_t n_classes) {
             size_t n_p = counters_left[i];
             if (n_p > 0) {
                 // left_cost += ShannonEntropy(static_cast<float>(n_p) / static_cast<float>(n_left));
-                left_cost += GiniCoefficient(static_cast<float>(n_p) / static_cast<float>(n_left));
+                left_cost += pow2(static_cast<float>(n_p) / static_cast<float>(n_left));
             }
         }
-        left_cost *= left_rate;
+        left_cost = (1.0 - left_cost);
     }
     if (n_right > 0) {
         for (uint i = 0; i < n_classes; i++) {
             size_t n_n = counters_right[i];
             if (n_n > 0) {
                 // right_cost += ShannonEntropy(static_cast<float>(n_n) / static_cast<float>(n_right));
-                right_cost += GiniCoefficient(static_cast<float>(n_n) / static_cast<float>(n_right));
+                right_cost += pow2(static_cast<float>(n_n) / static_cast<float>(n_right));
             }
         }
-        right_cost *= right_rate;
+        right_cost = (1.0 - right_cost);
     }
-    return left_cost + right_cost;
+    float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
+    float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
+    return left_cost * left_rate + right_cost * right_rate;
 }
 
 double evaluatePartitions(VirtualDataset* data, Density* density,
                           Splitter* splitter, size_t k) {
     size_t i = splitter->feature_id;
     size_t id = splitter->node->id;
+    size_t n_instances = splitter->n_instances;
     size_t* belongs_to = splitter->belongs_to;
     std::fill(density->counters_left, density->counters_left + splitter->n_classes, 0);
     std::fill(density->counters_right, density->counters_right + splitter->n_classes, 0);
     std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     density->split_value = splitter->partition_values[k];
     
-    VirtualDataset::Iterator<data_t> v_iterator; // TODO
+    VirtualDataset::Iterator<data_t> v_iterator; // TODO: fast dataset indexing
     label_t* labels = (*(splitter->targets)).toLabels();
 
-    for (uint j = 0; j < splitter->n_instances; j++) {
+    for (uint j = 0; j < n_instances; j++) {
         if (belongs_to[j] == id) {
             if ((*data)(j, i) >= density->split_value) {
                 density->counters_right[labels[j]]++;
@@ -222,10 +243,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
     size_t n_instances = dataset->getNumInstances();
     size_t n_features  = dataset->getNumFeatures();
-    Node* current_node = new Node(config->n_classes);
-    current_node->id = 0;
-    current_node->n_instances = n_instances;
-    current_node->mean = 0.0; // TODO : mean of all the samples
+    Node* current_node = new Node(config->n_classes, 0, n_instances, 0.0);
     if (config->task == gbdf::CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
         for (uint i = 0; i < n_instances; i++) {
@@ -233,34 +251,13 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         }
     }
     Node* child_node;
-    Tree* tree = new Tree;
-    tree->root = current_node;
-    tree->config = config;
-    tree->n_nodes = 1;
-    tree->n_classes = config->n_classes;
-    tree->n_features = n_features;
-    tree->level = 1;
+    Tree* tree = new Tree(current_node, config, n_features);
     bool still_going = 1;
     size_t** split_sides = new size_t*[2];
     Density* next_density;
-    NodeSpace current_node_space = newNodeSpace(current_node, n_features, densities);
-    Splitter splitter = {
-        config->task,
-        current_node,
-        n_instances,
-        nullptr,
-        config->n_classes,
-        0.0, 0.0,
-        0, 0,
-        belongs_to,
-        static_cast<size_t>(NO_FEATURE),
-        n_features,
-        targets,
-        config->nan_value,
-        0,
-        current_node_space,
-        config->is_complete_random
-    };
+    NodeSpace current_node_space(current_node, n_features, densities);
+    Splitter splitter(current_node_space, config, n_instances, n_features, 
+        belongs_to, targets);
     Splitter best_splitter = splitter;
 
     if (config->max_n_features > n_features) { config->max_n_features = n_features; }
@@ -340,7 +337,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 child_node->counters = new (std::nothrow) size_t[config->n_classes];
                 memcpy(child_node->counters, split_sides[i], config->n_classes * sizeof(size_t));
                 if (lowest_e_cost > config->min_threshold) {
-                    NodeSpace child_space = copyNodeSpace(current_node_space, n_features);
+                    NodeSpace child_space(current_node_space, n_features);
                     child_space.owner = child_node;
                     child_space.current_depth = current_node_space.current_depth + 1;
                     child_space.feature_left_bounds[best_feature] = new_left_bounds[i];
@@ -366,15 +363,13 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 float* classifyFromTree(VirtualDataset* dataset, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::CLASSIFICATION_TASK);
-    Node *current_node;
-    size_t feature;
     size_t n_classes = config->n_classes;
     float* predictions = new float[n_instances * n_classes];
     for (uint k = 0; k < n_instances; k++) {
         bool improving = true;
-        current_node = tree->root;
+        Node* current_node = tree->root;
         while (improving) {
-            feature = current_node->feature_id;
+            size_t feature = current_node->feature_id;
             if (current_node->left_child != NULL) {
                 if ((*dataset)(k, feature) >= current_node->split_value) {
                     current_node = current_node->right_child;
@@ -398,15 +393,12 @@ float* classifyFromTree(VirtualDataset* dataset, size_t n_instances, size_t n_fe
 data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
     assert(config->task == gbdf::REGRESSION_TASK);
-    Node *current_node;
-    size_t feature;
     data_t* predictions = new data_t[n_instances];
-
     for (uint k = 0; k < n_instances; k++) {
         bool improving = true;
-        current_node = tree->root;
+        Node* current_node = tree->root;
         while (improving) {
-            feature = current_node->feature_id;
+            size_t feature = current_node->feature_id;
             if (current_node->left_child != NULL) {
                 if ((*data)(k, feature) >= current_node->split_value) {
                     current_node = current_node->right_child;

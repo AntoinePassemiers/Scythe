@@ -38,29 +38,35 @@ namespace gbdf {
     constexpr int REGRESSION_TASK     = 0xF55A91;
 }
 
+
 struct Node {
     int     id;
     int     feature_id = NO_FEATURE;
     size_t  n_instances = NO_INSTANCE;
     data_t  split_value = NO_SPLIT_VALUE;
 
-    size_t* counters; // TODO : anonymous union
-    data_t  mean;
+    size_t* counters = nullptr; // TODO : anonymous union
+    data_t  mean = 0.0;
     
     Node*   left_child = nullptr;
     Node*   right_child = nullptr;
 
-    Node(size_t n_classes = 0);
+    explicit Node() = default;
+    explicit Node(size_t n_classes, int id, size_t n_instances, data_t mean);
 };
 
 // Nodes with reasonable size
 static_assert(sizeof(Node) < 100, "Node size is too large");
+
 
 struct NodeSpace {
     Node*   owner;
     size_t  current_depth;
     size_t* feature_left_bounds;
     size_t* feature_right_bounds;
+
+    explicit NodeSpace(Node* owner, size_t n_features, Density* densities);
+    explicit NodeSpace(const NodeSpace& node_space, size_t n_features);
 };
 
 struct TreeConfig {
@@ -94,6 +100,9 @@ struct Splitter {
     int             best_split_id;
     NodeSpace       node_space;
     bool            is_complete_random;
+
+    explicit Splitter(NodeSpace nodespace, TreeConfig* config, size_t n_instances,
+        size_t n_features, size_t* belongs_to, VirtualTargets* targets);
 };
 
 struct Tree {
@@ -103,17 +112,14 @@ struct Tree {
     size_t      n_features;
     TreeConfig* config;
     ptrdiff_t   level;
+
+    explicit Tree() = default;
+    explicit Tree(Node* root, TreeConfig* config, size_t n_features);
 };
 
 NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 
 NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
-
-inline size_t sum_counts(size_t* counters, size_t n_counters);
-
-inline float ShannonEntropy(float probability);
-
-inline float GiniCoefficient(float probability);
 
 double getFeatureCost(Density* density, size_t n_classes);
 
@@ -161,7 +167,7 @@ inline float ShannonEntropy(float probability) {
     return -probability * std::log2(probability);
 }
 
-inline float GiniCoefficient(float probability) {
+inline float pow2(float probability) {
     /**
         Computes a single term of the Gini coefficient
 
@@ -169,7 +175,7 @@ inline float GiniCoefficient(float probability) {
             Probability of belonging to a certain class
         @return The ith term of the Gini coefficient
     */
-    return 1.f - probability * probability;
+    return probability * probability;
 }
 
 #endif // CART_HPP_

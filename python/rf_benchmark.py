@@ -26,6 +26,9 @@ if __name__ == "__main__":
         n_features = n_features, 
         n_classes  = n_classes)
 
+    for i in range(100):
+        print(len(np.unique(X[:, i])))
+
     X_train = Dataset(X[:n_samples])
     y_train = Labels(y[:n_samples])
 
