@@ -51,7 +51,7 @@ vdataset_p CascadeLayer::virtualize(MDDataset dataset) {
     return nullptr;
 }
 
-vtargets_p CascadeLayer::virtualizeTargets(Labels<target_t>* targets) {
+vtargets_p CascadeLayer::virtualizeTargets(Labels* targets) {
     DirectTargets* direct_targets = new DirectTargets(
         targets->data, targets->n_rows);
     return std::shared_ptr<VirtualTargets>(direct_targets);

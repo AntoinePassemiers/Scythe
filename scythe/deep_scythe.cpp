@@ -24,7 +24,7 @@ extern "C" {
         return ptr_id;
     }
 
-    void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, size_t forest_id) {
+    void c_fit_deep_forest(MDDataset dataset, Labels* labels, size_t forest_id) {
         DeepForest* forest = cpp_classes_interface.get(forest_id);
         forest->fit(dataset, labels);
     }

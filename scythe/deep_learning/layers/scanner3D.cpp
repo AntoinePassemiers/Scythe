@@ -75,7 +75,7 @@ ScannedTargets3D& ScannedTargets3D::operator=(const ScannedTargets3D& other) {
     return *this;
 }
 
-data_t ScannedTargets3D::operator[](const size_t i) {
+target_t ScannedTargets3D::operator[](const size_t i) {
     return data[i / s];
 }
 
@@ -86,7 +86,7 @@ vdataset_p MultiGrainedScanner3D::virtualize(MDDataset dataset) {
     return nullptr; // TODO
 }
 
-vtargets_p MultiGrainedScanner3D::virtualizeTargets(Labels<target_t>* targets) {
+vtargets_p MultiGrainedScanner3D::virtualizeTargets(Labels* targets) {
     ScannedDataset3D* vdataset = dynamic_cast<ScannedDataset3D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t sr = vdataset->getSr();

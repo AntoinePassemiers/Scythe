@@ -56,6 +56,6 @@ DirectTargets& DirectTargets::operator=(const DirectTargets& other) {
     return *this;
 }
 
-data_t DirectTargets::operator[](const size_t i) {
+target_t DirectTargets::operator[](const size_t i) {
     return this->data[i];
 }

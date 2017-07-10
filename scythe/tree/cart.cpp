@@ -62,6 +62,7 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     task(config->task), 
     node(node_space.owner),
     n_instances(n_instances),
+    n_instances_in_node(n_instances),
     partition_values(nullptr),
     n_classes(config->n_classes),
     mean_left(0.0),
@@ -118,21 +119,29 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
     size_t id = splitter->node->id;
     size_t n_instances = splitter->n_instances;
     size_t* belongs_to = splitter->belongs_to;
-    std::fill(density->counters_left, density->counters_left + splitter->n_classes, 0);
-    std::fill(density->counters_right, density->counters_right + splitter->n_classes, 0);
+    size_t* counters_left = density->counters_left;
+    size_t* counters_right = density->counters_right;
+    std::fill(counters_left, counters_left + splitter->n_classes, 0);
+    std::fill(counters_right, counters_right + splitter->n_classes, 0);
     std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
-    density->split_value = splitter->partition_values[k];
+    data_t split_value = (density->split_value = splitter->partition_values[k]);
     
-    VirtualDataset::Iterator<data_t> v_iterator; // TODO: fast dataset indexing
     label_t* labels = (*(splitter->targets)).toLabels();
 
+    /**
+    #ifdef _MEM_ALIGN
+        #pragma ivdep
+        #pragma ibm independent_loop
+        #pragma omp simd aligned(labels : 32)
+    #endif
+    */
     for (uint j = 0; j < n_instances; j++) {
         if (belongs_to[j] == id) {
-            if ((*data)(j, i) >= density->split_value) {
-                density->counters_right[labels[j]]++;
+            if ((*data)(j, i) >= split_value) {
+                counters_right[labels[j]]++;
             }
             else {
-                density->counters_left[labels[j]]++;
+                counters_left[labels[j]]++;
             }
         }
     }
@@ -276,6 +285,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         double lowest_e_cost = INFINITY;
         splitter.node = current_node;
         splitter.node_space = current_node_space;
+        splitter.n_instances_in_node = current_node->n_instances;
         selectFeaturesToConsider(features_to_use, n_features, max_n_features);
         for (uint f = 0; f < n_features; f++) {
             splitter.feature_id = f;

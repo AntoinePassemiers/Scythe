@@ -26,15 +26,15 @@
 
 
 extern "C" {
-    void* fit_classification_tree(Dataset*, Labels<target_t>*, TreeConfig*);
+    void* fit_classification_tree(Dataset*, Labels*, TreeConfig*);
 
-    void* fit_regression_tree(Dataset*, Labels<data_t>*, TreeConfig*);
+    void* fit_regression_tree(Dataset*, Labels*, TreeConfig*);
 
     float* tree_classify(Dataset*, void*, TreeConfig*);
 
     data_t* tree_predict(Dataset*, void*, TreeConfig*);
 
-    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config);
+    void* fit_classification_forest(Dataset* dataset, Labels* labels, ForestConfig* config);
 }
 
 #endif // SCYTHE_HPP_

@@ -30,7 +30,7 @@ public:
     inline size_t getNumberOfClasses() { return this->n_classes; }
     inline size_t getNumberOfInstances() { return this->n_instances; }
     virtual size_t getNumberOfRequiredTrees() = 0;
-    virtual void computeGradient(float* const, data_t* const) = 0;
+    virtual void computeGradient(float* const, target_t* const) = 0;
     virtual loss_t computeLoss(float* const, VirtualTargets* const) = 0;
     ClassificationError();
     ClassificationError(size_t n_classes, size_t n_instances);
@@ -57,7 +57,11 @@ public:
             for (uint j = 0; j < this->n_classes; j++) {
                 if (static_cast<size_t>((*targets)[i]) == j) {
                     data_t prob = probabilities[i * this->n_classes + j];
-                    prob = std::max(std::min(prob, 1.0 - this->stability_threshold), this->stability_threshold);
+                    prob = std::max(
+                        std::min(
+                            static_cast<double>(prob),
+                            1.0 - this->stability_threshold), 
+                        this->stability_threshold);
                     loss -= std::log(prob);
                 }
             }
@@ -65,11 +69,15 @@ public:
         return loss / static_cast<double>(n_instances);
     }
 
-    void computeGradient(float* const probabilities, data_t* const targets) {
+    void computeGradient(float* const probabilities, target_t* const targets) {
         for (uint i = 0; i < this->n_instances; i++) {
             for (uint j = 0; j < this->n_classes; j++) {
                 data_t prob = probabilities[i * this->n_classes + j];
-                prob = std::max(std::min(prob, 1.0 - this->stability_threshold), this->stability_threshold);
+                prob = std::max(
+                    std::min(
+                        static_cast<double>(prob),
+                        1.0 - this->stability_threshold), 
+                    this->stability_threshold);
                 data_t gradient_at_ij = (static_cast<size_t>(targets[i]) == j) ? (prob - 1.0) : (prob);
                 this->gradient.get()[j * this->n_instances + i] = gradient_at_ij;
             }

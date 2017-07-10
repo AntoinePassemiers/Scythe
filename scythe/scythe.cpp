@@ -12,7 +12,7 @@ extern "C" {
 
     /* TREE API */
 
-    void* fit_classification_tree(Dataset* dataset, Labels<target_t>* labels, TreeConfig* config) {
+    void* fit_classification_tree(Dataset* dataset, Labels* labels, TreeConfig* config) {
         /**
             Grows a classification tree and returns it as a void*
 
@@ -34,7 +34,7 @@ extern "C" {
         return static_cast<void*>(CART(direct_dataset, direct_targets, config, densities));
     }
 
-    void* fit_regression_tree(Dataset* dataset, Labels<data_t>* targets, TreeConfig* config) {
+    void* fit_regression_tree(Dataset* dataset, Labels* targets, TreeConfig* config) {
         /**
             Grows a regression tree and returns it as a void*
 
@@ -103,7 +103,7 @@ extern "C" {
 
     /* FOREST API */
 
-    void* fit_classification_forest(Dataset* dataset, Labels<target_t>* labels, ForestConfig* config) {
+    void* fit_classification_forest(Dataset* dataset, Labels* labels, ForestConfig* config) {
         /**
             Fits a classification, based on the training set 
             and the labels, and returns it as a pointer to void.

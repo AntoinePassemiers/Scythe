@@ -64,9 +64,8 @@ struct MDDataset {
 };
 
 // Target values
-template <typename T>
 struct Labels {
-    T* data;
+    target_t* data;
     size_t n_rows;
 };
 
@@ -95,6 +94,8 @@ public:
     virtual size_t getRequiredMemorySize() = 0;
     virtual size_t getNumVirtualInstancesPerInstance() = 0;
     virtual int getDataType() = 0;
+
+    data_t* allocateFromSampleMask(size_t* sample_mask, size_t id, size_t feature_id);
 };
 
 
@@ -153,11 +154,11 @@ private:
     target_t* data;
     size_t n_rows;
 public:
-    DirectTargets(data_t* data, size_t n_instances);
+    DirectTargets(target_t* data, size_t n_instances);
     DirectTargets(const DirectTargets& other);
     DirectTargets& operator=(const DirectTargets& other);
     ~DirectTargets() override = default;
-    virtual data_t operator[](const size_t i);
+    virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
 };

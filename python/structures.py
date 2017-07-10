@@ -22,6 +22,14 @@ c_float_p      = ctypes.POINTER(ctypes.c_float)
 c_double_p     = ctypes.POINTER(ctypes.c_double)
 c_longdouble_p = ctypes.POINTER(ctypes.c_longdouble)
 
+# Data types
+data_np = np.double
+data_t  = ctypes.c_double
+data_p  = ctypes.POINTER(data_t)
+target_np = np.double
+target_t  = ctypes.c_double
+target_p  = ctypes.POINTER(target_t)
+
 # Magic numbers
 CLASSIFICATION_TASK = 0xF55A90
 REGRESSION_TASK     = 0xF55A91
@@ -44,8 +52,8 @@ ADABOOST          = 0x28FE90
 GRADIENT_BOOSTING = 0x28FE91
 
 DTYPE_PROBA  = 0
-DTYPE_DOUBLE = 1
-DTYPE_UINT_8  = 2
+DTYPE_DATA   = 1
+DTYPE_UINT_8 = 2
 
 
 class Dataset(ctypes.Structure):
@@ -54,7 +62,7 @@ class Dataset(ctypes.Structure):
 
     Fields
     ------
-    data : np.ndarray[ndim = 2, dtype = np.double]
+    data : np.ndarray[ndim = 2]
         Array containing the data samples
     n_rows : int
         Number of rows in the data array
@@ -62,7 +70,7 @@ class Dataset(ctypes.Structure):
         Number of columns in the data array
     """
     _fields_ = [
-        ("data", ctypes.POINTER(ctypes.c_double)),
+        ("data", ctypes.POINTER(data_t)),
         ("n_rows", ctypes.c_size_t),
         ("n_cols", ctypes.c_size_t)]
 
@@ -73,16 +81,16 @@ class Dataset(ctypes.Structure):
 
         Parameters
         ----------
-        data : np.ndarray[ndim = 2, dtype = np.double]
+        data : np.ndarray[ndim = 2]
             Array containing the data samples
         """
         # Ensuring the data is C-contiguous
-        self.np_data = np.ascontiguousarray(data, dtype = np.double)
+        self.np_data = np.ascontiguousarray(data, dtype = data_np)
         # Retrieving the number of rows and the number of columns
         self.n_rows = self.np_data.shape[0]
         self.n_cols = self.np_data.shape[1]
         # Retrieving the pointer to the first element
-        self.data = self.np_data.ctypes.data_as(c_double_p)
+        self.data = self.np_data.ctypes.data_as(data_p)
     def __len__(self):
         """ Return the size / number of rows of the dataset """
         return self.n_rows
@@ -94,7 +102,7 @@ class Labels(ctypes.Structure):
 
     Fields
     ------
-    data : np.ndarray[ndim = 1, dtype = np.double]
+    data : np.ndarray[ndim = 1]
         One-dimensional array containing the target values,
         where each element data[i] corresponds to a row of data
         samples dataset[i, :].
@@ -102,7 +110,7 @@ class Labels(ctypes.Structure):
         Number of rows in the labels array
     """
     _fields_ = [
-        ("data", c_double_p),
+        ("data", target_p),
         ("n_rows", ctypes.c_size_t)]
 
     def __init__(self, data):
@@ -112,7 +120,7 @@ class Labels(ctypes.Structure):
 
         Parameters
         ----------
-        data : np.ndarray[ndim = 1, dtype = np.double]
+        data : np.ndarray[ndim = 1]
             Array containing the labels
         """
         m, M = np.min(data), np.max(data)
@@ -120,11 +128,11 @@ class Labels(ctypes.Structure):
         # assert(m == 0)
         self.n_classes = M + 1
         # Ensuring the data is C-contiguous
-        self.np_data = np.ascontiguousarray(data, dtype = np.double)
+        self.np_data = np.ascontiguousarray(data, dtype = target_np)
         # Retrieving the number of rows
         self.n_rows = self.np_data.shape[0]
         # Retrieving the pointer to the first element
-        self.data = self.np_data.ctypes.data_as(c_double_p)
+        self.data = self.np_data.ctypes.data_as(target_p)
     def __len__(self):
         """ Return the number of targets """
         return self.n_rows
@@ -136,11 +144,11 @@ class MDDataset(ctypes.Structure):
 
     Fields
     ------
-    data : np.ndarray[dtype = np.double]
+    data : np.ndarray
         Multi-dimensional array containing the data samples
     """
     _fields_ = [
-        ("data", c_double_p),
+        ("data", data_p),
         ("n_dims", ctypes.c_size_t),
         ("dims", ctypes.c_size_t * 7),
         ("dtype", ctypes.c_int)]
@@ -152,15 +160,15 @@ class MDDataset(ctypes.Structure):
 
         Parameters
         ----------
-        data : np.ndarray[dtype = np.double]
+        data : np.ndarray
             Array containing the data samples
         """
         # Retrieving the raw data type
-        self.dtype = DTYPE_UINT_8 if data.dtype == np.uint8 else DTYPE_DOUBLE
+        self.dtype = DTYPE_UINT_8 if data.dtype == np.uint8 else DTYPE_DATA
         # Ensuring the data is C-contiguous
-        self.np_data = np.ascontiguousarray(data, dtype = np.double)
+        self.np_data = np.ascontiguousarray(data, dtype = data_np)
         # Retrieving the pointer to the first element
-        self.data = self.np_data.ctypes.data_as(c_double_p)
+        self.data = self.np_data.ctypes.data_as(data_p)
         # Retrieving the number of dimensions
         self.n_dims = len(self.np_data.shape)
         # Retrieving the size of each dimension

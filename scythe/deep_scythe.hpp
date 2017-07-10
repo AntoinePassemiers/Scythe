@@ -30,7 +30,7 @@ extern "C" {
 
     size_t c_create_deep_forest(int task);
 
-    void c_fit_deep_forest(MDDataset dataset, Labels<target_t>* labels, size_t forest_id);
+    void c_fit_deep_forest(MDDataset dataset, Labels* labels, size_t forest_id);
 
     float* c_deep_forest_classify(MDDataset dataset, size_t forest_id);
 

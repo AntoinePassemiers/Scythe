@@ -71,7 +71,7 @@ size_t ScannedDataset2D::getNumVirtualInstancesPerInstance() {
     return sc * sr;
 }
 
-ScannedTargets2D::ScannedTargets2D(data_t* data, size_t n_instances, size_t sc, size_t sr) :
+ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
     data(data), n_rows(n_instances * sc * sr), s(sc * sr) {}
 
 ScannedTargets2D::ScannedTargets2D(const ScannedTargets2D& other) :
@@ -84,7 +84,7 @@ ScannedTargets2D& ScannedTargets2D::operator=(const ScannedTargets2D& other) {
     return *this;
 }
 
-data_t ScannedTargets2D::operator[](const size_t i) {
+target_t ScannedTargets2D::operator[](const size_t i) {
     return data[i / s];
 }
 
@@ -108,7 +108,7 @@ vdataset_p MultiGrainedScanner2D::virtualize(MDDataset dataset) {
     return Layer::vdataset;
 }
 
-vtargets_p MultiGrainedScanner2D::virtualizeTargets(Labels<target_t>* targets) {
+vtargets_p MultiGrainedScanner2D::virtualizeTargets(Labels* targets) {
     ScannedDataset2D* vdataset = dynamic_cast<ScannedDataset2D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t sr = vdataset->getSr();

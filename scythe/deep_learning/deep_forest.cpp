@@ -75,7 +75,7 @@ void DeepForest::transfer(layer_p layer, vdataset_p vdataset, std::shared_ptr<Co
     }
 }
 
-void DeepForest::fit(MDDataset dataset, Labels<target_t>* labels) {
+void DeepForest::fit(MDDataset dataset, Labels* labels) {
     size_t n_instances = dataset.dims[0];
     DirectTargets* direct_targets = new DirectTargets(
         labels->data, n_instances);

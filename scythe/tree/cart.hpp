@@ -86,6 +86,7 @@ struct Splitter {
     int             task;
     Node*           node;
     size_t          n_instances;
+    size_t          n_instances_in_node;
     data_t*         partition_values;
     size_t          n_classes;
     double          mean_left;

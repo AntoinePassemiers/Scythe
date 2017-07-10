@@ -28,7 +28,7 @@ public:
     DeepForest(const DeepForest& other) = default;
     DeepForest& operator=(const DeepForest& other) = default;
     ~DeepForest() = default;
-    void fit(MDDataset dataset, Labels<target_t>* labels);
+    void fit(MDDataset dataset, Labels* labels);
     float* classify(MDDataset dataset);
     void add(layer_p layer);
     void add(layer_p parent, layer_p child);

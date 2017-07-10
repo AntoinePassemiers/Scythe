@@ -59,7 +59,7 @@ public:
     ScannedTargets3D(const ScannedTargets3D& other);
     ScannedTargets3D& operator=(const ScannedTargets3D& other);
     ~ScannedTargets3D() override = default;
-    virtual data_t operator[](const size_t i);
+    virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
 };
@@ -74,7 +74,7 @@ public:
     MultiGrainedScanner3D(LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
     ~MultiGrainedScanner3D() = default;
     virtual vdataset_p virtualize(MDDataset dataset);
-    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    virtual vtargets_p virtualizeTargets(Labels* targets);
     virtual size_t getRequiredMemorySize();
     virtual size_t getNumVirtualFeatures();
     virtual bool isConcatenable() { return false; }

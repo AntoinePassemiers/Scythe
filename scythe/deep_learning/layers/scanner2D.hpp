@@ -70,11 +70,11 @@ private:
     size_t n_rows;
     size_t s;
 public:
-    ScannedTargets2D(data_t* data, size_t n_instances, size_t sc, size_t sr);
+    ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr);
     ScannedTargets2D(const ScannedTargets2D& other);
     ScannedTargets2D& operator=(const ScannedTargets2D& other);
     ~ScannedTargets2D() override = default;
-    virtual data_t operator[](const size_t i);
+    virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
 };
@@ -88,7 +88,7 @@ public:
     MultiGrainedScanner2D(LayerConfig lconfig, size_t kc, size_t kr);
     ~MultiGrainedScanner2D() {}
     virtual vdataset_p virtualize(MDDataset dataset);
-    virtual vtargets_p virtualizeTargets(Labels<target_t>* targets);
+    virtual vtargets_p virtualizeTargets(Labels* targets);
     virtual size_t getRequiredMemorySize();
     virtual size_t getNumVirtualFeatures();
     virtual bool isConcatenable() { return false; }

@@ -48,7 +48,7 @@ size_t ScannedDataset1D::getNumVirtualInstancesPerInstance() {
     return sc;
 }
 
-ScannedTargets1D::ScannedTargets1D(data_t* data, size_t n_instances, size_t sc) :
+ScannedTargets1D::ScannedTargets1D(target_t* data, size_t n_instances, size_t sc) :
     data(data), n_rows(n_instances), s(sc) {}
 
 ScannedTargets1D::ScannedTargets1D(const ScannedTargets1D& other) :
@@ -61,7 +61,7 @@ ScannedTargets1D& ScannedTargets1D::operator=(const ScannedTargets1D& other) {
     return *this;
 }
 
-data_t ScannedTargets1D::operator[](const size_t i) {
+target_t ScannedTargets1D::operator[](const size_t i) {
     return data[i / s];
 }
 
@@ -83,7 +83,7 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
     return Layer::vdataset;
 }
 
-vtargets_p MultiGrainedScanner1D::virtualizeTargets(Labels<target_t>* targets) {
+vtargets_p MultiGrainedScanner1D::virtualizeTargets(Labels* targets) {
     ScannedDataset1D* vdataset = dynamic_cast<ScannedDataset1D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t n_rows = vdataset->getNumInstances();
