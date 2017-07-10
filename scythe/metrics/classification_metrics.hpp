@@ -25,7 +25,7 @@ class ClassificationError {
 protected:
     size_t n_classes;
     size_t n_instances;
-    std::shared_ptr<data_t> gradient;
+    std::shared_ptr<target_t> gradient;
 public:
     inline size_t getNumberOfClasses() { return this->n_classes; }
     inline size_t getNumberOfInstances() { return this->n_instances; }
@@ -44,7 +44,7 @@ public:
     MultiLogLossError(size_t n_classes, size_t n_instances) {
         ClassificationError::n_classes = n_classes;
         ClassificationError::n_instances = n_instances;
-        ClassificationError::gradient = std::move(std::shared_ptr<data_t>(new data_t[n_classes * n_instances]));
+        ClassificationError::gradient = std::move(std::shared_ptr<target_t>(new target_t[n_classes * n_instances]));
     }
 
     inline size_t getNumberOfRequiredTrees() { return this->n_classes; }
@@ -84,7 +84,7 @@ public:
         }
     }
 
-    inline data_t* getGradientAt(size_t class_id) {
+    inline target_t* getGradientAt(size_t class_id) {
         return this->gradient.get() + this->n_instances * class_id;
     }
 

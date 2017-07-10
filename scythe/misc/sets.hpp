@@ -40,7 +40,7 @@ typedef int          label_t;
 class VirtualDataset;
 class VirtualTargets;
 /*
-Note: Neither alias declarations or forward declarations work with
+C++ note: Neither alias declarations or forward declarations work with
 nested classes since the compiler can't be sure that a nested class
 actually exists.
 */

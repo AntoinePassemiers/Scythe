@@ -22,11 +22,12 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
     size_t n_instances = data->getNumInstances();
     size_t n_features  = data->getNumFeatures();
     Density* densities = new Density[n_features];
-    #pragma omp parallel for num_threads(parameters.n_jobs)
+
+    #ifdef _OMP
+        #pragma omp parallel for num_threads(parameters.n_jobs)
+    #endif
     for (uint f = 0; f < n_features; f++) {
         data_t* sorted_values = new data_t[n_instances];
-        densities[f].quartiles = new data_t[4];
-        densities[f].deciles = new data_t[10];
         densities[f].percentiles = new data_t[100];
         densities[f].counters_left = new size_t[n_classes];
         densities[f].counters_right = new size_t[n_classes];
@@ -55,12 +56,11 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
             }
             sorted_values[k] = x;
         }
-        // Computing quartiles, deciles, percentiles
+        // Computing percentiles
         float step_size = static_cast<float>(n_acceptable) / 100.0f;
         float current_index = 0.0;
         int rounded_index = 0;
         for (uint i = 0; i < 10; i++) {
-            densities[f].deciles[i] = sorted_values[rounded_index];
             for (uint k = 0; k < 10; k++) {
                 rounded_index = static_cast<int>(floor(current_index));
                 densities[f].percentiles[10 * i + k] = sorted_values[rounded_index];
@@ -79,15 +79,6 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
 
         size_t n_partition_values;
         switch(partitioning) {
-            case gbdf::QUARTILE_PARTITIONING:
-                densities[f].values = densities[f].quartiles;
-                n_partition_values = 4; break;
-            case gbdf::DECILE_PARTITIONING:
-                densities[f].values = densities[f].deciles;
-                n_partition_values = 10; break;
-            case gbdf::PERCENTILE_PARTITIONING:
-                densities[f].values = densities[f].percentiles;
-                n_partition_values = 100; break;
             default:
                 densities[f].values = densities[f].percentiles;
                 n_partition_values = 100; break;

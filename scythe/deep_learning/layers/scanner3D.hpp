@@ -55,7 +55,7 @@ private:
     size_t n_rows;
     size_t s;
 public:
-    ScannedTargets3D(data_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd);
+    ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd);
     ScannedTargets3D(const ScannedTargets3D& other);
     ScannedTargets3D& operator=(const ScannedTargets3D& other);
     ~ScannedTargets3D() override = default;

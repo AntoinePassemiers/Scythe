@@ -88,7 +88,7 @@ void ClassificationGB::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     while (n_boost++ < Forest::config.n_iter) {
         this->score_metric.get()->computeGradient(probabilities, targets->getValues());
         for (uint i = 0; i < n_classes; i++) {
-            data_t* gradient = dynamic_cast<MultiLogLossError*>(
+            target_t* gradient = dynamic_cast<MultiLogLossError*>(
                 this->score_metric.get())->getGradientAt(i);
             DirectTargets* vgradient = new DirectTargets(gradient, dataset->getNumInstances());
             

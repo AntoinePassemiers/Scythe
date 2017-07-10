@@ -11,7 +11,7 @@
 
 
 struct Parameters {
-    size_t n_jobs = 4;
+    size_t n_jobs = 1;
     int print_layer_info = 1;
 };
 
