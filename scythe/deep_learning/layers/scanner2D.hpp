@@ -43,6 +43,8 @@ public:
     public:
         Iterator(T* data, size_t x, size_t M, size_t P, size_t sc, size_t sr) : 
             x(x), i(0), q(0), M(M), P(P), sc(sc), sr(sr) {}
+        Iterator(const Iterator&) = default;
+        Iterator& operator=(const Iterator&) = default;
         ~Iterator() = default;
         T operator*();
         Iterator& operator++();

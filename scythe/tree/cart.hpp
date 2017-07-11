@@ -114,7 +114,7 @@ struct Tree {
     TreeConfig* config;
     ptrdiff_t   level;
 
-    explicit Tree() = default;
+    explicit Tree();
     explicit Tree(Node* root, TreeConfig* config, size_t n_features);
 };
 

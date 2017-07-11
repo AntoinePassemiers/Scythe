@@ -31,7 +31,10 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
 
         std::vector<data_t> vec;
         for (uint i = 0; i < n_instances; i++) {
-            vec.push_back((*data)(i, f));
+            data_t value = (*data)(i, f);
+            if (value != nan_value) {
+                vec.push_back(value);
+            }
         }
         std::sort(vec.begin(), vec.end());
 

@@ -65,16 +65,6 @@ size_t ScannedDataset3D::getNumVirtualInstancesPerInstance() {
 ScannedTargets3D::ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd) :
     data(data), n_rows(n_instances), s(sc * sr * sd) {}
 
-ScannedTargets3D::ScannedTargets3D(const ScannedTargets3D& other) :
-    data(other.data), n_rows(other.n_rows), s(other.s) {}
-
-ScannedTargets3D& ScannedTargets3D::operator=(const ScannedTargets3D& other) {
-    this->data = data;
-    this->n_rows = n_rows;
-    this->s = s;
-    return *this;
-}
-
 target_t ScannedTargets3D::operator[](const size_t i) {
     return data[i / s];
 }

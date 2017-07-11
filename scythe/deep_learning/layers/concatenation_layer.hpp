@@ -29,6 +29,8 @@ public:
     public:
         Iterator(T* data, size_t n_virtual_cols) : 
             cursor(0), n_virtual_cols(n_virtual_cols), data(data) {}
+        Iterator(const Iterator&) = default;
+        Iterator& operator=(const Iterator&) = default;
         ~Iterator() = default;
         T operator*() { return data[cursor]; }
         Iterator& operator++();

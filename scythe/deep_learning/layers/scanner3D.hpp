@@ -56,8 +56,8 @@ private:
     size_t s;
 public:
     ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd);
-    ScannedTargets3D(const ScannedTargets3D& other);
-    ScannedTargets3D& operator=(const ScannedTargets3D& other);
+    ScannedTargets3D(const ScannedTargets3D& other) = default;
+    ScannedTargets3D& operator=(const ScannedTargets3D& other) = default;
     ~ScannedTargets3D() override = default;
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }

@@ -77,6 +77,7 @@ public:
     template<typename T>
     class Iterator {
     public:
+        virtual ~Iterator() {}
         virtual T operator*();
         virtual Iterator& operator++();
         Iterator operator++(int);

@@ -72,10 +72,10 @@ size_t ScannedDataset2D::getNumVirtualInstancesPerInstance() {
 }
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
-    data(data), n_rows(n_instances * sc * sr), s(sc * sr) {}
+    VirtualTargets::VirtualTargets(), data(data), n_rows(n_instances * sc * sr), s(sc * sr) {}
 
 ScannedTargets2D::ScannedTargets2D(const ScannedTargets2D& other) :
-    data(other.data), n_rows(other.n_rows), s(other.s) {}
+    VirtualTargets::VirtualTargets(), data(other.data), n_rows(other.n_rows), s(other.s) {}
 
 ScannedTargets2D& ScannedTargets2D::operator=(const ScannedTargets2D& other) {
     this->data = data;
