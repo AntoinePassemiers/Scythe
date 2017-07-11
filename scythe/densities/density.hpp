@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits>
+#include <algorithm>
 
 #include "../misc/sets.hpp"
 
@@ -33,9 +34,6 @@ namespace gbdf {
 struct Density {
     bool    is_categorical;
     data_t  split_value;
-    data_t* quartiles;
-    data_t* deciles;
-    data_t* percentiles;
     data_t* values;
     size_t  n_values;
     size_t* counters_left;

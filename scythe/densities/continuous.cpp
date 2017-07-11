@@ -27,70 +27,30 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
         #pragma omp parallel for num_threads(parameters.n_jobs)
     #endif
     for (uint f = 0; f < n_features; f++) {
-        data_t* sorted_values = new data_t[n_instances];
-        densities[f].percentiles = new data_t[100];
+
+        size_t nsad = 100; // TODO
+
+        densities[f].values = new data_t[nsad];
+        densities[f].n_values = nsad;
         densities[f].counters_left = new size_t[n_classes];
         densities[f].counters_right = new size_t[n_classes];
         densities[f].counters_nan = new size_t[n_classes];
-        // Putting nan values aside
-        bool is_categorical = true;
-        size_t n_acceptable = 0;
+        densities[f].is_categorical = true; // TODO
+
+        std::vector<data_t> vec;
         for (uint i = 0; i < n_instances; i++) {
-            data_t data_point = (*data)(i, f);
-            if (data_point != nan_value) {
-                sorted_values[n_acceptable] = data_point;
-                n_acceptable++;
-                if (is_categorical && !(round(data_point) == data_point)) {
-                    is_categorical = false;
-                }
-            }
+            vec.push_back((*data)(i, f));
         }
-        densities[f].is_categorical = is_categorical;
-        // Sorting acceptable values
-        for (uint i = 0; i < n_acceptable; i++) {
-            data_t x = sorted_values[i];
-            size_t k = i;
-            while (k > 0 && sorted_values[k - 1] > x) {
-                sorted_values[k] = sorted_values[k - 1];
-                k--;
-            }
-            sorted_values[k] = x;
-        }
-        // Computing percentiles
-        float step_size = static_cast<float>(n_acceptable) / 100.0f;
+        std::sort(vec.begin(), vec.end());
+
+        float step_size = static_cast<float>(n_instances) / static_cast<float>(nsad);
         float current_index = 0.0;
-        int rounded_index = 0;
-        for (uint i = 0; i < 10; i++) {
-            for (uint k = 0; k < 10; k++) {
-                rounded_index = static_cast<int>(floor(current_index));
-                densities[f].percentiles[10 * i + k] = sorted_values[rounded_index];
-                current_index += step_size;
-            }
+        for (uint i = 0; i < nsad; i++) {
+            int rounded_index = static_cast<int>(floor(current_index));
+            densities[f].values[i] = vec.at(rounded_index);
+            current_index += step_size;
         }
 
-        size_t n_distinct = 1;
-        data_t x = sorted_values[0];
-        for (uint i = 1; i < n_acceptable; i++) {
-            if (sorted_values[n_distinct - 1] != sorted_values[i]) {
-                sorted_values[n_distinct++] = sorted_values[i];
-            }
-            x = sorted_values[i];
-        }
-
-        size_t n_partition_values;
-        switch(partitioning) {
-            default:
-                densities[f].values = densities[f].percentiles;
-                n_partition_values = 100; break;
-        }
-        if (n_distinct < n_partition_values) {
-            densities[f].n_values = n_distinct;
-            densities[f].values = sorted_values;
-        }
-        else {
-            densities[f].n_values = n_partition_values;
-            // delete[] sorted_values;
-        }
         printf("%i - %i, ", densities[f].n_values, densities[f].is_categorical);
     }
     return densities;
