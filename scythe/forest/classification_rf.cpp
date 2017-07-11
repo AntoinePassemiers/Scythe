@@ -24,12 +24,19 @@ ClassificationRF::ClassificationRF
 void ClassificationRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset->getNumInstances(), config.bag_size);
+    /**
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,
         targets, 
         &(Forest::base_tree_config),
         this->densities.get(),
         subset.get()));
+    */
+    std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
+        dataset,
+        targets, 
+        &(Forest::base_tree_config),
+        this->densities.get()));
     Forest::trees.push_back(new_tree);
 }
 

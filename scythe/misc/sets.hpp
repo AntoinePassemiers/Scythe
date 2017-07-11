@@ -121,6 +121,8 @@ public:
     public:
         Iterator(T* data, size_t n_cols) : 
             cursor(0), n_cols(n_cols), data(data) {}
+        Iterator(const Iterator&) = default;
+        Iterator& operator=(const Iterator&) = default;
         ~Iterator() = default;
         T operator*() { return data[cursor]; }
         Iterator& operator++();

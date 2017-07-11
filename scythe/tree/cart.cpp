@@ -117,35 +117,30 @@ double getFeatureCost(Density* density, size_t n_classes) {
 
 double evaluatePartitions(VirtualDataset* data, Density* density,
                           Splitter* splitter, size_t k) {
-    size_t i = splitter->feature_id;
-    size_t id = splitter->node->id;
-    size_t n_instances = splitter->n_instances;
-    size_t* belongs_to = splitter->belongs_to;
+    size_t n_instances_in_node = splitter->n_instances_in_node;
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;
     std::fill(counters_left, counters_left + splitter->n_classes, 0);
     std::fill(counters_right, counters_right + splitter->n_classes, 0);
-    std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
+    // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     data_t split_value = (density->split_value = splitter->partition_values[k]);
     
     label_t* labels = (*(splitter->targets)).toLabels();
     data_t* contiguous_data = data->retrieveContiguousData();
+    label_t* contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
 
-    /**
-    #ifdef _MEM_ALIGN
+    #ifdef _OMP
         #pragma ivdep
         #pragma ibm independent_loop
-        #pragma omp simd aligned(labels : 32)
+        // #pragma omp simd aligned(labels : 32)
+        #pragma omp simd
     #endif
-    */
-    for (uint j = 0; j < n_instances; j++) {
-        if (belongs_to[j] == id) {
-            if ((*data)(j, i) >= split_value) {
-                counters_right[labels[j]]++;
-            }
-            else {
-                counters_left[labels[j]]++;
-            }
+    for (uint j = 0; j < n_instances_in_node; j++) {
+        if (contiguous_data[j] >= split_value) {
+            counters_right[contiguous_labels[j]]++;
+        }
+        else {
+            counters_left[contiguous_labels[j]]++;
         }
     }
     return getFeatureCost(density, splitter->n_classes);
@@ -216,6 +211,11 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         splitter->belongs_to,
         splitter->node->id,
         feature_id,
+        splitter->n_instances_in_node,
+        splitter->n_instances);
+    splitter->targets->allocateFromSampleMask(
+        splitter->belongs_to,
+        splitter->node->id,
         splitter->n_instances_in_node,
         splitter->n_instances);
 
