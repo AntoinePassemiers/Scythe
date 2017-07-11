@@ -71,6 +71,8 @@ struct Labels {
 
 
 class VirtualDataset {
+private:
+    data_t* contiguous_data = nullptr;
 public:
     template<typename T>
     class Iterator {
@@ -79,7 +81,9 @@ public:
         virtual Iterator& operator++();
         Iterator operator++(int);
     };
-    VirtualDataset() {};
+    VirtualDataset() = default;
+    VirtualDataset(const VirtualDataset&) = default;
+    VirtualDataset& operator=(const VirtualDataset&) = default;
     virtual ~VirtualDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
 
@@ -95,7 +99,8 @@ public:
     virtual size_t getNumVirtualInstancesPerInstance() = 0;
     virtual int getDataType() = 0;
 
-    data_t* allocateFromSampleMask(size_t* sample_mask, size_t id, size_t feature_id);
+    void allocateFromSampleMask(size_t*, size_t, size_t, size_t, size_t);
+    data_t* retrieveContiguousData() { return contiguous_data; }
 };
 
 
@@ -137,6 +142,7 @@ public:
 class VirtualTargets {
 private:
     label_t* labels = nullptr;
+    label_t* contiguous_labels = nullptr;
 public:
     VirtualTargets() {};
     VirtualTargets(const VirtualTargets&) = default;
@@ -146,6 +152,9 @@ public:
     virtual size_t getNumInstances() = 0;
     virtual target_t* getValues() = 0;
     label_t* toLabels();
+
+    void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
+    label_t* retrieveContiguousData() { return contiguous_labels; }
 };
 
 

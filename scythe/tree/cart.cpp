@@ -127,6 +127,7 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
     data_t split_value = (density->split_value = splitter->partition_values[k]);
     
     label_t* labels = (*(splitter->targets)).toLabels();
+    data_t* contiguous_data = data->retrieveContiguousData();
 
     /**
     #ifdef _MEM_ALIGN
@@ -208,6 +209,13 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
     double lowest_cost = INFINITY;
     double cost;
     splitter->partition_values = density->values;
+
+    data->allocateFromSampleMask(
+        splitter->belongs_to,
+        splitter->node->id,
+        feature_id,
+        splitter->n_instances_in_node,
+        splitter->n_instances);
 
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];

@@ -9,6 +9,20 @@
 #include "sets.hpp"
 
 
+void VirtualDataset::allocateFromSampleMask(
+    size_t* sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
+    if (contiguous_data != nullptr) {
+        delete[] contiguous_data;
+    }
+    contiguous_data = new data_t[n_items];
+    uint k = 0;
+    for (uint i = 0; i < n_instances; i++) {
+        if (sample_mask[i] == node_id) {
+            contiguous_data[k++] = operator()(i, feature_id);
+        }
+    }
+}
+
 DirectDataset::DirectDataset(Dataset dataset) :
     data(dataset.data), n_rows(dataset.n_rows), n_cols(dataset.n_cols) {}
 
@@ -32,6 +46,20 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
 std::shared_ptr<void> DirectDataset::_operator_ev(const size_t j) {
     return std::shared_ptr<void>(
         new DirectDataset::Iterator<data_t>(data, n_cols));
+}
+
+void VirtualTargets::allocateFromSampleMask(
+    size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {
+    if (contiguous_labels != nullptr) {
+        delete[] contiguous_labels;
+    }
+    contiguous_labels = new label_t[n_items];
+    uint k = 0;
+    for (uint i = 0; i < n_instances; i++) {
+        if (sample_mask[i] == node_id) {
+            contiguous_labels[k++] = operator[](i);
+        }
+    }
 }
 
 label_t* VirtualTargets::toLabels() {

@@ -10,14 +10,6 @@
 
 
 Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_value, int partitioning) {
-    /**
-        TODO
-        ----
-        Use STL containers such as vectors
-        std::vector<data_t> data;
-        data.assign(data_ptr, data_ptr + len);
-        std::sort(data.begin(), data.end());
-    */
 
     size_t n_instances = data->getNumInstances();
     size_t n_features  = data->getNumFeatures();
