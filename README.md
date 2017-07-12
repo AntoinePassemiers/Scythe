@@ -16,6 +16,8 @@ The idea is partly inspired by the [original deep forest article](https://arxiv.
 
 ### Todo
 
+- [ ] Handle sparse matrices and arrays
+- [ ] Use float32 data samples instead of doubles
 - [ ] Skip the evaluation of data samples that already fell to the left of the previous split value (CART)
 - [ ] Avoid additional split values when evaluating a feature (save counters in temporary variables)
 - [ ] Design a heuristic for skipping split values that are not promising

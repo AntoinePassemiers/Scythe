@@ -39,13 +39,13 @@ if __name__ == "__main__":
     fconfig.n_classes = n_classes
     fconfig.n_iter    = n_estimators
     fconfig.bag_size  = 1000
-    fconfig.max_height = max_depth
+    fconfig.max_height = max_depth - 1
     fconfig.max_n_features = max_n_features
 
     forest = Forest(fconfig, "classification", "random forest")
     forest.fit(X_train, y_train)
     predictions = forest.predict(X_test)
-    print((predictions.argmax(axis = 1) == y[n_samples:]).sum())
+    scythe_acc = (predictions.argmax(axis = 1) == y[n_samples:]).sum() / float(n_samples)
 
     forest = RandomForestClassifier(
         criterion = "gini",
@@ -56,7 +56,10 @@ if __name__ == "__main__":
     predictions = forest.predict(X[n_samples:])
     for i, tree in enumerate(forest.estimators_):
         print(tree.tree_.node_count)
-    print((predictions == y[n_samples:]).sum())
+    sklearn_acc = (predictions == y[n_samples:]).sum() / float(n_samples)
+
+    print("Scythe accuracy  : %f" % scythe_acc)
+    print("Sklearn accuracy : %f" % sklearn_acc)
 
 
     print("Finished")
