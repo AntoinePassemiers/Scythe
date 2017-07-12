@@ -26,9 +26,6 @@ if __name__ == "__main__":
         n_features = n_features, 
         n_classes  = n_classes)
 
-    for i in range(100):
-        print(len(np.unique(X[:, i])))
-
     X_train = Dataset(X[:n_samples])
     y_train = Labels(y[:n_samples])
 
@@ -39,7 +36,7 @@ if __name__ == "__main__":
     fconfig.n_classes = n_classes
     fconfig.n_iter    = n_estimators
     fconfig.bag_size  = 1000
-    fconfig.max_height = max_depth - 1
+    fconfig.max_height = max_depth
     fconfig.max_n_features = max_n_features
 
     forest = Forest(fconfig, "classification", "random forest")

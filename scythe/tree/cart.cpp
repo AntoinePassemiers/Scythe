@@ -83,35 +83,38 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     is_complete_random(config->is_complete_random) {}
 
 double getFeatureCost(Density* density, size_t n_classes) {
-    size_t n_left = sum_counts(density->counters_left, n_classes);
-    size_t n_right = sum_counts(density->counters_right, n_classes);
+    size_t* counters_left = density->counters_left;
+    size_t* counters_right = density->counters_right;
+    size_t n_left = sum_counts(counters_left, n_classes);
+    size_t n_right = sum_counts(counters_right, n_classes);
     size_t total = n_left + n_right;
     if (n_left == 0 || n_right == 0) {
         return COST_OF_EMPTINESS;
     }
-    double left_cost = 0.0, right_cost = 0.0;
-    size_t* counters_left = density->counters_left;
-    size_t* counters_right = density->counters_right;
-    if (n_left > 0) {
-        for (uint i = 0; i < n_classes; i++) {
-            size_t n_p = counters_left[i];
-            if (n_p > 0) {
-                // left_cost += ShannonEntropy(static_cast<float>(n_p) / static_cast<float>(n_left));
-                left_cost += pow2(static_cast<float>(n_p) / static_cast<float>(n_left));
-            }
+    double left_cost = 0.0;
+    #ifdef _OMP
+        #pragma omp simd
+    #endif
+    for (uint i = 0; i < n_classes; i++) {
+        size_t n_p = counters_left[i];
+        if (n_p > 0) {
+            // left_cost += ShannonEntropy(static_cast<float>(n_p) / static_cast<float>(n_left));
+            left_cost += pow2(static_cast<float>(n_p) / static_cast<float>(n_left));
         }
-        left_cost = (1.0 - left_cost);
     }
-    if (n_right > 0) {
-        for (uint i = 0; i < n_classes; i++) {
-            size_t n_n = counters_right[i];
-            if (n_n > 0) {
-                // right_cost += ShannonEntropy(static_cast<float>(n_n) / static_cast<float>(n_right));
-                right_cost += pow2(static_cast<float>(n_n) / static_cast<float>(n_right));
-            }
+    left_cost = (1.0 - left_cost);
+    double right_cost = 0.0;
+    #ifdef _OMP
+        #pragma omp simd
+    #endif
+    for (uint i = 0; i < n_classes; i++) {
+        size_t n_n = counters_right[i];
+        if (n_n > 0) {
+            // right_cost += ShannonEntropy(static_cast<float>(n_n) / static_cast<float>(n_right));
+            right_cost += pow2(static_cast<float>(n_n) / static_cast<float>(n_right));
         }
-        right_cost = (1.0 - right_cost);
     }
+    right_cost = (1.0 - right_cost);
     float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
     float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
     return left_cost * left_rate + right_cost * right_rate;
@@ -203,10 +206,10 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
 }
 
 double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data) {
+    size_t n_classes = splitter->n_classes;
     size_t feature_id = splitter->feature_id;
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;
-    double cost;
     splitter->partition_values = density->values;
 
     data->allocateFromSampleMask(
@@ -221,6 +224,9 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         splitter->n_instances_in_node,
         splitter->n_instances);
 
+    size_t best_counters_left[n_classes];
+    size_t best_counters_right[n_classes];    
+
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
     if (splitter->is_complete_random) {
@@ -230,6 +236,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         upper_bound = random_bound + 1;
     }
     for (uint k = lower_bound; k < upper_bound; k++) {
+        double cost;
         if (splitter->task == CLASSIFICATION_TASK) {
             cost = evaluatePartitions(data, density, splitter, k);
         }
@@ -239,18 +246,19 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         if (cost < lowest_cost) {
             lowest_cost = cost;
             best_split_id = k;
+            memcpy(best_counters_left, density->counters_left, n_classes * sizeof(size_t));
+            memcpy(best_counters_right, density->counters_right, n_classes * sizeof(size_t));
         }
     splitter->best_split_id = best_split_id;
+    density->split_value = splitter->partition_values[best_split_id];
     }
     if (splitter->task == CLASSIFICATION_TASK) {
-        if (!(splitter->is_complete_random)) {
-            evaluatePartitions(data, density, splitter, best_split_id);
-        }
+        memcpy(density->counters_left, best_counters_left, n_classes * sizeof(size_t));
+        memcpy(density->counters_right, best_counters_right, n_classes * sizeof(size_t));
     }
     else {
-        if (!(splitter->is_complete_random)) {
-            evaluatePartitionsWithRegression(data, density, splitter, best_split_id);
-        }
+        // TODO: Remove function call and save side effects
+        evaluatePartitionsWithRegression(data, density, splitter, best_split_id);
     }
     return lowest_cost;
 }

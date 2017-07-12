@@ -58,6 +58,7 @@ struct Node {
 // Nodes with reasonable size
 static_assert(sizeof(Node) < 100, "Node size is too large");
 
+// https://www.codeproject.com/Articles/4795/C-Standard-Allocator-An-Introduction-and-Implement
 
 struct NodeSpace {
     Node*   owner;
@@ -155,17 +156,6 @@ inline size_t sum_counts(size_t* counters, size_t n_counters) {
         @return Sum of the counters
     */
     return std::accumulate(counters, counters + n_counters, 0);
-}
-
-inline float ShannonEntropy(float probability) {
-    /**
-        Computes a single term of the Shannon entropy
-
-        @param probability
-            Probability of belonging to a certain class
-        @return The ith term of the Shannon entropy
-    */
-    return -probability * std::log2(probability);
 }
 
 inline float pow2(float probability) {
