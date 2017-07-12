@@ -16,11 +16,10 @@ Tree::Tree(Node* root, TreeConfig* config, size_t n_features) :
     root(root), n_nodes(1), n_classes(config->n_classes),
     n_features(n_features), config(config), level(1) {}
 
-Node::Node(size_t n_classes, int id, size_t n_instances, data_t mean):
+Node::Node(size_t n_classes, int id, size_t n_instances):
     id(id),
     n_instances(n_instances),
-    counters(n_classes > 0 ? new (std::nothrow) size_t[n_classes] : nullptr),
-    mean(mean) {}
+    counters(n_classes > 0 ? new (std::nothrow) size_t[n_classes] : nullptr) {}
 
 NodeSpace::NodeSpace(Node* owner, size_t n_features, Density* densities) :
     owner(owner),
@@ -262,7 +261,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config, Density* densities, size_t* belongs_to) {
     size_t n_instances = dataset->getNumInstances();
     size_t n_features  = dataset->getNumFeatures();
-    Node* current_node = new Node(config->n_classes, 0, n_instances, 0.0);
+    Node* current_node = new Node(config->n_classes, 0, n_instances);
     if (config->task == gbdf::CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
         for (uint i = 0; i < n_instances; i++) {
@@ -371,8 +370,10 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 }
                 ++tree->n_nodes;
             }
-            new_children[0].mean = best_splitter.mean_left;
-            new_children[1].mean = best_splitter.mean_right;
+            if (config->task == gbdf::REGRESSION_TASK) {
+                new_children[0].mean = best_splitter.mean_left;
+                new_children[1].mean = best_splitter.mean_right;
+            }
         }
     }
     std::cout << "Tree depth : " << tree->level << std::endl;

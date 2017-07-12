@@ -44,15 +44,15 @@ struct Node {
     int     feature_id = NO_FEATURE;
     size_t  n_instances = NO_INSTANCE;
     data_t  split_value = NO_SPLIT_VALUE;
-
-    size_t* counters = nullptr; // TODO : anonymous union
-    data_t  mean = 0.0;
-    
+    union { // Anonymous union
+        size_t* counters = nullptr; // Classification case
+        data_t  mean;               // Regression case
+    };
     Node*   left_child = nullptr;
     Node*   right_child = nullptr;
 
     explicit Node() = default;
-    explicit Node(size_t n_classes, int id, size_t n_instances, data_t mean);
+    explicit Node(size_t n_classes, int id, size_t n_instances);
 };
 
 // Nodes with reasonable size
