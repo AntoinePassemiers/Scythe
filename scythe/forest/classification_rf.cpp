@@ -14,6 +14,10 @@ ClassificationRF::ClassificationRF
         ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = false;
+    if ((Forest::base_tree_config.max_n_features > n_features) ||
+        (Forest::base_tree_config.max_n_features == 0)) {
+        Forest::base_tree_config.max_n_features = n_features;
+    }
     /*
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
@@ -45,7 +49,9 @@ void ClassificationRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     Forest::preprocessDensities(dataset);
 
     // Fitting each individual tree
-    #pragma omp parallel for num_threads(parameters.n_jobs)
+    #ifdef _OMP
+        #pragma omp parallel for num_threads(parameters.n_jobs)
+    #endif
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
         this->fitNewTree(dataset, targets);
     }
@@ -57,7 +63,9 @@ float* ClassificationRF::classify(VirtualDataset* dataset) {
     size_t n_probs = n_classes * n_instances;
     size_t n_trees = trees.size();
     float* probabilities = new float[n_probs]();
-    #pragma omp parallel for num_threads(parameters.n_jobs) shared(probabilities)
+    #ifdef _OMP
+        #pragma omp parallel for num_threads(parameters.n_jobs) shared(probabilities)
+    #endif
     for (unsigned int i = 0; i < n_trees; i++) {
         std::shared_ptr<Tree> tree = trees.at(i);
         float* predictions = classifyFromTree(

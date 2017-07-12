@@ -25,6 +25,7 @@ extern "C" {
             @return Pointer to the new tree
         */
         config->task = gbdf::CLASSIFICATION_TASK;
+        config->max_n_features = dataset->n_cols;
         DirectDataset* direct_dataset = new DirectDataset(
             dataset->data, dataset->n_rows, dataset->n_cols);
         DirectTargets* direct_targets = new DirectTargets(
@@ -47,6 +48,7 @@ extern "C" {
             @return Pointer to the new tree
         */
         config->task = gbdf::REGRESSION_TASK;
+        config->max_n_features = dataset->n_cols;
         DirectDataset* direct_dataset = new DirectDataset(
             dataset->data, dataset->n_rows, dataset->n_cols);
         DirectTargets* direct_targets = new DirectTargets(

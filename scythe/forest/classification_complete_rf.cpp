@@ -14,6 +14,10 @@ ClassificationCompleteRF::ClassificationCompleteRF
         ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = true;
+    if ((Forest::base_tree_config.max_n_features > n_features) ||
+        (Forest::base_tree_config.max_n_features == 0)) {
+        Forest::base_tree_config.max_n_features = n_features;
+    }
     /*
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
@@ -22,10 +26,8 @@ ClassificationCompleteRF::ClassificationCompleteRF
 }
 
 void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
-    std::cout << "AAAA" << std::endl;
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset->getNumInstances(), config.bag_size);
-    std::cout << "BBBB" << std::endl;
     std::cout << "v-dataset shape : " << dataset->getNumInstances() << ", ";
     std::cout << dataset->getNumFeatures() << std::endl;
     std::cout << "v-targets length : " << targets->getNumInstances() << std::endl;
@@ -35,21 +37,19 @@ void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTarget
         &(Forest::base_tree_config),
         this->densities.get(),
         subset.get()));
-    std::cout << "CCCC" << std::endl;
     Forest::trees.push_back(new_tree);
 }
 
 void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
-    std::cout << "AAA" << std::endl;
     // Compute density functions of all features
     Forest::preprocessDensities(dataset);
-    std::cout << "BBB" << std::endl;
     // Fitting each individual tree
-    #pragma omp parallel for num_threads(parameters.n_jobs)
+    #ifdef _OMP
+        #pragma omp parallel for num_threads(parameters.n_jobs)
+    #endif
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
         this->fitNewTree(dataset, targets);
     }
-    std::cout << "CCC" << std::endl;
 }
 
 float* ClassificationCompleteRF::classify(VirtualDataset* dataset) {
@@ -58,7 +58,9 @@ float* ClassificationCompleteRF::classify(VirtualDataset* dataset) {
     size_t n_probs = n_classes * n_instances;
     size_t n_trees = trees.size();
     float* probabilities = new float[n_probs]();
-    #pragma omp parallel for num_threads(parameters.n_jobs) shared(probabilities)
+    #ifdef _OMP
+        #pragma omp parallel for num_threads(parameters.n_jobs) shared(probabilities)
+    #endif
     for (unsigned int i = 0; i < n_trees; i++) {
         std::shared_ptr<Tree> tree = trees.at(i);
         float* predictions = classifyFromTree(

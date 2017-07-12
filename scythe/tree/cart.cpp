@@ -28,8 +28,8 @@ NodeSpace::NodeSpace(Node* owner, size_t n_features, Density* densities) :
     feature_left_bounds(static_cast<size_t*>(malloc(n_features * sizeof(size_t)))),
     feature_right_bounds(static_cast<size_t*>(malloc(n_features * sizeof(size_t)))) {
     /**
-        Factory function for struct NodeSpace. This is being called while
-        instantiating the tree's root. When evaluating the split values for
+        This constructor is called while instantiating the tree's root. 
+        When evaluating the split values for
         the root, all the partition values of each features are being considered,
         this is why the left and right bounds of the node space are first set 
         to their maxima.
@@ -125,7 +125,7 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
     // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     data_t split_value = (density->split_value = splitter->partition_values[k]);
     
-    label_t* labels = (*(splitter->targets)).toLabels();
+    // label_t* labels = (*(splitter->targets)).toLabels();
     data_t* contiguous_data = data->retrieveContiguousData();
     label_t* contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
 
@@ -282,7 +282,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     if (config->max_n_features > n_features) { config->max_n_features = n_features; }
     size_t max_n_features = config->max_n_features;
     size_t* features_to_use = static_cast<size_t*>(malloc(n_features * sizeof(size_t)));
-    memset(features_to_use, 0x01, n_features * sizeof(size_t));
+    // memset(features_to_use, 0x01, n_features * sizeof(size_t));
     uint best_feature = 0;
 
     std::queue<NodeSpace> queue;
@@ -298,12 +298,14 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         splitter.n_instances_in_node = current_node->n_instances;
         selectFeaturesToConsider(features_to_use, n_features, max_n_features);
         for (uint f = 0; f < n_features; f++) {
-            splitter.feature_id = f;
-            e_cost = evaluateByThreshold(&splitter, &densities[f], dataset);
-            if (e_cost < lowest_e_cost) {
-                lowest_e_cost = e_cost;
-                best_feature = f;
-                best_splitter = splitter;
+            if (features_to_use[f]) {
+                splitter.feature_id = f;
+                e_cost = evaluateByThreshold(&splitter, &densities[f], dataset);
+                if (e_cost < lowest_e_cost) {
+                    lowest_e_cost = e_cost;
+                    best_feature = f;
+                    best_splitter = splitter;
+                }
             }
         }
         splitter.feature_id = best_feature;
