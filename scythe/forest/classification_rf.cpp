@@ -9,10 +9,12 @@
 #include "classification_rf.hpp"
 
 
+namespace scythe {
+
 ClassificationRF::ClassificationRF
         (ForestConfig* config, size_t n_instances, size_t n_features) :
         ClassificationForest::ClassificationForest(config, n_instances, n_features) {
-    Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
+    Forest::base_tree_config.task = CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = false;
     if ((Forest::base_tree_config.max_n_features > n_features) ||
         (Forest::base_tree_config.max_n_features == 0)) {
@@ -83,4 +85,6 @@ float* ClassificationRF::classify(VirtualDataset* dataset) {
         probabilities[k] /= static_cast<float>(n_trees);
     }
     return probabilities;
+}
+
 }

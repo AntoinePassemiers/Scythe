@@ -9,6 +9,8 @@
 #include "continuous.hpp"
 
 
+namespace scythe {
+
 Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_value, int partitioning) {
 
     size_t n_instances = data->getNumInstances();
@@ -49,4 +51,6 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
         printf("%i - %i, ", densities[f].n_values, densities[f].is_categorical);
     }
     return densities;
+}
+
 }

@@ -24,12 +24,12 @@
 #include "../misc/sets.hpp"
 
 
-namespace gbdf {
-    // Partitioning of the input's density function
-    constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
-    constexpr int DECILE_PARTITIONING     = 0xB23A41;
-    constexpr int PERCENTILE_PARTITIONING = 0xB23A42;
-}
+namespace scythe {
+
+// Partitioning of the input's density function
+constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
+constexpr int DECILE_PARTITIONING     = 0xB23A41;
+constexpr int PERCENTILE_PARTITIONING = 0xB23A42;
 
 struct Density {
     bool    is_categorical;
@@ -40,5 +40,7 @@ struct Density {
     size_t* counters_right;
     size_t* counters_nan;
 };
+
+}
 
 #endif // DENSITY_HPP

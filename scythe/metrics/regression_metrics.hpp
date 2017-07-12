@@ -11,6 +11,9 @@
 
 #include "metrics.hpp"
 
+
+namespace scythe {
+
 class RegressionError {
 protected:
     size_t n_classes;
@@ -26,5 +29,7 @@ public:
     RegressionError(size_t n_classes, size_t n_instances);
     virtual ~RegressionError();
 };
+
+}
 
 #endif // REGRESSION_METRICS_HPP_

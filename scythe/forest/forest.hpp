@@ -11,6 +11,15 @@
 
 #include <pthread.h>
 
+#include "../metrics/metrics.hpp"
+#include "../tree/cart.hpp"
+#include "../densities/continuous.hpp"
+#include "../densities/grayscale.hpp"
+#include "../densities/proba.hpp"
+
+
+namespace scythe {
+
 #if defined(_OPENMP)
     #include <omp.h>
 #else
@@ -19,33 +28,24 @@
     inline omp_int_t omp_get_max_threads() { return 1; }
 #endif
 
-#include "../metrics/metrics.hpp"
-#include "../tree/cart.hpp"
-#include "../densities/continuous.hpp"
-#include "../densities/grayscale.hpp"
-#include "../densities/proba.hpp"
+// Regularization method
+constexpr int REG_L1 = 0x778C10;
+constexpr int REG_L2 = 0x778C11;
 
+// Boosting method
+constexpr int ADABOOST          = 0x28FE90;
+constexpr int GRADIENT_BOOSTING = 0x28FE91;
 
-namespace gbdf {
-    // Regularization method
-    constexpr int REG_L1 = 0x778C10;
-    constexpr int REG_L2 = 0x778C11;
-
-    // Boosting method
-    constexpr int ADABOOST          = 0x28FE90;
-    constexpr int GRADIENT_BOOSTING = 0x28FE91;
-
-    // Forest type
-    constexpr int RANDOM_FOREST          = 0;
-    constexpr int COMPLETE_RANDOM_FOREST = 1;
-    constexpr int GB_FOREST              = 2;
-}
+// Forest type
+constexpr int RANDOM_FOREST          = 0;
+constexpr int COMPLETE_RANDOM_FOREST = 1;
+constexpr int GB_FOREST              = 2;
 
 struct ForestConfig {
-    int       type                 = gbdf::RANDOM_FOREST;
-    int       task                 = gbdf::CLASSIFICATION_TASK;
+    int       type                 = RANDOM_FOREST;
+    int       task                 = CLASSIFICATION_TASK;
     size_t    n_classes            = 2;
-    int       score_metric         = gbdf::MLOG_LOSS;
+    int       score_metric         = MLOG_LOSS;
     size_t    n_iter               = 100;
     size_t    max_n_trees          = 150;
     size_t    max_n_nodes          = 30;
@@ -54,10 +54,10 @@ struct ForestConfig {
     size_t    n_leaves             = 1023;
     size_t    n_jobs               = 1;
     size_t    n_samples_per_leaf   = 50;
-    int       regularization       = gbdf::REG_L1;
+    int       regularization       = REG_L1;
     size_t    bag_size             = 100;
     size_t    early_stopping_round = 300;
-    int       boosting_method      = gbdf::GRADIENT_BOOSTING;
+    int       boosting_method      = GRADIENT_BOOSTING;
     int       max_depth            = INFINITE_DEPTH;
     float     l1_lambda            = 0.1f;
     float     l2_lambda            = 0.1f;
@@ -98,7 +98,7 @@ public:
             base_tree_config.max_height = config->max_depth;
             base_tree_config.max_nodes = config->max_n_nodes;
             base_tree_config.max_n_features = config->max_n_features;
-            base_tree_config.partitioning = gbdf::PERCENTILE_PARTITIONING;
+            base_tree_config.partitioning = PERCENTILE_PARTITIONING;
     }
     virtual ~Forest() = default;
     virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
@@ -114,5 +114,7 @@ public:
     virtual float* classify(VirtualDataset* dataset) = 0;
     virtual size_t getInstanceStride() { return config.n_classes; }
 };
+
+}
 
 #endif // FOREST_HPP_

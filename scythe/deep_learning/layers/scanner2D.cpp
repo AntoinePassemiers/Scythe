@@ -8,6 +8,8 @@
 
 #include "scanner2D.hpp"
 
+namespace scythe {
+
 Parameters parameters;
 
 ScannedDataset2D::ScannedDataset2D(
@@ -122,7 +124,7 @@ vtargets_p MultiGrainedScanner2D::virtualizeTargets(Labels* targets) {
 size_t MultiGrainedScanner2D::getRequiredMemorySize() {
     size_t memory_size = vdataset->getNumInstances();
     assert(memory_size > 0);
-    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+    if (lconfig.fconfig.task == CLASSIFICATION_TASK) {
         memory_size *= lconfig.fconfig.n_classes;
     }
     return memory_size * lconfig.n_forests;
@@ -132,8 +134,10 @@ size_t MultiGrainedScanner2D::getNumVirtualFeatures() {
     ScannedDataset2D* sdataset = dynamic_cast<ScannedDataset2D*>(vdataset.get());
     size_t n_vfeatures = sdataset->getSc() * sdataset->getSr();
     assert(n_vfeatures > 0);
-    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+    if (lconfig.fconfig.task == CLASSIFICATION_TASK) {
         n_vfeatures *= lconfig.fconfig.n_classes;
     }
     return n_vfeatures * lconfig.n_forests;
+}
+
 }

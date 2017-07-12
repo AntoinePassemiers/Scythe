@@ -12,6 +12,7 @@
 #include "../../misc/sets.hpp"
 #include "layer.hpp"
 
+namespace scythe {
 
 class ScannedDataset2D : public VirtualDataset {
 private:
@@ -115,6 +116,8 @@ ScannedDataset2D::Iterator<T>& ScannedDataset2D::Iterator<T>::operator++() {
         }
     }
     return *this;
+}
+
 }
 
 #endif // SCANNER2D_HPP_

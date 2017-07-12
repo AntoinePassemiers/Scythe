@@ -12,7 +12,10 @@
 #include "density.hpp"
 
 
+namespace scythe {
+
 Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_value, int partitioning);
 
+}
 
 #endif // CONTINUOUS_HPP

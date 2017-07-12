@@ -22,13 +22,14 @@
 #include "exceptions.hpp"
 
 
+namespace scythe {
+
 constexpr size_t MAX_N_DIMS = 7;
 
-namespace gbdf {
-    constexpr int DTYPE_PROBA   = 0;
-    constexpr int DTYPE_DOUBLE  = 1;
-    constexpr int DTYPE_UINT_8  = 2;
-}
+constexpr int DTYPE_PROBA   = 0;
+constexpr int DTYPE_DOUBLE  = 1;
+constexpr int DTYPE_UINT_8  = 2;
+
 
 typedef unsigned int uint;
 typedef double       data_t;
@@ -191,6 +192,8 @@ template<typename T>
 DirectDataset::Iterator<T>& DirectDataset::Iterator<T>::operator++() {
     cursor += n_cols;
     return *this;
+}
+
 }
 
 #endif // SETS_HPP_

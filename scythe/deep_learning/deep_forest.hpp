@@ -16,6 +16,8 @@
 #include "layers/concatenation_layer.hpp"
 
 
+namespace scythe {
+
 class DeepForest {
 private:
     std::vector<layer_p> layers;
@@ -36,5 +38,7 @@ public:
     void transfer(layer_p, vdataset_p, std::shared_ptr<ConcatenationDataset>);
     layer_p getFront() { return front; }
 };
+
+}
 
 #endif // DEEP_FOREST_HPP_

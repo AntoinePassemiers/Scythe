@@ -21,7 +21,10 @@
 #include <limits>
 
 
+namespace scythe {
 
 void selectFeaturesToConsider(size_t* to_use, size_t n_features, size_t max_n_features);
+
+}
 
 #endif // HEURISTICS_HPP_

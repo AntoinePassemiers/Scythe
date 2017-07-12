@@ -26,7 +26,8 @@
 // #include "../../forest/regression_complete_rf.hpp"
 // #include "../../forest/regression_rf.hpp"
 // #include "../../forest/regression_gb.hpp"
-    
+
+namespace scythe {
 
 // Forward declarations
 class Layer;
@@ -89,9 +90,11 @@ public:
 
     std::vector<layer_p> getChildren() { return children; }
     std::vector<std::shared_ptr<Forest>> getForests() { return forests; }
-    bool isClassifier() { return (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK); }
+    bool isClassifier() { return (lconfig.fconfig.task == CLASSIFICATION_TASK); }
 };
 
 std::ostream& operator<<(std::ostream& os, Layer* const layer);
+
+}
 
 #endif // LAYER_HPP_

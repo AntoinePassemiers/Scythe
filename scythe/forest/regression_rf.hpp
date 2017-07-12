@@ -13,6 +13,8 @@
 #include "../metrics/regression_metrics.hpp"
 
 
+namespace scythe {
+
 class RegressionRF : public Forest {
 private:
     std::shared_ptr<RegressionError> score_metric;
@@ -24,5 +26,7 @@ public:
     void fitNewTree(VirtualDataset* dataset, VirtualTargets* targets);
     ~RegressionRF() = default;
 };
+
+}
 
 #endif // REGRESSION_RF_HPP_

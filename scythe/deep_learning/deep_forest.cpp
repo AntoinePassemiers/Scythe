@@ -9,6 +9,8 @@
 #include "deep_forest.hpp"
 
 
+namespace scythe {
+
 DeepForest::DeepForest(int task) : 
     layers(), 
     task(task), 
@@ -135,4 +137,6 @@ float* DeepForest::classify(MDDataset dataset) {
         current_vdataset = cascade_buffer;
     }
     return current_layer->classify(current_vdataset);
+}
+
 }

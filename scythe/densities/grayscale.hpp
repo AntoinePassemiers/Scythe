@@ -12,7 +12,10 @@
 #include "density.hpp"
 
 
+namespace scythe {
+
 Density* getArbitraryPixelDensities(size_t n_features, size_t n_classes);
 
+}
 
 #endif // GRAYSCALE_HPP

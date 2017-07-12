@@ -12,6 +12,8 @@
 #include "../metrics/classification_metrics.hpp"
 
 
+namespace scythe {
+
 class ClassificationGB : public Forest {
 private:
     std::shared_ptr<ClassificationError> score_metric;
@@ -25,5 +27,7 @@ public:
     void applySoftmax(float* probabilities, data_t* F_k);
     ~ClassificationGB() = default;
 };
+
+}
 
 #endif // CLASSIFICATION_GB_HPP_

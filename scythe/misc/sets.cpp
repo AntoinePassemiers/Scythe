@@ -9,6 +9,8 @@
 #include "sets.hpp"
 
 
+namespace scythe {
+
 void VirtualDataset::allocateFromSampleMask(
     size_t* sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     if (contiguous_data != nullptr) {
@@ -86,4 +88,6 @@ DirectTargets& DirectTargets::operator=(const DirectTargets& other) {
 
 target_t DirectTargets::operator[](const size_t i) {
     return this->data[i];
+}
+
 }

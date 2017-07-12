@@ -9,6 +9,8 @@
 #include "grayscale.hpp"
 
 
+namespace scythe {
+
 Density* getArbitraryPixelDensities(size_t n_features, size_t n_classes) {
     assert(n_features > 0);
     Density* densities = new Density[n_features];
@@ -26,4 +28,6 @@ Density* getArbitraryPixelDensities(size_t n_features, size_t n_classes) {
         densities[f] = densities[0];
     }
     return densities;
+}
+
 }

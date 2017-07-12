@@ -15,6 +15,8 @@
 #include "../misc/bagging.hpp"
 
 
+namespace scythe {
+
 class ClassificationRF : public ClassificationForest {
 private:
     std::shared_ptr<ClassificationError> score_metric;
@@ -26,5 +28,7 @@ public:
     float* classify(VirtualDataset* dataset);
     ~ClassificationRF() = default;
 };
+
+}
 
 #endif // CLASSIFICATION_RF_HPP_

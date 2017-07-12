@@ -12,6 +12,7 @@
 #include "../../misc/sets.hpp"
 #include "layer.hpp"
 
+namespace scythe {
 
 class ScannedDataset1D : public VirtualDataset {
 private:
@@ -70,5 +71,7 @@ public:
     virtual bool isConcatenable() { return false; }
     virtual std::string getType() { return std::string("MultiGrainedScanner1D"); }
 };
+
+}
 
 #endif // SCANNER1D_HPP_

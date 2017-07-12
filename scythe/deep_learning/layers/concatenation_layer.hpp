@@ -12,6 +12,8 @@
 #include "layer.hpp"
 
 
+namespace scythe {
+
 class ConcatenationDataset : public VirtualDataset {    
 private:
     proba_t* data;
@@ -67,6 +69,8 @@ template<typename T>
 ConcatenationDataset::Iterator<T>& ConcatenationDataset::Iterator<T>::operator++() {
     cursor += n_virtual_cols;
     return *this;
+}
+
 }
 
 #endif // CONCATENATION_LAYER_HPP_

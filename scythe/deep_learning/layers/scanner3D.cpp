@@ -8,6 +8,7 @@
 
 #include "scanner3D.hpp"
 
+namespace scythe {
 
 ScannedDataset3D::ScannedDataset3D(
     data_t* data, size_t kc, size_t kr, size_t kd, int dtype) : 
@@ -92,7 +93,7 @@ vtargets_p MultiGrainedScanner3D::virtualizeTargets(Labels* targets) {
 size_t MultiGrainedScanner3D::getRequiredMemorySize() {
     size_t memory_size = this->vdataset->getNumInstances();
     assert(memory_size > 0);
-    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+    if (lconfig.fconfig.task == CLASSIFICATION_TASK) {
         memory_size *= lconfig.fconfig.n_classes;
     }
     return memory_size * lconfig.n_forests;
@@ -102,8 +103,10 @@ size_t MultiGrainedScanner3D::getNumVirtualFeatures() {
     ScannedDataset3D* sdataset = dynamic_cast<ScannedDataset3D*>(vdataset.get());
     size_t n_vfeatures = sdataset->getSc() * sdataset->getSr() * sdataset->getSd();
     assert(n_vfeatures > 0);
-    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+    if (lconfig.fconfig.task == CLASSIFICATION_TASK) {
         n_vfeatures *= lconfig.fconfig.n_classes;
     }
     return n_vfeatures * lconfig.n_forests;
+}
+
 }

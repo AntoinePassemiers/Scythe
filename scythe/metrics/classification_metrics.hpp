@@ -21,6 +21,8 @@ http://luthuli.cs.uiuc.edu/~daf/courses/optimization/papers/2699986.pdf
 pg 1201
 */
 
+namespace scythe {
+
 class ClassificationError {
 protected:
     size_t n_classes;
@@ -90,5 +92,7 @@ public:
 
     ~MultiLogLossError() = default;
 };
+
+}
 
 #endif // CLASSIFICATION_METRICS_HPP_

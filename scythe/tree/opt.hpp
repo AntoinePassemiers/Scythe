@@ -11,6 +11,9 @@
 
 #include <stdlib.h>
 
+
+namespace scythe {
+
 #if defined(_OPENMP)
     #include <omp.h>
     #define _OMP _OPENMP
@@ -25,5 +28,7 @@
         #define _MEM_ALIGN 1
     #endif
 #endif
+
+}
 
 #endif // OPT_HPP

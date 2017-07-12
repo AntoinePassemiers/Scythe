@@ -25,6 +25,8 @@
 #include "../densities/continuous.hpp"
 
 
+namespace scythe {
+
 constexpr int NO_FEATURE = -1;
 constexpr int NO_INSTANCE = 0;
 constexpr int NO_SPLIT_VALUE = std::numeric_limits<int>::max();
@@ -32,11 +34,9 @@ constexpr int NUM_SPLIT_LABELS = 3;
 constexpr int COST_OF_EMPTINESS = std::numeric_limits<int>::max();
 constexpr int INFINITE_DEPTH = -1;
 
-namespace gbdf {
-    // Task of the tree / forest
-    constexpr int CLASSIFICATION_TASK = 0xF55A90;
-    constexpr int REGRESSION_TASK     = 0xF55A91;
-}
+// Task of the tree / forest
+constexpr int CLASSIFICATION_TASK = 0xF55A90;
+constexpr int REGRESSION_TASK     = 0xF55A91;
 
 
 struct Node {
@@ -177,6 +177,8 @@ inline float pow2(float probability) {
         @return The ith term of the Gini coefficient
     */
     return probability * probability;
+}
+
 }
 
 #endif // CART_HPP_

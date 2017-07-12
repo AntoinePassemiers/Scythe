@@ -13,6 +13,8 @@
 #include "../metrics/regression_metrics.hpp"
 
 
+namespace scythe {
+
 class RegressionGB : public Forest {
 private:
     std::shared_ptr<RegressionError> score_metric;
@@ -25,5 +27,7 @@ public:
     data_t* predictGradient(std::shared_ptr<Tree> tree, VirtualDataset* dataset);
     ~RegressionGB() = default;
 };
+
+}
 
 #endif // REGRESSION_GB_HPP_

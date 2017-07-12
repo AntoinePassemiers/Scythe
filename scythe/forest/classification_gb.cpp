@@ -8,13 +8,16 @@
 
 #include "classification_gb.hpp"
 
+
+namespace scythe {
+
 ClassificationGB::ClassificationGB
         (ForestConfig* config, size_t n_instances, size_t n_features) :
         Forest::Forest(config, n_instances, n_features) {
-    Forest::base_tree_config.task = gbdf::CLASSIFICATION_TASK;
+    Forest::base_tree_config.task = CLASSIFICATION_TASK;
     Forest::base_tree_config.is_complete_random = false;
     grad_trees_config = Forest::base_tree_config;
-    grad_trees_config.task = gbdf::REGRESSION_TASK;
+    grad_trees_config.task = REGRESSION_TASK;
     this->score_metric = std::move(
         std::shared_ptr<ClassificationError>(
             new MultiLogLossError(config->n_classes, n_instances)));
@@ -111,4 +114,6 @@ void ClassificationGB::fit(VirtualDataset* dataset, VirtualTargets* targets) {
     }
     free(probabilities);
     free(F_k);
+}
+
 }

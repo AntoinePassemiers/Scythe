@@ -12,7 +12,10 @@
 #include "density.hpp"
 
 
+namespace scythe {
+
 Density* getArbitraryProbaDensities(size_t n_features, size_t n_classes);
 
+}
 
 #endif // PROBA_HPP

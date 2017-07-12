@@ -8,6 +8,9 @@
 
 #include "cart.hpp"
 
+
+namespace scythe {
+
 Tree::Tree() :
     root(nullptr), n_nodes(0), n_classes(0), 
     n_features(0), config(nullptr), level(0) {}
@@ -227,7 +230,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         upper_bound = random_bound + 1;
     }
     for (uint k = lower_bound; k < upper_bound; k++) {
-        if (splitter->task == gbdf::CLASSIFICATION_TASK) {
+        if (splitter->task == CLASSIFICATION_TASK) {
             cost = evaluatePartitions(data, density, splitter, k);
         }
         else {
@@ -239,7 +242,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         }
     splitter->best_split_id = best_split_id;
     }
-    if (splitter->task == gbdf::CLASSIFICATION_TASK) {
+    if (splitter->task == CLASSIFICATION_TASK) {
         if (!(splitter->is_complete_random)) {
             evaluatePartitions(data, density, splitter, best_split_id);
         }
@@ -262,7 +265,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     size_t n_instances = dataset->getNumInstances();
     size_t n_features  = dataset->getNumFeatures();
     Node* current_node = new Node(config->n_classes, 0, n_instances);
-    if (config->task == gbdf::CLASSIFICATION_TASK) {
+    if (config->task == CLASSIFICATION_TASK) {
         memset(current_node->counters, 0x00, config->n_classes * sizeof(size_t));
         for (uint i = 0; i < n_instances; i++) {
             current_node->counters[static_cast<size_t>((*targets)[i])]++;
@@ -321,8 +324,8 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         if ((tree->n_nodes < config->max_nodes) &&
             (current_node_space.current_depth < config->max_height) &&
             (((split_totals[0] && split_totals[1])
-                && (config->task == gbdf::CLASSIFICATION_TASK))
-                || ((config->task == gbdf::REGRESSION_TASK)
+                && (config->task == CLASSIFICATION_TASK))
+                || ((config->task == REGRESSION_TASK)
                 && (best_splitter.n_left > 0) && (best_splitter.n_right > 0)))) {
             Node* new_children = new Node[2];
             data_t split_value = next_density->split_value;
@@ -370,7 +373,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 }
                 ++tree->n_nodes;
             }
-            if (config->task == gbdf::REGRESSION_TASK) {
+            if (config->task == REGRESSION_TASK) {
                 new_children[0].mean = best_splitter.mean_left;
                 new_children[1].mean = best_splitter.mean_right;
             }
@@ -385,7 +388,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 
 float* classifyFromTree(VirtualDataset* dataset, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
-    assert(config->task == gbdf::CLASSIFICATION_TASK);
+    assert(config->task == CLASSIFICATION_TASK);
     size_t n_classes = config->n_classes;
     float* predictions = new float[n_instances * n_classes];
     for (uint k = 0; k < n_instances; k++) {
@@ -415,7 +418,7 @@ float* classifyFromTree(VirtualDataset* dataset, size_t n_instances, size_t n_fe
 
 data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config) {
-    assert(config->task == gbdf::REGRESSION_TASK);
+    assert(config->task == REGRESSION_TASK);
     data_t* predictions = new data_t[n_instances];
     for (uint k = 0; k < n_instances; k++) {
         bool improving = true;
@@ -438,4 +441,6 @@ data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
         // TODO : define a new type of struct
     }
     return predictions;
+}
+
 }

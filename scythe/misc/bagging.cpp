@@ -9,6 +9,8 @@
 #include "bagging.hpp"
 
 
+namespace scythe {
+
 size_t randomInstance(size_t n_instances) {
     return rand() % n_instances;
 }
@@ -25,4 +27,6 @@ std::shared_ptr<size_t> createSubsetWithReplacement(size_t n_instances, size_t m
         subset[instance_id] = USED_IN_BAG;
     }
     return std::shared_ptr<size_t>(subset);
+}
+
 }

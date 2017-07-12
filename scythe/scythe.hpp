@@ -26,15 +26,15 @@
 
 
 extern "C" {
-    void* fit_classification_tree(Dataset*, Labels*, TreeConfig*);
+    void* fit_classification_tree(scythe::Dataset*, scythe::Labels*, scythe::TreeConfig*);
 
-    void* fit_regression_tree(Dataset*, Labels*, TreeConfig*);
+    void* fit_regression_tree(scythe::Dataset*, scythe::Labels*, scythe::TreeConfig*);
 
-    float* tree_classify(Dataset*, void*, TreeConfig*);
+    float* tree_classify(scythe::Dataset*, void*, scythe::TreeConfig*);
 
-    data_t* tree_predict(Dataset*, void*, TreeConfig*);
+    scythe::data_t* tree_predict(scythe::Dataset*, void*, scythe::TreeConfig*);
 
-    void* fit_classification_forest(Dataset* dataset, Labels* labels, ForestConfig* config);
+    void* fit_classification_forest(scythe::Dataset*, scythe::Labels*, scythe::ForestConfig*);
 }
 
 #endif // SCYTHE_HPP_

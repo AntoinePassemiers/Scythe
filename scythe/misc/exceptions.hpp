@@ -14,6 +14,8 @@
 #include "utils.hpp"
 
 
+namespace scythe {
+
 class OOPException : public std::runtime_error {
 public:
     // When an overriden method must never be called
@@ -21,5 +23,7 @@ public:
     OOPException() : runtime_error("Object-oriented programming error"){}
     OOPException(std::string msg) : runtime_error(msg.c_str()) {}
 };
+
+}
 
 #endif // EXCEPTIONS_HPP_

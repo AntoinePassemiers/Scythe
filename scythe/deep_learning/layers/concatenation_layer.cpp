@@ -9,12 +9,14 @@
 #include "concatenation_layer.hpp"
 
 
+namespace scythe {
+
 ConcatenationDataset::ConcatenationDataset(size_t n_instances, size_t n_virtual_features) :
     data(new proba_t[n_instances * n_virtual_features]),
     n_instances(n_instances),
     n_virtual_cols(n_virtual_features),
     stride(0),
-    dtype(gbdf::DTYPE_PROBA) {} // TODO : dtype in case of regresion task
+    dtype(DTYPE_PROBA) {} // TODO : dtype in case of regresion task
 
 void ConcatenationDataset::concatenate(float* new_data, size_t width) {
     // TODO: parallel computing
@@ -59,7 +61,7 @@ size_t CascadeLayer::getRequiredMemorySize() {
     /*
     size_t memory_size = vdataset->getNumInstances();
     assert(memory_size > 0);
-    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+    if (lconfig.fconfig.task == CLASSIFICATION_TASK) {
         memory_size *= lconfig.fconfig.n_classes;
     }
     return memory_size * lconfig.n_forests;
@@ -71,10 +73,12 @@ size_t CascadeLayer::getNumVirtualFeatures() {
     /*
     size_t n_vfeatures = dynamic_cast<ScannedDataset1D*>(vdataset.get())->getSc();
     assert(n_vfeatures > 0);
-    if (lconfig.fconfig.task == gbdf::CLASSIFICATION_TASK) {
+    if (lconfig.fconfig.task == CLASSIFICATION_TASK) {
         n_vfeatures *= lconfig.fconfig.n_classes;
     }
     return n_vfeatures * lconfig.n_forests;
     */
     return 0;
+}
+
 }

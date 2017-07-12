@@ -9,8 +9,10 @@
 #include "layer.hpp"
 
 
+namespace scythe {
+
 LayerConfig::LayerConfig() :
-     fconfig(), n_forests(0), forest_type(gbdf::COMPLETE_RANDOM_FOREST) {}
+     fconfig(), n_forests(0), forest_type(COMPLETE_RANDOM_FOREST) {}
 
 Layer::Layer(LayerConfig lconfig) :
     name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
@@ -27,17 +29,17 @@ void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
     std::cout << "AA" << std::endl;
     for (unsigned int i = 0; i < lconfig.n_forests; i++) {
         std::cout << "BB" << std::endl;
-        if (lconfig.forest_type == gbdf::RANDOM_FOREST) {
+        if (lconfig.forest_type == RANDOM_FOREST) {
             forest = new ClassificationRF(
                 &lconfig.fconfig, 
                 vdataset->getNumInstances(), 
                 vdataset->getNumFeatures());
         }
-        else if (lconfig.forest_type == gbdf::GB_FOREST) {
+        else if (lconfig.forest_type == GB_FOREST) {
             // forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
             std::cout << "Error: gradient boosting is not supported" << std::endl;
         }
-        else if (lconfig.forest_type == gbdf::COMPLETE_RANDOM_FOREST) {
+        else if (lconfig.forest_type == COMPLETE_RANDOM_FOREST) {
             forest = new ClassificationCompleteRF(
                 &lconfig.fconfig, 
                 vdataset->getNumInstances(), 
@@ -92,4 +94,6 @@ std::ostream& operator<<(std::ostream& os, Layer* const layer) {
     std::cout << layer->getRequiredMemorySize() << std::endl;
     return os << "Layer type: "   << layer->getType() << std::endl
               << "Virtual size: " << layer->getRequiredMemorySize() << std::endl;
+}
+
 }
