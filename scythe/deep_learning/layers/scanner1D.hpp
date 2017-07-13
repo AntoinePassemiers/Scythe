@@ -31,13 +31,13 @@ public:
     ScannedDataset1D(const ScannedDataset1D& other) = default;
     ScannedDataset1D& operator=(const ScannedDataset1D& other) = default;
     ~ScannedDataset1D() override = default;
-    size_t getSc();
+    size_t getSc() { return sc; }
     virtual data_t operator()(size_t i, size_t j);
     virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
-    virtual size_t getNumInstances();
-    virtual size_t getNumFeatures();
-    virtual size_t getRequiredMemorySize();
-    virtual size_t getNumVirtualInstancesPerInstance();
+    virtual size_t getNumInstances() { return Nprime; }
+    virtual size_t getNumFeatures() { return Mprime; }
+    virtual size_t getRequiredMemorySize() { return Nprime * Mprime; }
+    virtual size_t getNumVirtualInstancesPerInstance() { return sc; }
     virtual int getDataType() { return dtype; }
 };
 
@@ -49,8 +49,8 @@ private:
     size_t s;
 public:
     ScannedTargets1D(target_t* data, size_t n_instances, size_t sc);
-    ScannedTargets1D(const ScannedTargets1D& other);
-    ScannedTargets1D& operator=(const ScannedTargets1D& other);
+    ScannedTargets1D(const ScannedTargets1D& other) = default;
+    ScannedTargets1D& operator=(const ScannedTargets1D& other) = default;
     ~ScannedTargets1D() override = default;
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }

@@ -12,20 +12,20 @@ namespace scythe {
 
 ScannedDataset3D::ScannedDataset3D(
     data_t* data, size_t kc, size_t kr, size_t kd, int dtype) : 
-    N(0), 
-    M(0), 
-    P(0), 
-    Q(0), 
-    kc(kc), 
-    kr(kr), 
-    kd(kd), 
-    sc(0), 
-    sr(0), 
-    sd(0), 
-    Nprime(0), 
-    Mprime(0),
-    data(data),
-    dtype(dtype) {}
+    N(0),       // Number of instances
+    M(0),       // Instance height
+    P(0),       // Instance width
+    Q(0),       // Instance depth
+    kc(kc),     // Kernel width
+    kr(kr),     // Kernel height
+    kd(kd),     // Kernel depth
+    sc(0),      // Number of kernel positions per column
+    sr(0),      // Number of kernel positions per row
+    sd(0),      // Number of kernel positions per depth index
+    Nprime(0),  // Number of instances after scanning
+    Mprime(0),  // Number of features after scanning
+    data(data), // Pointer to the raw data
+    dtype(dtype) {} // Raw data type
 
 data_t ScannedDataset3D::operator()(size_t i, size_t j) {
     return 0; // TODO
@@ -33,34 +33,6 @@ data_t ScannedDataset3D::operator()(size_t i, size_t j) {
 
 std::shared_ptr<void> ScannedDataset3D::_operator_ev(const size_t j) {
     return nullptr; // TODO
-}
-
-size_t ScannedDataset3D::getSc() {
-    return this->sc;
-}
-
-size_t ScannedDataset3D::getSr() {
-    return this->sr;
-}
-
-size_t ScannedDataset3D::getSd() {
-    return this->sd;
-}
-
-size_t ScannedDataset3D::getNumInstances() {
-    return this->Nprime;
-}
-
-size_t ScannedDataset3D::getNumFeatures() {
-    return this->Mprime;
-}
-
-size_t ScannedDataset3D::getRequiredMemorySize() {
-    return this->Nprime * this->Mprime;
-}
-
-size_t ScannedDataset3D::getNumVirtualInstancesPerInstance() {
-    return sr * sr * sd;
 }
 
 ScannedTargets3D::ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd) :

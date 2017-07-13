@@ -130,7 +130,6 @@ double evaluatePartitions(VirtualDataset* data, Density* density,
     // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     data_t split_value = (density->split_value = splitter->partition_values[k]);
     
-    // label_t* labels = (*(splitter->targets)).toLabels();
     data_t* contiguous_data = data->retrieveContiguousData();
     label_t* contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
 

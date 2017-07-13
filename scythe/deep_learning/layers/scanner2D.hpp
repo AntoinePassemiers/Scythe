@@ -28,7 +28,7 @@ private:
     size_t Mprime; // Number of features after scanning
 
     data_t* data; // Pointer to the raw data
-    int dtype;    // Raw data pointer
+    int dtype;    // Raw data type
 public:
     template<typename T>
     class Iterator : public VirtualDataset::Iterator<T> {
@@ -55,14 +55,14 @@ public:
     ScannedDataset2D(const ScannedDataset2D& other) = default;
     ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;
     ~ScannedDataset2D() override = default;
-    size_t getSc();
-    size_t getSr();
+    size_t getSc() { return sc; }
+    size_t getSr() { return sr; }
     virtual data_t operator()(size_t i, size_t j);
     virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
-    virtual size_t getNumInstances();
-    virtual size_t getNumFeatures();
-    virtual size_t getRequiredMemorySize();
-    virtual size_t getNumVirtualInstancesPerInstance();
+    virtual size_t getNumInstances() { return Nprime; }
+    virtual size_t getNumFeatures() { return Mprime; }
+    virtual size_t getRequiredMemorySize() { return Nprime * Mprime; }
+    virtual size_t getNumVirtualInstancesPerInstance() { return sc * sr; }
     virtual int getDataType() { return dtype; }
 };
 
@@ -74,8 +74,8 @@ private:
     size_t s;
 public:
     ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr);
-    ScannedTargets2D(const ScannedTargets2D& other);
-    ScannedTargets2D& operator=(const ScannedTargets2D& other);
+    ScannedTargets2D(const ScannedTargets2D& other) = default;
+    ScannedTargets2D& operator=(const ScannedTargets2D& other) = default;
     ~ScannedTargets2D() override = default;
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }

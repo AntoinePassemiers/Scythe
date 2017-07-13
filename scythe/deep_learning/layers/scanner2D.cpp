@@ -23,8 +23,8 @@ ScannedDataset2D::ScannedDataset2D(
     sr(M - kr + 1),      // Number of kernel positions per row
     Nprime(N * sr * sc), // Number of instances after scanning
     Mprime(kc * kr),     // Number of features after scanning
-    data(data),
-    dtype(dtype) {
+    data(data),          // Pointer to the raw data
+    dtype(dtype) {       // Raw data type
     if (parameters.print_layer_info) {
         #pragma omp critical(scanned_dataset_2d_display_info)
         {
@@ -49,42 +49,8 @@ std::shared_ptr<void> ScannedDataset2D::_operator_ev(const size_t j) {
             data, P * (j % kc) + (j / kr), M, P, sc, sr));
 }
 
-size_t ScannedDataset2D::getSc() {
-    return this->sc;
-}
-
-size_t ScannedDataset2D::getSr() {
-    return this->sr;
-}
-
-size_t ScannedDataset2D::getNumInstances() {
-    return this->Nprime;
-}
-
-size_t ScannedDataset2D::getNumFeatures() {
-    return this->Mprime;
-}
-
-size_t ScannedDataset2D::getRequiredMemorySize() {
-    return this->Nprime * this->Mprime;
-}
-
-size_t ScannedDataset2D::getNumVirtualInstancesPerInstance() {
-    return sc * sr;
-}
-
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
     VirtualTargets::VirtualTargets(), data(data), n_rows(n_instances * sc * sr), s(sc * sr) {}
-
-ScannedTargets2D::ScannedTargets2D(const ScannedTargets2D& other) :
-    VirtualTargets::VirtualTargets(), data(other.data), n_rows(other.n_rows), s(other.s) {}
-
-ScannedTargets2D& ScannedTargets2D::operator=(const ScannedTargets2D& other) {
-    this->data = data;
-    this->n_rows = n_rows;
-    this->s = s;
-    return *this;
-}
 
 target_t ScannedTargets2D::operator[](const size_t i) {
     return data[i / s];

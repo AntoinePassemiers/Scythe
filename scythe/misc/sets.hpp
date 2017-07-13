@@ -74,6 +74,7 @@ struct Labels {
 class VirtualDataset {
 private:
     data_t* contiguous_data = nullptr;
+    size_t n_contiguous_items = 0;
 public:
     template<typename T>
     class Iterator {
@@ -130,8 +131,8 @@ public:
     };
     DirectDataset(Dataset dataset);
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
-    DirectDataset(const DirectDataset& other);
-    DirectDataset& operator=(const DirectDataset& other);
+    DirectDataset(const DirectDataset& other) = default;
+    DirectDataset& operator=(const DirectDataset& other) = default;
     ~DirectDataset() override = default;
     virtual data_t operator()(const size_t i, const size_t j);
     virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
@@ -155,7 +156,6 @@ public:
     virtual target_t operator[](const size_t i) = 0;
     virtual size_t getNumInstances() = 0;
     virtual target_t* getValues() = 0;
-    label_t* toLabels();
 
     void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
     label_t* retrieveContiguousData() { return contiguous_labels; }
@@ -168,8 +168,8 @@ private:
     size_t n_rows;
 public:
     DirectTargets(target_t* data, size_t n_instances);
-    DirectTargets(const DirectTargets& other);
-    DirectTargets& operator=(const DirectTargets& other);
+    DirectTargets(const DirectTargets& other) = default;
+    DirectTargets& operator=(const DirectTargets& other) = default;
     ~DirectTargets() override = default;
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }

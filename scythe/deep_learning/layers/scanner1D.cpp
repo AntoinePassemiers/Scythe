@@ -18,8 +18,8 @@ ScannedDataset1D::ScannedDataset1D(
     sc(M - kc + 1),      // Number of kernel positions per column
     Nprime(N * sc),      // Number of instances after scanning
     Mprime(kc),          // Number of features after scanning
-    data(data),
-    dtype(dtype) {}
+    data(data),          // Pointer to the raw data
+    dtype(dtype) {}      // Raw data type
 
 data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
@@ -29,38 +29,8 @@ std::shared_ptr<void> ScannedDataset1D::_operator_ev(const size_t j) {
     return nullptr; // TODO
 }
 
-size_t ScannedDataset1D::getSc() {
-    return this->sc;
-}
-
-size_t ScannedDataset1D::getNumInstances() {
-    return this->Nprime;
-}
-
-size_t ScannedDataset1D::getNumFeatures() {
-    return this->Mprime;
-}
-
-size_t ScannedDataset1D::getRequiredMemorySize() {
-    return this->Nprime * this->Mprime;
-}
-
-size_t ScannedDataset1D::getNumVirtualInstancesPerInstance() {
-    return sc;
-}
-
 ScannedTargets1D::ScannedTargets1D(target_t* data, size_t n_instances, size_t sc) :
     data(data), n_rows(n_instances), s(sc) {}
-
-ScannedTargets1D::ScannedTargets1D(const ScannedTargets1D& other) :
-    data(other.data), n_rows(other.n_rows), s(other.s) {}
-
-ScannedTargets1D& ScannedTargets1D::operator=(const ScannedTargets1D& other) {
-    this->data = data;
-    this->n_rows = n_rows;
-    this->s = s;
-    return *this;
-}
 
 target_t ScannedTargets1D::operator[](const size_t i) {
     return data[i / s];
