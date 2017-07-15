@@ -25,8 +25,16 @@ data_t ScannedDataset1D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }
 
-std::shared_ptr<void> ScannedDataset1D::_operator_ev(const size_t j) {
-    return nullptr; // TODO
+void ScannedDataset1D::_iterator_begin(const size_t j) {
+    // TODO
+}
+
+void ScannedDataset1D::_iterator_inc() {
+    // TODO
+}
+
+data_t ScannedDataset1D::_iterator_deref() {
+    // TODO
 }
 
 ScannedTargets1D::ScannedTargets1D(target_t* data, size_t n_instances, size_t sc) :

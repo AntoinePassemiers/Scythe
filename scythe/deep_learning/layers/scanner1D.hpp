@@ -26,14 +26,23 @@ private:
 
     data_t* data; // Pointer to the raw data
     int dtype;    // Raw data type
+
+    // Iterator cursors
+
 public:
     ScannedDataset1D(data_t* data, size_t N, size_t M, size_t kc, int dtype);
     ScannedDataset1D(const ScannedDataset1D& other) = default;
     ScannedDataset1D& operator=(const ScannedDataset1D& other) = default;
     ~ScannedDataset1D() override = default;
-    size_t getSc() { return sc; }
     virtual data_t operator()(size_t i, size_t j);
-    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
+
+    // Virtual iterator
+    virtual void _iterator_begin(const size_t j);
+    virtual void _iterator_inc();
+    virtual data_t _iterator_deref();
+
+    // Getters
+    size_t getSc() { return sc; }
     virtual size_t getNumInstances() { return Nprime; }
     virtual size_t getNumFeatures() { return Mprime; }
     virtual size_t getRequiredMemorySize() { return Nprime * Mprime; }

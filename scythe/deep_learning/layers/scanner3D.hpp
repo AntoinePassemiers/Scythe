@@ -37,11 +37,17 @@ public:
     ScannedDataset3D(const ScannedDataset3D& other) = default;
     ScannedDataset3D& operator=(const ScannedDataset3D& other) = default;
     ~ScannedDataset3D() override = default;
+    virtual data_t operator()(size_t i, size_t j);
+
+    // Virtual iterator
+    virtual void _iterator_begin(const size_t j);
+    virtual void _iterator_inc();
+    virtual data_t _iterator_deref();
+
+    // Getters
     size_t getSc() { return sc; }
     size_t getSr() { return sr; }
     size_t getSd() { return sd; }
-    virtual data_t operator()(size_t i, size_t j);
-    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
     virtual size_t getNumInstances() { return Nprime; }
     virtual size_t getNumFeatures() { return Mprime; }
     virtual size_t getRequiredMemorySize() { return Nprime * Mprime; }

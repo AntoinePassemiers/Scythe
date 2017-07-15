@@ -29,36 +29,27 @@ private:
 
     data_t* data; // Pointer to the raw data
     int dtype;    // Raw data type
+
+    // Iterator cursors
+    size_t _it_x;
+    size_t _it_i;
+    size_t _it_q;
 public:
-    template<typename T>
-    class Iterator : public VirtualDataset::Iterator<T> {
-    private:
-        size_t x;
-        size_t i;
-        size_t q;
-        size_t M;
-        size_t P;
-        size_t sc;
-        size_t sr;
-        T* data;
-    public:
-        Iterator(T* data, size_t x, size_t M, size_t P, size_t sc, size_t sr) : 
-            x(x), i(0), q(0), M(M), P(P), sc(sc), sr(sr) {}
-        Iterator(const Iterator&) = default;
-        Iterator& operator=(const Iterator&) = default;
-        ~Iterator() = default;
-        T operator*();
-        Iterator& operator++();
-    };
     ScannedDataset2D(data_t* data, size_t N, size_t M, 
         size_t P, size_t kc, size_t kr, int dtype);
     ScannedDataset2D(const ScannedDataset2D& other) = default;
     ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;
     ~ScannedDataset2D() override = default;
+    virtual data_t operator()(size_t i, size_t j);
+
+    // Virtual iterator
+    virtual void _iterator_begin(const size_t j);
+    virtual void _iterator_inc();
+    virtual data_t _iterator_deref();
+
+    // Getters
     size_t getSc() { return sc; }
     size_t getSr() { return sr; }
-    virtual data_t operator()(size_t i, size_t j);
-    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
     virtual size_t getNumInstances() { return Nprime; }
     virtual size_t getNumFeatures() { return Mprime; }
     virtual size_t getRequiredMemorySize() { return Nprime * Mprime; }
@@ -97,26 +88,6 @@ public:
     virtual bool isConcatenable() { return false; }
     virtual std::string getType() { return std::string("MultiGrainedScanner2D"); }
 };
-
-
-template<typename T>
-T ScannedDataset2D::Iterator<T>::operator*() {
-    return data[x + i * P + q / sr];
-}
-
-template<typename T>
-ScannedDataset2D::Iterator<T>& ScannedDataset2D::Iterator<T>::operator++() {
-    ++i;
-    if (i == sc) {
-        ++q;
-        i = 0;
-        if (q == sr) {
-            q = 0;
-            x += (M * P);
-        }
-    }
-    return *this;
-}
 
 }
 

@@ -36,10 +36,16 @@ data_t ConcatenationDataset::operator()(const size_t i, const size_t j) {
     return static_cast<data_t>(data[i * this->stride + j]);
 }
 
-std::shared_ptr<void> ConcatenationDataset::_operator_ev(const size_t j) {
-    // TODO : regression case
-    return std::shared_ptr<void>(
-        new ConcatenationDataset::Iterator<proba_t>(data, n_virtual_cols));
+void ConcatenationDataset::_iterator_begin(const size_t j) {
+    iterator_cursor = j;
+}
+
+void ConcatenationDataset::_iterator_inc() {
+    iterator_cursor += n_virtual_cols;
+}
+
+data_t ConcatenationDataset::_iterator_deref() {
+    return data[iterator_cursor];
 }
 
 CascadeLayer::CascadeLayer(LayerConfig lconfig) : 

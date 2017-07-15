@@ -31,19 +31,22 @@ void VirtualDataset::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    if (n_items != this.n_contiguous_items) {
+    if (n_items != this->n_contiguous_items) {
         if (contiguous_data != nullptr) {
             delete[] contiguous_data;
         }
         contiguous_data = new data_t[n_items];
+        this->n_contiguous_items = n_items;
     }
+
     uint k = 0;
+    _iterator_begin(feature_id);
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_data[k++] = operator()(i, feature_id);
+            contiguous_data[k++] = _iterator_deref();
         }
+        _iterator_inc();
     }
-    this.n_contiguous_items = n_items;
 }
 
 DirectDataset::DirectDataset(Dataset dataset) :
@@ -64,16 +67,16 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
     return this->data[i * this->n_cols + j];
 }
 
-std::shared_ptr<void> DirectDataset::_operator_ev(const size_t j) {
-    /**
-        Type erasure of DirectDataset::Iterator<T>. This method returns
-        an object that iterates over the attribute j.
+void DirectDataset::_iterator_begin(const size_t j) {
+    iterator_cursor = j;
+}
 
-        @param j
-            Column id
-    */
-    return std::shared_ptr<void>(
-        new DirectDataset::Iterator<data_t>(data, n_cols));
+void DirectDataset::_iterator_inc() {
+    iterator_cursor += n_cols;
+}
+
+data_t DirectDataset::_iterator_deref() {
+    return data[iterator_cursor];
 }
 
 void VirtualTargets::allocateFromSampleMask(
@@ -94,10 +97,13 @@ void VirtualTargets::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    if (contiguous_labels != nullptr) {
-        delete[] contiguous_labels;
+    if (n_items != this->n_contiguous_items) {
+        if (contiguous_labels != nullptr) {
+            delete[] contiguous_labels;
+        }
+        contiguous_labels = new label_t[n_items];
+        this->n_contiguous_items = n_items;
     }
-    contiguous_labels = new label_t[n_items];
     uint k = 0;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {

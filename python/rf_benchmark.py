@@ -36,7 +36,7 @@ if __name__ == "__main__":
     fconfig.n_classes = n_classes
     fconfig.n_iter    = n_estimators
     fconfig.bag_size  = 1000
-    fconfig.max_height = max_depth
+    fconfig.max_depth = max_depth
     fconfig.max_n_features = max_n_features
 
     forest = Forest(fconfig, "classification", "random forest")

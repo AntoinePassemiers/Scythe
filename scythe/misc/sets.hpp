@@ -76,24 +76,16 @@ private:
     data_t* contiguous_data = nullptr;
     size_t n_contiguous_items = 0;
 public:
-    template<typename T>
-    class Iterator {
-    public:
-        virtual ~Iterator() {}
-        virtual T operator*();
-        virtual Iterator& operator++();
-        Iterator operator++(int);
-    };
     VirtualDataset() = default;
     VirtualDataset(const VirtualDataset&) = default;
     VirtualDataset& operator=(const VirtualDataset&) = default;
     virtual ~VirtualDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
 
-    // Type erasure of operator()(const size_t)
-    template<typename T>
-    Iterator<T> operator()(const size_t j);
-    virtual std::shared_ptr<void> _operator_ev(const size_t j) = 0;
+    // Virtual iterator
+    virtual void _iterator_begin(const size_t j) = 0;
+    virtual void _iterator_inc() = 0;
+    virtual data_t _iterator_deref() = 0;
 
     // Getters
     virtual size_t getNumInstances() = 0;
@@ -113,29 +105,23 @@ private:
     size_t n_rows;
     size_t n_cols;
     int dtype;
+
+    // Iterator cursor
+    size_t iterator_cursor;
 public:
-    template<typename T>
-    class Iterator : public VirtualDataset::Iterator<T> {
-    private:
-        size_t cursor;
-        size_t n_cols;
-        T* data;
-    public:
-        Iterator(T* data, size_t n_cols) : 
-            cursor(0), n_cols(n_cols), data(data) {}
-        Iterator(const Iterator&) = default;
-        Iterator& operator=(const Iterator&) = default;
-        ~Iterator() = default;
-        T operator*() { return data[cursor]; }
-        Iterator& operator++();
-    };
     DirectDataset(Dataset dataset);
     DirectDataset(data_t* data, size_t n_instances, size_t n_features);
     DirectDataset(const DirectDataset& other) = default;
     DirectDataset& operator=(const DirectDataset& other) = default;
     ~DirectDataset() override = default;
     virtual data_t operator()(const size_t i, const size_t j);
-    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
+
+    // Virtual iterator
+    virtual void _iterator_begin(const size_t j);
+    virtual void _iterator_inc();
+    virtual data_t _iterator_deref();
+
+    // Getters
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
     virtual size_t getRequiredMemorySize() { return n_rows * n_cols; }
@@ -146,8 +132,8 @@ public:
 
 class VirtualTargets {
 private:
-    label_t* labels = nullptr;
     label_t* contiguous_labels = nullptr;
+    size_t n_contiguous_items = 0;
 public:
     VirtualTargets() {};
     VirtualTargets(const VirtualTargets&) = default;
@@ -175,24 +161,6 @@ public:
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
 };
-
-
-template<typename T>
-VirtualDataset::Iterator<T> VirtualDataset::operator()(const size_t j) {
-    void* it = VirtualDataset::_operator_ev(j).get();
-    return static_cast<VirtualDataset::Iterator<T>>(it);
-}
-
-template<typename T>
-VirtualDataset::Iterator<T> VirtualDataset::Iterator<T>::operator++(int) {
-    return ++(*this);
-}
-
-template<typename T>
-DirectDataset::Iterator<T>& DirectDataset::Iterator<T>::operator++() {
-    cursor += n_cols;
-    return *this;
-}
 
 }
 

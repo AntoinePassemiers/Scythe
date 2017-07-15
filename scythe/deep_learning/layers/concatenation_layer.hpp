@@ -21,29 +21,23 @@ private:
     size_t n_virtual_cols;
     size_t stride;
     int dtype;
+
+    // Iterator cursor
+    size_t iterator_cursor;
 public:
-    template<typename T>
-    class Iterator : public VirtualDataset::Iterator<T> {
-    private:
-        size_t cursor;
-        size_t n_virtual_cols;
-        T* data;
-    public:
-        Iterator(T* data, size_t n_virtual_cols) : 
-            cursor(0), n_virtual_cols(n_virtual_cols), data(data) {}
-        Iterator(const Iterator&) = default;
-        Iterator& operator=(const Iterator&) = default;
-        ~Iterator() = default;
-        T operator*() { return data[cursor]; }
-        Iterator& operator++();
-    };
     ConcatenationDataset(size_t n_instances, size_t n_virtual_features);
     ConcatenationDataset(const ConcatenationDataset& other) = default;
     ConcatenationDataset& operator=(const ConcatenationDataset& other) = default;
     ~ConcatenationDataset() override = default;
     void concatenate(float* new_data, size_t width);
     virtual data_t operator()(const size_t i, const size_t j);
-    virtual std::shared_ptr<void> _operator_ev(const size_t j); // Type erasure
+
+    // Virtual iterator
+    virtual void _iterator_begin(const size_t j);
+    virtual void _iterator_inc();
+    virtual data_t _iterator_deref();
+
+    // Getters
     virtual size_t getNumInstances() { return n_instances; }
     virtual size_t getNumFeatures() { return stride; }
     virtual size_t getRequiredMemorySize() { return n_instances * n_virtual_cols; }
@@ -63,13 +57,6 @@ public:
     virtual bool isConcatenable() { return true; }
     virtual std::string getType() { return std::string("CascadeLayer"); }
 };
-
-
-template<typename T>
-ConcatenationDataset::Iterator<T>& ConcatenationDataset::Iterator<T>::operator++() {
-    cursor += n_virtual_cols;
-    return *this;
-}
 
 }
 

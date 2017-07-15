@@ -43,10 +43,26 @@ data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     return data[(M * P) * n + (P * m) + p];
 }
 
-std::shared_ptr<void> ScannedDataset2D::_operator_ev(const size_t j) {
-    return std::shared_ptr<void>(
-        new ScannedDataset2D::Iterator<data_t>(
-            data, P * (j % kc) + (j / kr), M, P, sc, sr));
+void ScannedDataset2D::_iterator_begin(const size_t j) {
+    _it_x = P * (j % kc) + (j / kr);
+    _it_i = 0;
+    _it_q = 0;
+}
+
+void ScannedDataset2D::_iterator_inc() {
+    _it_i++;
+    if (_it_i == sc) {
+        ++_it_q;
+        _it_i = 0;
+        if (_it_q == sr) {
+            _it_q = 0;
+            _it_x += (M * P);
+        }
+    }
+}
+
+data_t ScannedDataset2D::_iterator_deref() {
+    return data[_it_x + _it_i * P + _it_q / sr];
 }
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :

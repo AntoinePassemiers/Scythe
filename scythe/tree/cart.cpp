@@ -217,6 +217,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         feature_id,
         splitter->n_instances_in_node,
         splitter->n_instances);
+
     splitter->targets->allocateFromSampleMask(
         splitter->belongs_to,
         splitter->node->id,
