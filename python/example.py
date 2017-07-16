@@ -35,8 +35,8 @@ def main():
         bag_size       = 60000,
         n_classes      = 10,
         n_iter         = 4,
-        max_n_features = 4,
         max_n_trees    = 4,
+        max_n_features = 40,
         max_depth      = 20)
     lconfig = LayerConfig(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
@@ -99,6 +99,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Warning: provide the path to the MNIST dataset")
 
-    testRF()
-    # main()
+    # testRF()
+    main()
+
     print("Finished")

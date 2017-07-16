@@ -27,8 +27,8 @@ Node::Node(size_t n_classes, int id, size_t n_instances):
 NodeSpace::NodeSpace(Node* owner, size_t n_features, Density* densities) :
     owner(owner),
     current_depth(1),
-    feature_left_bounds(static_cast<size_t*>(malloc(n_features * sizeof(size_t)))),
-    feature_right_bounds(static_cast<size_t*>(malloc(n_features * sizeof(size_t)))) {
+    feature_left_bounds(new size_t[n_features]),
+    feature_right_bounds(new size_t[n_features]) {
     /**
         This constructor is called while instantiating the tree's root. 
         When evaluating the split values for
@@ -54,8 +54,8 @@ NodeSpace::NodeSpace(Node* owner, size_t n_features, Density* densities) :
 NodeSpace::NodeSpace(const NodeSpace& node_space, size_t n_features) :
     owner(node_space.owner), 
     current_depth(node_space.current_depth),
-    feature_left_bounds(static_cast<size_t*>(malloc(n_features * sizeof(size_t)))),
-    feature_right_bounds(static_cast<size_t*>(malloc(n_features * sizeof(size_t)))) {
+    feature_left_bounds(new size_t[n_features]),
+    feature_right_bounds(new size_t[n_features]) {
     size_t n_bytes = n_features * sizeof(size_t);
     memcpy(feature_left_bounds, node_space.feature_left_bounds, n_bytes);
     memcpy(feature_right_bounds, node_space.feature_right_bounds, n_bytes);
@@ -291,7 +291,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 
     if (config->max_n_features > n_features) { config->max_n_features = n_features; }
     size_t max_n_features = config->max_n_features;
-    size_t* features_to_use = static_cast<size_t*>(malloc(n_features * sizeof(size_t)));
+    size_t* features_to_use = new size_t[n_features];
     // memset(features_to_use, 0x01, n_features * sizeof(size_t));
     uint best_feature = 0;
 

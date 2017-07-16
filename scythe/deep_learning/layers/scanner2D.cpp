@@ -26,7 +26,9 @@ ScannedDataset2D::ScannedDataset2D(
     data(data),          // Pointer to the raw data
     dtype(dtype) {       // Raw data type
     if (parameters.print_layer_info) {
-        #pragma omp critical(scanned_dataset_2d_display_info)
+        #ifdef _OMP
+            #pragma omp critical(scanned_dataset_2d_display_info)
+        #endif
         {
             std::cout << "\tKernel width  : " << kc << std::endl;
             std::cout << "\tKernel height : " << kr << std::endl;
@@ -52,9 +54,9 @@ void ScannedDataset2D::_iterator_begin(const size_t j) {
 void ScannedDataset2D::_iterator_inc() {
     _it_i++;
     if (_it_i == sc) {
-        ++_it_q;
+        _it_q += M;
         _it_i = 0;
-        if (_it_q == sr) {
+        if (_it_q == sr * M) {
             _it_q = 0;
             _it_x += (M * P);
         }
@@ -62,7 +64,7 @@ void ScannedDataset2D::_iterator_inc() {
 }
 
 data_t ScannedDataset2D::_iterator_deref() {
-    return data[_it_x + _it_i * P + _it_q / sr];
+    return data[_it_x + _it_i + _it_q];
 }
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
