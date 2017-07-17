@@ -32,11 +32,13 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
         densities[f].is_categorical = true; // TODO
 
         std::vector<data_t> vec;
+        data->_iterator_begin(f);
         for (uint i = 0; i < n_instances; i++) {
-            data_t value = (*data)(i, f);
+            data_t value = data->_iterator_deref();
             if (value != nan_value) {
                 vec.push_back(value);
             }
+            data->_iterator_inc();
         }
         std::sort(vec.begin(), vec.end());
 
