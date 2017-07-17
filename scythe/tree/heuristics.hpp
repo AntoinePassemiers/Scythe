@@ -20,6 +20,8 @@
 #include <string.h>
 #include <limits>
 
+#include "../densities/continuous.hpp"
+
 
 namespace scythe {
 

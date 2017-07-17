@@ -31,7 +31,7 @@ void VirtualDataset::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    if (n_items != this->n_contiguous_items) {
+    if (n_items > this->n_contiguous_items) { // TODO
         if (contiguous_data != nullptr) {
             delete[] contiguous_data;
         }
@@ -97,7 +97,7 @@ void VirtualTargets::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    if (n_items != this->n_contiguous_items) {
+    if (n_items > this->n_contiguous_items) { // TODO
         if (contiguous_labels != nullptr) {
             delete[] contiguous_labels;
         }

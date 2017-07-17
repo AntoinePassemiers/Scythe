@@ -13,7 +13,7 @@ namespace scythe {
 
 Tree::Tree() :
     root(nullptr), n_nodes(0), n_classes(0), 
-    n_features(0), config(nullptr), level(0) {}
+    n_features(0), config(nullptr), level(1) {}
 
 Tree::Tree(Node* root, TreeConfig* config, size_t n_features) :
     root(root), n_nodes(1), n_classes(config->n_classes),
@@ -225,7 +225,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         splitter->n_instances);
 
     size_t best_counters_left[n_classes];
-    size_t best_counters_right[n_classes];    
+    size_t best_counters_right[n_classes];
 
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
@@ -351,13 +351,21 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 best_splitter.best_split_id,
                 current_node_space.feature_right_bounds[best_feature]};
             for (uint i = 0; i < 2; i++) {
+                #ifdef _OMP
+                    #pragma ivdep
+                    #pragma ibm independent_loop
+                    #pragma omp simd
+                #endif
+                dataset->_iterator_begin(best_feature);
                 for (uint j = 0; j < n_instances; j++) {
-                    bool is_on_the_left = ((*dataset)(j, best_feature) < split_value) ? 1 : 0;
+                    bool is_child_left = static_cast<bool>(i);
+                    bool is_on_the_left = (dataset->_iterator_deref() < split_value) ? 1 : 0;
                     if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
-                        if (is_on_the_left * (1 - i) + (1 - is_on_the_left) * i) {
+                        if (is_on_the_left && (!is_child_left) || (!is_on_the_left) && is_child_left) {
                             belongs_to[j] = tree->n_nodes;
                         }
                     }
+                    dataset->_iterator_inc();
                 }
                 child_node = &new_children[i];
                 child_node->id = static_cast<int>(tree->n_nodes);
