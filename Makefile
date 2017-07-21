@@ -1,2 +1,2 @@
 all:
-	+$(MAKE) -C scythe
+	+$(MAKE) -C src
