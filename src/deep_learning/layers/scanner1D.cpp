@@ -54,7 +54,7 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
     assert(dataset.dims[1] > 0);
     Layer::vdataset = std::shared_ptr<ScannedDataset1D>(
         new ScannedDataset1D(
-            dataset.data,
+            static_cast<data_t*>(dataset.data), // TODO : type erasure
             dataset.dims[0],
             dataset.dims[1],
             this->kc,

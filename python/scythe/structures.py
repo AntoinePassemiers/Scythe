@@ -71,7 +71,7 @@ class Dataset(ctypes.Structure):
         Number of columns in the data array
     """
     _fields_ = [
-        ("data", ctypes.POINTER(data_t)),
+        ("data", ctypes.c_void_p),
         ("n_rows", ctypes.c_size_t),
         ("n_cols", ctypes.c_size_t)]
 
@@ -91,7 +91,7 @@ class Dataset(ctypes.Structure):
         self.n_rows = self.np_data.shape[0]
         self.n_cols = self.np_data.shape[1]
         # Retrieving the pointer to the first element
-        self.data = self.np_data.ctypes.data_as(data_p)
+        self.data = ctypes.c_void_p(self.np_data.ctypes.data_as(data_p))
     def __len__(self):
         """ Return the size / number of rows of the dataset """
         return self.n_rows

@@ -51,7 +51,8 @@ void VirtualDataset::allocateFromSampleMask(
 }
 
 DirectDataset::DirectDataset(Dataset dataset) :
-    data(dataset.data), n_rows(dataset.n_rows), n_cols(dataset.n_cols) {}
+    data(static_cast<data_t*>(dataset.data)), // TODO : type erasure
+    n_rows(dataset.n_rows), n_cols(dataset.n_cols) {}
 
 DirectDataset::DirectDataset(data_t* data, size_t n_instances, size_t n_features) :
     data(data), n_rows(n_instances), n_cols(n_features) {}

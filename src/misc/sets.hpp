@@ -51,14 +51,14 @@ typedef std::shared_ptr<VirtualTargets> vtargets_p;
 
 // Data samples without target values
 struct Dataset {
-    data_t* data;
+    void* data;
     size_t n_rows;
     size_t n_cols;
 };
 
 // Data samples contained in a multi-dimensional dataset
 struct MDDataset {
-    data_t* data;
+    void* data;
     size_t n_dims;
     size_t dims[MAX_N_DIMS];
     int dtype;

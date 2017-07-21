@@ -28,7 +28,8 @@ extern "C" {
         config->task = scythe::CLASSIFICATION_TASK;
         config->max_n_features = dataset->n_cols;
         scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            dataset->data, dataset->n_rows, dataset->n_cols);
+            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+            dataset->n_rows, dataset->n_cols);
         scythe::DirectTargets* direct_targets = new scythe::DirectTargets(
             labels->data, dataset->n_rows);
         scythe::Density* densities = scythe::computeDensities(
@@ -52,7 +53,8 @@ extern "C" {
         config->task = scythe::REGRESSION_TASK;
         config->max_n_features = dataset->n_cols;
         scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            dataset->data, dataset->n_rows, dataset->n_cols);
+            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+            dataset->n_rows, dataset->n_cols);
         scythe::DirectTargets* direct_targets = new scythe::DirectTargets(
             targets->data, dataset->n_rows);
         scythe::Density* densities = scythe::computeDensities(
@@ -80,7 +82,8 @@ extern "C" {
         */
         scythe::Tree* tree = static_cast<scythe::Tree*>(tree_p);
         scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            dataset->data, dataset->n_rows, dataset->n_cols);
+            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+            dataset->n_rows, dataset->n_cols);
         float* predictions = classifyFromTree(direct_dataset, dataset->n_rows, dataset->n_cols,
             tree, config);
         return predictions;
@@ -102,7 +105,8 @@ extern "C" {
         */
         scythe::Tree* tree = static_cast<scythe::Tree*>(tree_p);
         scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            dataset->data, dataset->n_rows, dataset->n_cols);
+            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+            dataset->n_rows, dataset->n_cols);
         scythe::data_t* predictions = scythe::predict(direct_dataset, dataset->n_rows, dataset->n_cols, tree, config);
         return predictions;
     }
