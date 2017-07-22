@@ -20,6 +20,7 @@
 #include <string.h>
 #include <limits>
 
+#include "opt.hpp"
 #include "../misc/sets.hpp"
 #include "heuristics.hpp"
 #include "../densities/continuous.hpp"
@@ -102,9 +103,10 @@ struct Splitter {
     int             best_split_id;
     NodeSpace       node_space;
     bool            is_complete_random;
+    SplitManager*   split_manager;
 
     explicit Splitter(NodeSpace nodespace, TreeConfig* config, size_t n_instances,
-        size_t n_features, size_t* belongs_to, VirtualTargets* targets);
+        size_t n_features, size_t* belongs_to, VirtualTargets* targets, SplitManager* split_manager);
 };
 
 struct Tree {
@@ -123,7 +125,7 @@ NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 
 NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
-double getFeatureCost(Density* density, size_t n_classes);
+double getFeatureCost(const Density* const density, const size_t n_classes);
 
 void initRoot(Node* root, VirtualTargets* const targets, size_t n_instances, size_t n_classes);
 
@@ -169,6 +171,6 @@ inline float pow2(float probability) {
     return probability * probability;
 }
 
-}
+} // namespace
 
 #endif // CART_HPP_

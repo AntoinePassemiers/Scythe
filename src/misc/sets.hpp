@@ -33,6 +33,7 @@ constexpr int DTYPE_UINT_8  = 2;
 
 typedef unsigned int uint;
 typedef double       data_t;
+typedef float        fast_data_t;
 typedef double       target_t;
 typedef float        proba_t;
 typedef int          label_t;
@@ -73,7 +74,7 @@ struct Labels {
 
 class VirtualDataset {
 private:
-    data_t* contiguous_data = nullptr;
+    fast_data_t* contiguous_data = nullptr;
     size_t n_contiguous_items = 0;
 public:
     VirtualDataset() = default;
@@ -93,8 +94,8 @@ public:
     virtual size_t getNumVirtualInstancesPerInstance() = 0;
     virtual int getDataType() = 0;
 
-    void allocateFromSampleMask(size_t*, size_t, size_t, size_t, size_t);
-    data_t* retrieveContiguousData() { return contiguous_data; }
+    void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
+    fast_data_t* retrieveContiguousData() { return contiguous_data; }
 };
 
 

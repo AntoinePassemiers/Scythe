@@ -125,4 +125,4 @@ float* DeepForest::classify(MDDataset dataset) {
     return current_layer->classify(current_vdataset);
 }
 
-}
+}// namespace

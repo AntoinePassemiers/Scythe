@@ -87,6 +87,6 @@ public:
     virtual std::string getType() { return std::string("MultiGrainedScanner2D"); }
 };
 
-}
+} // namespace
 
 #endif // SCANNER2D_HPP_

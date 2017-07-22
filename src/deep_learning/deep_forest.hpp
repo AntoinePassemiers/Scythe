@@ -40,6 +40,6 @@ public:
     layer_p getFront() { return front; }
 };
 
-}
+} // namespace
 
 #endif // DEEP_FOREST_HPP_

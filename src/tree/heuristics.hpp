@@ -25,8 +25,26 @@
 
 namespace scythe {
 
+struct FeatureInfo {
+    size_t* ntimes_best;
+    size_t n_values;
+};
+
+class SplitManager {
+private:
+    size_t n_features;
+    std::vector<std::shared_ptr<FeatureInfo>> features;
+public:
+    SplitManager(Density* const densities, size_t n_densities);
+    SplitManager(const SplitManager&) = default;
+    SplitManager& operator=(const SplitManager&) = default;
+
+    void updateCurrentBestSplit(size_t feature_id, size_t split_id, double score);
+    bool shouldEvaluate(size_t feature_id, size_t split_id);
+};
+
 void selectFeaturesToConsider(size_t* to_use, size_t n_features, size_t max_n_features);
 
-}
+} // namespace
 
 #endif // HEURISTICS_HPP_

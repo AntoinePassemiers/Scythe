@@ -53,4 +53,4 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
     return densities;
 }
 
-}
+} // namespace

@@ -72,4 +72,4 @@ size_t CascadeLayer::getNumVirtualFeatures() {
     }
 }
 
-}
+} // namespace

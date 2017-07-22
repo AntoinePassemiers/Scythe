@@ -37,7 +37,7 @@ def main():
         n_iter         = 4,
         max_n_trees    = 4,
         max_n_features = 20,
-        max_depth      = 10)
+        max_depth      = 4)
     lconfig = LayerConfig(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     X_test, y_test = loadMNISTTestSet(location = sys.argv[1])

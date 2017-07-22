@@ -23,12 +23,23 @@ namespace scythe {
     inline omp_int_t omp_get_max_threads() { return 1; }
 #endif
 
-#ifdef defined(_POSIX_C_SOURCE) && defined(_OMP)
+#if defined(_POSIX_C_SOURCE) && defined(_OMP)
     #if _POSIX_C_SOURCE >= 200112L
         #define _MEM_ALIGN 1
     #endif
 #endif
 
-}
+// Portability of restrict qualifier, as suggested by Intel
+#if defined(__INTEL_COMPILER) && defined(USE_RESTRICT_OPTION)
+    #define RESTRICT restrict
+#elif defined(__GNUC__) && !defined(_WIN32) && !defined(__CYGWIN32__)
+    #define RESTRICT __restrict__
+#elif defined(_MSC_VER)
+    #define RESTRICT __restrict
+#else
+    #define RESTRICT
+#endif
+
+} // namespace
 
 #endif // OPT_HPP

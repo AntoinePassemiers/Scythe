@@ -115,4 +115,4 @@ size_t MultiGrainedScanner2D::getNumVirtualFeatures() {
     return n_vfeatures * lconfig.n_forests;
 }
 
-}
+} // namespace

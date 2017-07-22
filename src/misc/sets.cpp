@@ -12,7 +12,7 @@
 namespace scythe {
 
 void VirtualDataset::allocateFromSampleMask(
-    size_t* sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
+    size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     /**
         Allocate memory for storing temporary values of a single feature,
         for the data samples belonging to the current node.
@@ -31,19 +31,24 @@ void VirtualDataset::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    if (n_items > this->n_contiguous_items) { // TODO
+    if (n_items != this->n_contiguous_items) { // TODO
         if (contiguous_data != nullptr) {
             delete[] contiguous_data;
         }
-        contiguous_data = new data_t[n_items];
+        contiguous_data = new fast_data_t[n_items];
         this->n_contiguous_items = n_items;
     }
 
     uint k = 0;
     _iterator_begin(feature_id);
+    #ifdef _OMP
+        #pragma ivdep
+        #pragma ibm independent_loop
+        #pragma omp simd
+    #endif
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_data[k++] = _iterator_deref();
+            contiguous_data[k++] = static_cast<fast_data_t>(_iterator_deref());
         }
         _iterator_inc();
     }
@@ -99,7 +104,7 @@ void VirtualTargets::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    if (n_items > this->n_contiguous_items) { // TODO
+    if (n_items != this->n_contiguous_items) { // TODO
         if (contiguous_labels != nullptr) {
             delete[] contiguous_labels;
         }
