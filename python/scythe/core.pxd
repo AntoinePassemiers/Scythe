@@ -21,6 +21,12 @@ cdef extern from "../../src/misc/sets.hpp" namespace "scythe":
         size_t n_rows
         size_t n_cols
 
+    struct MDDataset:
+        void* data
+        size_t n_dims
+        size_t dims[7]
+        int dtype
+
     struct Labels:
         target_t* data
         size_t n_rows
@@ -70,6 +76,7 @@ cdef extern from "../../src/scythe.cpp":
     float* tree_classify(Dataset*, void*, TreeConfig*)
     data_t* tree_predict(Dataset*, void*, TreeConfig*)
     void* fit_classification_forest(Dataset*, Labels*, ForestConfig*)
+    float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config)
     void api_test(Dataset*)
 
 

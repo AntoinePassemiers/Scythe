@@ -2,9 +2,10 @@
 # rf_benchmark.py - Comparison with sklearn
 # author : Antoine Passemiers
 
-from core import * # TODO
+from scythe.core import *
 
 import time
+
 from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
 
@@ -24,13 +25,13 @@ def main():
         n_features = n_features, 
         n_classes  = n_classes)
 
-    X_train = Dataset(X[:n_samples])
-    y_train = Labels(y[:n_samples])
+    X_train = X[:n_samples]
+    y_train = y[:n_samples]
 
-    X_test = Dataset(X[n_samples:])
-    y_test = Labels(y[n_samples:])    
+    X_test = X[n_samples:]
+    y_test = y[n_samples:]
 
-    fconfig = ForestConfig()
+    fconfig = ForestConfiguration()
     fconfig.n_classes = n_classes
     fconfig.n_iter    = n_estimators
     fconfig.bag_size  = 10000

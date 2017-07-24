@@ -14,6 +14,8 @@ from libc.stdio cimport *
 from libc.string cimport *
 from cython cimport view
 
+from libcpp.limits cimport numeric_limits
+
 
 target_np = np.double
 data_np = np.double
@@ -47,6 +49,9 @@ DTYPE_UINT_8 = 2
 
 CLASSIFICATION = "classification"
 REGRESSION     = "regression"
+RF_FOREST  = ["random forest", "rf"]
+CRF_FOREST = ["complete random forest", "crf"]
+GB_FOREST  = ["gradient boosting", "gb"]
 
 
 cdef Dataset to_dataset(object X):
@@ -55,6 +60,16 @@ cdef Dataset to_dataset(object X):
     dataset.n_rows = np_data.shape[0]
     dataset.n_cols = np_data.shape[1]
     dataset.data = <data_t*>np_data.data
+    return dataset
+
+cdef MDDataset to_md_dataset(object X):
+    cdef MDDataset dataset
+    cdef cnp.ndarray np_data = np.ascontiguousarray(X, dtype = data_np)
+    dataset.dtype = DTYPE_UINT_8 if X.dtype == np.uint8 else DTYPE_DATA
+    dataset.data = <data_t*>np_data.data
+    dataset.n_dims = np_data.ndim
+    for i in range(7):
+        dataset.dims[i] = np_data.shape[i] if i < dataset.n_dims else 0
     return dataset
 
 cdef Labels to_labels(object y):
@@ -125,6 +140,101 @@ cdef class TreeConfiguration:
         def __set__(self, value): self.config.is_complete_random = value
 
 
+cdef class ForestConfiguration:
+    cdef ForestConfig config
+
+    def __init__(self):
+        self.config.type = RANDOM_FOREST
+        self.config.task = CLASSIFICATION_TASK
+        self.config.n_classes = 2
+        self.config.score_metric = MLOG_LOSS
+        self.config.n_iter = 100
+        self.config.max_n_trees = 100
+        self.config.max_n_nodes = <size_t>1e+15
+        self.config.max_n_features = 9999
+        self.config.n_leaves = <size_t>1e+15
+        self.config.n_jobs = 1
+        self.config.n_samples_per_leaf = 1
+        self.config.regularization = REG_L1
+        self.config.bag_size = <size_t>1e+15
+        self.config.early_stopping_round = 300
+        self.config.boosting_method = GRADIENT_BOOSTING
+        self.config.max_depth = <size_t>1e+15
+        self.config.l1_lambda = 0.1
+        self.config.l2_lambda = 0.1
+        self.config.seed = 4.0
+        self.config.verbose = True
+        self.config.nan_value = numeric_limits[data_t].quiet_NaN()
+        self.config.min_threshold = 1e-06
+
+    cpdef ForestConfig get_c_config(self):
+        return self.config
+
+    property type:
+        def __get__(self): return self.config.type
+        def __set__(self, value): self.config.type = value
+    property task:
+        def __get__(self): return self.config.task
+        def __set__(self, value): self.config.task = value
+    property n_classes:
+        def __get__(self): return self.config.n_classes
+        def __set__(self, value): self.config.n_classes = value
+    property score_metric:
+        def __get__(self): return self.config.score_metric
+        def __set__(self, value): self.config.score_metric = value
+    property max_n_trees:
+        def __get__(self): return self.config.max_n_trees
+        def __set__(self, value): self.config.max_n_trees = self.config.n_iter = value
+    property max_n_nodes:
+        def __get__(self): return self.config.max_n_nodes
+        def __set__(self, value): self.config.max_n_nodes = value
+    property max_n_features:
+        def __get__(self): return self.config.max_n_features
+        def __set__(self, value): self.config.max_n_features = value
+    property n_leaves:
+        def __get__(self): return self.config.n_leaves
+        def __set__(self, value): self.config.n_leaves = value
+    property n_jobs:
+        def __get__(self): return self.config.n_jobs
+        def __set__(self, value): self.config.n_jobs = value
+    property n_samples_per_leaf:
+        def __get__(self): return self.config.n_samples_per_leaf
+        def __set__(self, value): self.config.n_samples_per_leaf = value
+    property regularization:
+        def __get__(self): return self.config.regularization
+        def __set__(self, value): self.config.regularization = value
+    property bag_size:
+        def __get__(self): return self.config.bag_size
+        def __set__(self, value): self.config.bag_size = value
+    property early_stopping_round:
+        def __get__(self): return self.config.early_stopping_round
+        def __set__(self, value): self.config.early_stopping_round = value
+    property boosting_method:
+        def __get__(self): return self.config.boosting_method
+        def __set__(self, value): self.config.boosting_method = value
+    property max_depth:
+        def __get__(self): return self.config.max_depth
+        def __set__(self, value): self.config.max_depth = value
+    property l1_lambda:
+        def __get__(self): return self.config.l1_lambda
+        def __set__(self, value): self.config.l1_lambda = value
+    property l2_lambda:
+        def __get__(self): return self.config.l2_lambda
+        def __set__(self, value): self.config.l2_lambda = value
+    property seed:
+        def __get__(self): return self.config.seed
+        def __set__(self, value): self.config.seed = value
+    property verbose:
+        def __get__(self): return self.config.verbose
+        def __set__(self, value): self.config.verbose = value
+    property nan_value:
+        def __get__(self): return self.config.nan_value
+        def __set__(self, value): self.config.nan_value = value
+    property min_threshold:
+        def __get__(self): return self.config.min_threshold
+        def __set__(self, value): self.config.min_threshold = value
+
+
 cdef class Tree:
     cdef char* task
     cdef TreeConfig config
@@ -158,6 +268,64 @@ cdef class Tree:
                 tree_classify(&dataset, self.predictor_p, &self.config),
                 n_rows, n_classes)
         return preds
+
+
+cdef class Forest:
+    cdef char* task
+    cdef char* forest_type
+    cdef ForestConfig config
+    cdef void* predictor_p
+
+    def __init__(self, cy_config, task, forest_type):
+        self.task = task
+        cdef object lowered_forest_type = forest_type.lower()
+        self.forest_type = lowered_forest_type
+        self.config = cy_config.get_c_config()
+        if self.forest_type in RF_FOREST:
+            self.config.type = RANDOM_FOREST
+        elif forest_type in CRF_FOREST:
+            self.config.type = COMPLETE_RANDOM_FOREST
+        else:
+            self.config.type = GRADIENT_BOOSTING
+    def fit(self, X, y):
+        dataset = to_dataset(X)
+        labels = to_labels(y)
+        if self.task == REGRESSION:
+            raise NotImplementedError()
+        else:
+            self.predictor_p = fit_classification_forest(
+                &dataset, &labels, &self.config)
+    def predict(self, X):
+        dataset = to_dataset(X)
+        n_classes = self.config_p.n_classes
+        n_rows = len(X)
+        if self.task == REGRESSION:
+            raise NotImplementedError()
+        else:
+            n_classes = self.config.n_classes
+            preds = ptr_to_cls_predictions(
+                forest_classify(&dataset, self.predictor_p, &self.config),
+                n_rows, n_classes)
+        return preds
+
+    """
+    def predict(self, X):
+        if not isinstance(X, Dataset):
+            X = MDDataset(X)
+        n_classes = self.config_p.n_classes
+        n_rows = len(X)
+        if self.task == REGRESSION:
+            raise NotImplementedError()
+        else:
+            n_classes = self.config_p.n_classes
+            preds_addr = scythe.forest_classify(
+                ctypes.byref(X),
+                ctypes.c_void_p(self.predictor_p),
+                ctypes.byref(self.config_p))
+            preds_p = ctypes.cast(preds_addr, c_float_p)
+            preds = np.ctypeslib.as_array(preds_p, shape = (n_rows, n_classes))
+        return preds
+    """
 
 
 def py_api_test():
