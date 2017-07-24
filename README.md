@@ -14,8 +14,54 @@ The idea is partly inspired by the [original deep forest article](https://arxiv.
 
 ![alt text](https://raw.githubusercontent.com/AntoinePassemiers/Scythe/master/doc/imgs/gcForest.png)
 
+How to use it
+-------------
+
+From the root, build the library by taping the following commands:
+
+```sh
+	$ cd python
+    $ sudo python setup.py install
+```
+
+Fitting a single tree
+
+```python
+	from scythe.core import *
+
+	config = TreeConfiguration()
+	config.is_incremental = False
+	config.min_threshold = 1e-06
+	config.max_height = 50
+	config.n_classes = 3
+	config.max_nodes = 30
+	config.partitioning = PERCENTILE_PARTITIONING
+	config.nan_value = -1.0
+
+	tree = Tree(config, "classification")
+	tree.fit(X_train, y_train)
+	probas = tree.predict(X_test)
+```
+
+Fitting a random forest
+
+```python
+	fconfig = ForestConfiguration()
+	fconfig.n_classes = 2
+	fconfig.max_n_trees = 500
+	fconfig.bag_size  = 10000
+	fconfig.max_depth = 50
+	fconfig.max_n_features = 20
+
+	forest = Forest(fconfig, "classification", "random forest")
+	forest.fit(X_train, y_train)
+	probas = forest.predict(X_test)
+```
+	
+	
 ### Todo
 
+- [ ] Create a R wrapper
 - [ ] Handle sparse matrices and arrays
 - [ ] Use float32 data samples instead of doubles
 - [ ] Skip the evaluation of data samples that already fell to the left of the previous split value (CART)
@@ -27,5 +73,4 @@ The idea is partly inspired by the [original deep forest article](https://arxiv.
 - [ ] Use gradient boosting ?
 - [ ] Adapt random forests code for regression tasks
 - [x] Proper setup.py file
-- [ ] Proper Makefile: fix fPIC error for Linux users
 - [x] Python wrapper of the LayerConfig structure
