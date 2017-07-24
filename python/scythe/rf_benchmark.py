@@ -2,7 +2,7 @@
 # rf_benchmark.py - Comparison with sklearn
 # author : Antoine Passemiers
 
-from scythe.core import * # TODO
+from core import * # TODO
 
 import time
 from sklearn.datasets import make_classification
@@ -17,6 +17,7 @@ def main():
     max_n_features = 20
     max_depth = 20
     n_estimators = 10
+    min_threshold = 1e-07
 
     X, y = make_classification(
         n_samples  = 2 * n_samples, 
@@ -35,6 +36,7 @@ def main():
     fconfig.bag_size  = 10000
     fconfig.max_depth = max_depth - 8
     fconfig.max_n_features = max_n_features
+    fconfig.min_threshold = min_threshold
 
     forest = Forest(fconfig, "classification", "random forest")
     t0 = time.time()
@@ -47,7 +49,8 @@ def main():
         criterion = "gini",
         max_features = max_n_features,
         max_depth = max_depth,
-        n_estimators = n_estimators)
+        n_estimators = n_estimators,
+        min_impurity_split = min_threshold)
     t0 = time.time()
     forest.fit(X[:n_samples], y[:n_samples])
     predictions = forest.predict(X[n_samples:])
@@ -90,14 +93,17 @@ def convForest():
     fconfig.n_classes = n_classes
     fconfig.n_iter    = 5
     fconfig.bag_size  = 1000
-    fconfig.max_depth = 10
+    fconfig.max_depth = 30
     fconfig.max_n_features = max_n_features
-    lconfig = LayerConfig(fconfig, 2, COMPLETE_RANDOM_FOREST)
+    lconfig = LayerConfig(fconfig, 2, RANDOM_FOREST)
+
 
     forest = DeepForest(task = "classification")
     forest.add(MultiGrainedScanner2D(lconfig, (10, 10)))
     forest.add(CascadeLayer(lconfig))
     # forest.add(CascadeLayer(lconfig))
+
+
     forest.fit(X_train, y_train)
     print("Deep forest grown")
     predictions = forest.classify(X_test)
@@ -121,6 +127,6 @@ def convForest():
 
 
 if __name__ == "__main__":
-    # convForest()
-    main()
+    convForest()
+    # main()
     print("Finished")

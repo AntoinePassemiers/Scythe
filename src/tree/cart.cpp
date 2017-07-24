@@ -350,21 +350,21 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
             int new_right_bounds[2] = { 
                 best_splitter.best_split_id,
                 current_node_space.feature_right_bounds[best_feature]};
-            for (uint i = 0; i < 2; i++) {
-                dataset->_iterator_begin(best_feature);
-                #ifdef _OMP
-                    #pragma omp simd
-                #endif
-                for (uint j = 0; j < n_instances; j++) {
-                    bool is_child_left = static_cast<bool>(i);
-                    bool is_on_the_left = (dataset->_iterator_deref() < split_value) ? 1 : 0;
-                    if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
-                        if (is_on_the_left ^ is_child_left) {
-                            belongs_to[j] = tree->n_nodes;
-                        }
-                    }
-                    dataset->_iterator_inc();
+
+            dataset->_iterator_begin(best_feature);
+            #ifdef _OMP
+                #pragma omp simd
+            #endif
+            for (uint j = 0; j < n_instances; j++) {
+                if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
+                    // Left child  : belongs_to[j] = tree->n_nodes
+                    // Right child : belongs_to[j] = tree->n_nodes + 1
+                    belongs_to[j] = tree->n_nodes + (dataset->_iterator_deref() >= split_value);
                 }
+                dataset->_iterator_inc();
+            }
+
+            for (uint i = 0; i < 2; i++) {
                 child_node = &new_children[i];
                 child_node->id = static_cast<int>(tree->n_nodes);
                 child_node->split_value = split_value;

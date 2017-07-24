@@ -35,6 +35,8 @@ extern "C" {
     scythe::data_t* tree_predict(scythe::Dataset*, void*, scythe::TreeConfig*);
 
     void* fit_classification_forest(scythe::Dataset*, scythe::Labels*, scythe::ForestConfig*);
+
+    void api_test() { std::cout << "C interface ok !"; }
 }
 
 #endif // SCYTHE_HPP_

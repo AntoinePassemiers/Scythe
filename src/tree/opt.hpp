@@ -14,7 +14,7 @@
 
 namespace scythe {
 
-#if defined(_OPENMP)
+#if defined(_OPENMP) && 0 // TODO
     #include <omp.h>
     #define _OMP _OPENMP
 #else
@@ -39,6 +39,9 @@ namespace scythe {
 #else
     #define RESTRICT
 #endif
+
+// Clause 5.2.9 of the C++ international standard (see also : 4.12.1)
+static_assert((8 > 4) == static_cast<size_t>(1), "Bool to int conversion issue");
 
 } // namespace
 

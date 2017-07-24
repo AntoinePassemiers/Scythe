@@ -4,7 +4,7 @@
 
 import abc
 
-from scythe.structures import *
+from structures import *
 
 
 class Layer(object):

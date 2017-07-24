@@ -1,5 +1,5 @@
 CC           :=  g++
-FLAGS        :=  -std=c++14 -Iinclude
+FLAGS        :=  -std=c++14 -Iinclude -fPIC
 CFLAGS       :=  -ggdb3 -Wpedantic -Wall -Wextra -Wconversion -Weffc++ -Wstrict-null-sentinel -Wold-style-cast -Wnoexcept -Wctor-dtor-privacy -Woverloaded-virtual -Wsign-promo -Wzero-as-null-pointer-constant -Wconversion -pthread 
 CFLAGS       +=  -O3 -ftree-loop-optimize -ftree-vectorize -funroll-loops -ftree-vectorizer-verbose=1
 CPPFLAGS     :=  -g -fopenmp -fopenmp-simd
@@ -9,7 +9,7 @@ RELEASEFLAGS :=  -O3 -D NDEBUG -combine -fwhole-program
 NAME         :=  scythe
 
 ifeq ($(OS),Windows_NT)
-	TARGET = $(NAME).lib
+	TARGET = $(NAME).dll
 else
 	TARGET = $(NAME).so
 endif

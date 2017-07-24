@@ -7,7 +7,8 @@ import ctypes
 
 # Load the C interfaces
 # scythe = ctypes.cdll.LoadLibrary("scythe.lib")
-scythe = ctypes.cdll.LoadLibrary("../src/scythe.lib")
+# TODO
+scythe = ctypes.cdll.LoadLibrary("C://Users/Xanto183/git/Scythe/src/scythe.dll")
 
 # C types
 c_int_p        = ctypes.POINTER(ctypes.c_int)
@@ -91,7 +92,7 @@ class Dataset(ctypes.Structure):
         self.n_rows = self.np_data.shape[0]
         self.n_cols = self.np_data.shape[1]
         # Retrieving the pointer to the first element
-        self.data = ctypes.c_void_p(self.np_data.ctypes.data_as(data_p))
+        self.data = self.np_data.ctypes.data_as(ctypes.c_void_p)
     def __len__(self):
         """ Return the size / number of rows of the dataset """
         return self.n_rows
@@ -271,7 +272,8 @@ class ForestConfig(ctypes.Structure):
         ("l2_lambda", ctypes.c_float),
         ("seed", ctypes.c_float),
         ("verbose", ctypes.c_int),
-        ("nan_value", ctypes.c_double)]
+        ("nan_value", ctypes.c_double),
+        ("min_threshold", ctypes.c_double)]
 
     def __init__(self, ftype = RANDOM_FOREST, task = CLASSIFICATION_TASK,
                  n_classes = 2, score_metric = MLOG_LOSS, n_iter = 100,

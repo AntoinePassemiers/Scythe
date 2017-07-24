@@ -9,8 +9,6 @@
 #ifndef FOREST_HPP_
 #define FOREST_HPP_
 
-#include <pthread.h>
-
 #include "../metrics/metrics.hpp"
 #include "../tree/cart.hpp"
 #include "../densities/continuous.hpp"
@@ -19,14 +17,6 @@
 
 
 namespace scythe {
-
-#if defined(_OPENMP)
-    #include <omp.h>
-#else
-    typedef int omp_int_t;
-    inline omp_int_t omp_get_thread_num() { return 0; }
-    inline omp_int_t omp_get_max_threads() { return 1; }
-#endif
 
 // Regularization method
 constexpr int REG_L1 = 0x778C10;
@@ -64,6 +54,7 @@ struct ForestConfig {
     float     seed                 = 4.f;
     int       verbose              = true;
     data_t    nan_value            = std::numeric_limits<data_t>::quiet_NaN();
+    double    min_threshold        = 1e-06;
 };
 
 class Forest {
@@ -94,7 +85,7 @@ public:
             base_tree_config.nan_value = config->nan_value;
             base_tree_config.n_classes = config->n_classes;
             base_tree_config.is_incremental = false;
-            base_tree_config.min_threshold = 1e-06;
+            base_tree_config.min_threshold = config->min_threshold;
             base_tree_config.max_height = config->max_depth;
             base_tree_config.max_nodes = config->max_n_nodes;
             base_tree_config.max_n_features = config->max_n_features;

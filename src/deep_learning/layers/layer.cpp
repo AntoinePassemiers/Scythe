@@ -94,4 +94,4 @@ std::ostream& operator<<(std::ostream& os, Layer* const layer) {
     return os << "" << std::endl; // TODO
 }
 
-}
+} // namespace

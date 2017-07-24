@@ -4,8 +4,8 @@
 
 import abc
 
-from scythe.functions import *
-from scythe.layers import *
+from functions import *
+from layers import *
 
 REGRESSION     = "regression"
 CLASSIFICATION = "classification"

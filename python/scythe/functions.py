@@ -2,7 +2,7 @@
 # structures.py : Function signatures from the C-API
 # author : Antoine Passemiers
 
-from scythe.structures import *
+from structures import *
 
 
 scythe.c_create_deep_forest.restype = ctypes.c_size_t

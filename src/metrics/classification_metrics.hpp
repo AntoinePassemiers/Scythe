@@ -64,7 +64,7 @@ public:
                             static_cast<double>(prob),
                             1.0 - this->stability_threshold), 
                         this->stability_threshold);
-                    loss -= std::log(prob);
+                    loss -= log(prob);
                 }
             }
         }

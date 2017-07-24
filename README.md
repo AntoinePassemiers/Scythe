@@ -26,6 +26,6 @@ The idea is partly inspired by the [original deep forest article](https://arxiv.
 - [ ] Set the minimum number of instances per leaf as a parameter (CART)
 - [ ] Use gradient boosting ?
 - [ ] Adapt random forests code for regression tasks
-- [ ] Proper setup.py file
+- [x] Proper setup.py file
 - [ ] Proper Makefile: fix fPIC error for Linux users
 - [x] Python wrapper of the LayerConfig structure

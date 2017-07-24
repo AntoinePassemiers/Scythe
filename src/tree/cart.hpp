@@ -10,7 +10,6 @@
 #define CART_HPP_
 
 #include <cassert>
-#include <cmath>
 #include <math.h>
 #include <numeric>
 #include <queue>
