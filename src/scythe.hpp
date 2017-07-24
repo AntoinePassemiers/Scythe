@@ -35,9 +35,12 @@ extern "C" {
 
     data_t* tree_predict(Dataset*, void*, TreeConfig*);
 
-    void* fit_classification_forest(scythe::Dataset*, Labels*, ForestConfig*);
+    void* fit_classification_forest(Dataset*, Labels*, ForestConfig*);
 
-    void api_test(Dataset*) { std::cout << "C interface ok !"; }
+    void api_test(Dataset* dataset) { 
+        assert(dataset->n_rows == 42);
+        std::cout << "C interface ok !" << std::endl;
+    }
 }
 
 #endif // SCYTHE_HPP_

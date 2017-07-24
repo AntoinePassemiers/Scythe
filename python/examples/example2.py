@@ -2,12 +2,12 @@
 # example.py : Scythe example of use
 # author : Antoine Passemiers
 
-from core import * # TODO
+from scythe.core import *
 
 if __name__ == "__main__":
 
     # TREE CONFIGURATION
-    config = TreeConfig()
+    config = TreeConfiguration()
     config.is_incremental = False
     config.min_threshold = 1e-06
     config.max_height = 50
@@ -37,14 +37,10 @@ if __name__ == "__main__":
     y_train = np.array([0, 0, 1, 1, 2, 0, 1, 2, 2, 1, 1, 1, 1, 0])
     X_test = X_train
 
-    dataset = Dataset(X_train)
-    labels  = Labels(y_train)
-    testset = Dataset(X_test)
-
     # CLASSIFICATION TREE
     tree = Tree(config, "classification")
-    tree.fit(dataset, labels)
-    preds = tree.predict(dataset)
+    tree.fit(X_train, y_train)
+    preds = tree.predict(X_test)
     print("\n%s" % preds)
 
     """

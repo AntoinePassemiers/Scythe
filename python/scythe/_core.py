@@ -121,35 +121,3 @@ class Forest(Model):
             preds_p = ctypes.cast(preds_addr, c_float_p)
             preds = np.ctypeslib.as_array(preds_p, shape = (n_rows, n_classes))
         return preds
-
-
-class DeepForest:
-    def __init__(self, task = "classification"):
-        assert(task in [REGRESSION, CLASSIFICATION])
-        self.n_classes = 0
-        self.task = task
-        d = CLASSIFICATION_TASK if (self.task == CLASSIFICATION) else REGRESSION_TASK
-        self.deep_forest_id = scythe.c_create_deep_forest(ctypes.c_int(d))
-    def add(self, layer):
-        # assert(isinstance(layer, Layer))
-        layer.addToGraph(self.deep_forest_id)
-        self.n_classes = layer.lconfig.fconfig.n_classes
-    def fit(self, X, y):
-        if not isinstance(X, MDDataset):
-            X = MDDataset(X)
-        if not isinstance(y, Labels):
-            y = Labels(y)
-        scythe.c_fit_deep_forest(
-            X,
-            ctypes.byref(y),
-            ctypes.c_size_t(self.deep_forest_id))
-    def classify(self, X):
-        if not isinstance(X, MDDataset):
-            X = MDDataset(X)
-        n_instances, n_classes = X.dims[0], self.n_classes
-        preds_addr = scythe.c_deep_forest_classify(
-            X,
-            ctypes.c_size_t(self.deep_forest_id))
-        preds_p = ctypes.cast(preds_addr, c_float_p)
-        preds = np.ctypeslib.as_array(preds_p, shape = (n_instances, n_classes))
-        return preds
