@@ -8,12 +8,14 @@
 
 #include "scythe.hpp"
 
+using namespace scythe;
+
 extern "C" {
 
     /* TREE API */
 
     void* fit_classification_tree(
-        scythe::Dataset* dataset, scythe::Labels* labels, scythe::TreeConfig* config) {
+        Dataset* dataset, Labels* labels, TreeConfig* config) {
         /**
             Grows a classification tree and returns it as a void*
 
@@ -25,20 +27,20 @@ extern "C" {
                 Parameters of the classification tree
             @return Pointer to the new tree
         */
-        config->task = scythe::CLASSIFICATION_TASK;
+        config->task = CLASSIFICATION_TASK;
         config->max_n_features = dataset->n_cols;
-        scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+        DirectDataset* direct_dataset = new DirectDataset(
+            static_cast<data_t*>(dataset->data), // TODO : type erasure
             dataset->n_rows, dataset->n_cols);
-        scythe::DirectTargets* direct_targets = new scythe::DirectTargets(
+        DirectTargets* direct_targets = new DirectTargets(
             labels->data, dataset->n_rows);
-        scythe::Density* densities = scythe::computeDensities(
+        Density* densities = computeDensities(
             direct_dataset, config->n_classes, config->nan_value, config->partitioning);
-        return static_cast<void*>(scythe::CART(direct_dataset, direct_targets, config, densities));
+        return static_cast<void*>(CART(direct_dataset, direct_targets, config, densities));
     }
 
     void* fit_regression_tree(
-        scythe::Dataset* dataset, scythe::Labels* targets, scythe::TreeConfig* config) {
+        Dataset* dataset, Labels* targets, TreeConfig* config) {
         /**
             Grows a regression tree and returns it as a void*
 
@@ -50,21 +52,21 @@ extern "C" {
                 Parameters of the regression tree
             @return Pointer to the new tree
         */
-        config->task = scythe::REGRESSION_TASK;
+        config->task = REGRESSION_TASK;
         config->max_n_features = dataset->n_cols;
-        scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+        DirectDataset* direct_dataset = new DirectDataset(
+            static_cast<data_t*>(dataset->data), // TODO : type erasure
             dataset->n_rows, dataset->n_cols);
-        scythe::DirectTargets* direct_targets = new scythe::DirectTargets(
+        DirectTargets* direct_targets = new DirectTargets(
             targets->data, dataset->n_rows);
-        scythe::Density* densities = scythe::computeDensities(
+        Density* densities = computeDensities(
             direct_dataset, config->n_classes, config->nan_value, config->partitioning);
-        return static_cast<void*>(scythe::CART(
+        return static_cast<void*>(CART(
             direct_dataset, direct_targets, config, densities));
     }
 
     float* tree_classify(
-        scythe::Dataset* dataset, void* tree_p, scythe::TreeConfig* config) {
+        Dataset* dataset, void* tree_p, TreeConfig* config) {
         /**
             Classifies new data instances and estimates the probability of
             belonging to each of the classes. The probabilites are returned
@@ -80,17 +82,17 @@ extern "C" {
                 shape : (n_instances, n_features)
                 order : C
         */
-        scythe::Tree* tree = static_cast<scythe::Tree*>(tree_p);
-        scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+        Tree* tree = static_cast<Tree*>(tree_p);
+        DirectDataset* direct_dataset = new DirectDataset(
+            static_cast<data_t*>(dataset->data), // TODO : type erasure
             dataset->n_rows, dataset->n_cols);
         float* predictions = classifyFromTree(direct_dataset, dataset->n_rows, dataset->n_cols,
             tree, config);
         return predictions;
     }
 
-    scythe::data_t* tree_predict(
-        scythe::Dataset* dataset, void* tree_p, scythe::TreeConfig* config) {
+    data_t* tree_predict(
+        Dataset* dataset, void* tree_p, TreeConfig* config) {
         /**
             Predicts outputs based on new data instances.
             The predictions are returned as a pointer to data_t.
@@ -103,18 +105,18 @@ extern "C" {
                 Parameters of the classification tree
             @return Predictions
         */
-        scythe::Tree* tree = static_cast<scythe::Tree*>(tree_p);
-        scythe::DirectDataset* direct_dataset = new scythe::DirectDataset(
-            static_cast<scythe::data_t*>(dataset->data), // TODO : type erasure
+        Tree* tree = static_cast<Tree*>(tree_p);
+        DirectDataset* direct_dataset = new DirectDataset(
+            static_cast<data_t*>(dataset->data), // TODO : type erasure
             dataset->n_rows, dataset->n_cols);
-        scythe::data_t* predictions = scythe::predict(direct_dataset, dataset->n_rows, dataset->n_cols, tree, config);
+        data_t* predictions = predict(direct_dataset, dataset->n_rows, dataset->n_cols, tree, config);
         return predictions;
     }
 
     /* FOREST API */
 
     void* fit_classification_forest(
-        scythe::Dataset* dataset, scythe::Labels* labels, scythe::ForestConfig* config) {
+        Dataset* dataset, Labels* labels, ForestConfig* config) {
         /**
             Fits a classification, based on the training set 
             and the labels, and returns it as a pointer to void.
@@ -127,40 +129,40 @@ extern "C" {
                 Parameters of the classification forest
             @return Pointer to the new forest
         */
-        scythe::Forest* forest;
-        if (config->type == scythe::RANDOM_FOREST) {
-            forest = new scythe::ClassificationRF(config, dataset->n_rows, dataset->n_cols);
+        Forest* forest;
+        if (config->type == RANDOM_FOREST) {
+            forest = new ClassificationRF(config, dataset->n_rows, dataset->n_cols);
         }
-        else if (config->type == scythe::GB_FOREST) {
+        else if (config->type == GB_FOREST) {
             // forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
             std::cout << "Error: gradient boosting is not supported" << std::endl;
         }
-        else if (config->type == scythe::COMPLETE_RANDOM_FOREST) {
-            forest = new scythe::ClassificationCompleteRF(config, dataset->n_rows, dataset->n_cols);
+        else if (config->type == COMPLETE_RANDOM_FOREST) {
+            forest = new ClassificationCompleteRF(config, dataset->n_rows, dataset->n_cols);
         }
         else {
             std::cout << "Error: this type of forest does not exist" << std::endl;
         }
-        scythe::DirectDataset* vdataset = new scythe::DirectDataset(*dataset);
-        scythe::DirectTargets* vtargets = new scythe::DirectTargets(labels->data, dataset->n_rows);
+        DirectDataset* vdataset = new DirectDataset(*dataset);
+        DirectTargets* vtargets = new DirectTargets(labels->data, dataset->n_rows);
         forest->fit(vdataset, vtargets);
         return static_cast<void*>(forest);
     }
 
     float* forest_classify(
-        scythe::Dataset* dataset, void* forest_p, scythe::ForestConfig* config) {
+        Dataset* dataset, void* forest_p, ForestConfig* config) {
         float* probabilites;
-        scythe::ClassificationForest* forest;
-        if (config->type == scythe::RANDOM_FOREST) {
-            forest = static_cast<scythe::ClassificationRF*>(forest_p);
+        ClassificationForest* forest;
+        if (config->type == RANDOM_FOREST) {
+            forest = static_cast<ClassificationRF*>(forest_p);
         }
-        else if (config->type == scythe::GB_FOREST) {
+        else if (config->type == GB_FOREST) {
             std::cout << "Error: GB predict function is not implemented" << std::endl;
         }
         else {
-            forest = static_cast<scythe::ClassificationCompleteRF*>(forest_p);
+            forest = static_cast<ClassificationCompleteRF*>(forest_p);
         }
-        scythe::DirectDataset* vdataset = new scythe::DirectDataset(*dataset);
+        DirectDataset* vdataset = new DirectDataset(*dataset);
         probabilites = forest->classify(vdataset);
         return probabilites;
     }

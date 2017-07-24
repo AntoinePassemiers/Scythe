@@ -8,6 +8,7 @@
 
 #include "continuous.hpp"
 
+#include <algorithm>
 
 namespace scythe {
 

@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 # distutils: language=c++
 
-cdef extern from "../../src/scythe.hpp":
-    struct Dataset:
+
+cdef extern from "../../src/tree/cart.hpp" namespace "scythe":
+    cdef struct TreeConfig:
         pass
-    struct Labels:
+
+cdef extern from "../../src/misc/sets.hpp" namespace "scythe":
+    cdef struct Dataset:
         pass
-    struct TreeConfig:
+    cdef struct Labels:
         pass
-    void* fit_classification_tree(Dataset*, Labels*, TreeConfig*)
-    void api_test()
+
+cdef extern from "../../src/scythe.cpp":
+    # void* fit_classification_tree(Dataset*, Labels*, TreeConfig*)
+    void api_test(Dataset*)

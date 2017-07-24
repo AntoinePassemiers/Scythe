@@ -24,19 +24,20 @@
 #include "forest/regression_complete_rf.hpp"
 
 
+using namespace scythe;
 
 extern "C" {
-    void* fit_classification_tree(scythe::Dataset*, scythe::Labels*, scythe::TreeConfig*);
+    void* fit_classification_tree(Dataset*, Labels*, TreeConfig*);
 
-    void* fit_regression_tree(scythe::Dataset*, scythe::Labels*, scythe::TreeConfig*);
+    void* fit_regression_tree(Dataset*, Labels*, TreeConfig*);
 
-    float* tree_classify(scythe::Dataset*, void*, scythe::TreeConfig*);
+    float* tree_classify(Dataset*, void*, TreeConfig*);
 
-    scythe::data_t* tree_predict(scythe::Dataset*, void*, scythe::TreeConfig*);
+    data_t* tree_predict(Dataset*, void*, TreeConfig*);
 
-    void* fit_classification_forest(scythe::Dataset*, scythe::Labels*, scythe::ForestConfig*);
+    void* fit_classification_forest(scythe::Dataset*, Labels*, ForestConfig*);
 
-    void api_test() { std::cout << "C interface ok !"; }
+    void api_test(Dataset*) { std::cout << "C interface ok !"; }
 }
 
 #endif // SCYTHE_HPP_

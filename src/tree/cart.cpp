@@ -195,10 +195,10 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
             y = (*targets)[j];
             // if (data_point == splitter->nan_value) {}
             if (data_point >= split_value) {
-                cost += std::abs(mean_right - y); // TODO : use squared error ?
+                cost += abs(mean_right - y); // TODO : use squared error ?
             }
             else {
-                cost += std::abs(mean_left - y); // TODO : use squared error ?
+                cost += abs(mean_left - y); // TODO : use squared error ?
             }
         }
     }
