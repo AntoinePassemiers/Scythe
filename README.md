@@ -20,42 +20,42 @@ How to use it
 From the root, build the library by taping the following commands:
 
 ```sh
-	$ cd python
-    $ sudo python setup.py install
+$ cd python
+$ sudo python setup.py install
 ```
 
 Fitting a single tree
 
 ```python
-	from scythe.core import *
+from scythe.core import *
 
-	config = TreeConfiguration()
-	config.is_incremental = False
-	config.min_threshold = 1e-06
-	config.max_height = 50
-	config.n_classes = 3
-	config.max_nodes = 30
-	config.partitioning = PERCENTILE_PARTITIONING
-	config.nan_value = -1.0
+config = TreeConfiguration()
+config.is_incremental = False
+config.min_threshold = 1e-06
+config.max_height = 50
+config.n_classes = 3
+config.max_nodes = 30
+config.partitioning = PERCENTILE_PARTITIONING
+config.nan_value = -1.0
 
-	tree = Tree(config, "classification")
-	tree.fit(X_train, y_train)
-	probas = tree.predict(X_test)
+tree = Tree(config, "classification")
+tree.fit(X_train, y_train)
+probas = tree.predict(X_test)
 ```
 
 Fitting a random forest
 
 ```python
-	fconfig = ForestConfiguration()
-	fconfig.n_classes = 2
-	fconfig.max_n_trees = 500
-	fconfig.bag_size  = 10000
-	fconfig.max_depth = 50
-	fconfig.max_n_features = 20
+fconfig = ForestConfiguration()
+fconfig.n_classes = 2
+fconfig.max_n_trees = 500
+fconfig.bag_size  = 10000
+fconfig.max_depth = 50
+fconfig.max_n_features = 20
 
-	forest = Forest(fconfig, "classification", "random forest")
-	forest.fit(X_train, y_train)
-	probas = forest.predict(X_test)
+forest = Forest(fconfig, "classification", "random forest")
+forest.fit(X_train, y_train)
+probas = forest.predict(X_test)
 ```
 	
 	
@@ -74,3 +74,7 @@ Fitting a random forest
 - [ ] Adapt random forests code for regression tasks
 - [x] Proper setup.py file
 - [x] Python wrapper of the LayerConfig structure
+
+### R installation
+
+Reference: http://web.mit.edu/insong/www/pdf/rpackage_instructions.pdf

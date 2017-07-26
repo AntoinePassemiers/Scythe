@@ -12,3 +12,4 @@ build/
 dist/
 Scythe.egg-info/
 UNKNOWN.egg-info/
+.Rproj.user
