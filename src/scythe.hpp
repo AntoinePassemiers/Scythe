@@ -39,10 +39,7 @@ extern "C" {
 
     float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config);
 
-    void api_test(Dataset* dataset) { 
-        assert(dataset->n_rows == 42);
-        std::cout << "C interface ok !" << std::endl;
-    }
+    void api_test(Dataset* dataset);
 }
 
 #endif // SCYTHE_HPP_

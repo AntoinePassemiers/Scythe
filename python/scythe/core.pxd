@@ -4,9 +4,48 @@
 from libcpp cimport bool
 from libcpp.limits cimport numeric_limits
 
+import numpy as np
 cimport numpy as cnp
+cnp.import_array()
+
 
 ctypedef double data_t
+
+target_np = np.double
+data_np = np.double
+ctypedef cnp.double_t cy_target_np
+ctypedef cnp.double_t cy_data_np
+
+# Magic numbers
+cpdef int CLASSIFICATION_TASK = 0xF55A90
+cpdef int REGRESSION_TASK     = 0xF55A91
+
+cpdef int MLOG_LOSS = 0x7711A0
+cpdef int MSE       = 0xC97B00
+
+cpdef int QUARTILE_PARTITIONING   = 0xB23A40
+cpdef int DECILE_PARTITIONING     = 0xB23A41
+cpdef int PERCENTILE_PARTITIONING = 0xB23A42
+
+cpdef int RANDOM_FOREST          = 0
+cpdef int COMPLETE_RANDOM_FOREST = 1
+cpdef int GRADIENT_BOOSTING      = 2
+
+cpdef int REG_L1 = 0x778C10
+cpdef int REG_L2 = 0x778C11
+
+cpdef int ADABOOST          = 0x28FE90
+cpdef int GRADIENT_BOOSTING = 0x28FE91
+
+cpdef int DTYPE_PROBA  = 0
+cpdef int DTYPE_DATA   = 1
+cpdef int DTYPE_UINT_8 = 2
+
+cpdef object CLASSIFICATION = "classification"
+cpdef object REGRESSION     = "regression"
+cpdef object RF_FOREST  = ["random forest", "rf"]
+cpdef object CRF_FOREST = ["complete random forest", "crf"]
+cpdef object GB_FOREST  = ["gradient boosting", "gb"]
 
 cdef extern from "../../src/misc/sets.hpp" namespace "scythe":
     ctypedef unsigned int uint
@@ -70,7 +109,7 @@ cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
         data_t    nan_value            
         double    min_threshold        
 
-cdef extern from "../../src/scythe.cpp":
+cdef extern from "../../src/scythe.hpp":
     void* fit_classification_tree(Dataset*, Labels*, TreeConfig*)
     void* fit_regression_tree(Dataset*, Labels*, TreeConfig*)
     float* tree_classify(Dataset*, void*, TreeConfig*)
@@ -81,6 +120,7 @@ cdef extern from "../../src/scythe.cpp":
 
 
 cdef Dataset to_dataset(object X)
+cdef MDDataset to_md_dataset(object X)
 cdef Labels to_labels(object y)
 cdef cnp.ndarray ptr_to_cls_predictions(float* predictions, size_t n_rows, size_t n_classes)
 cdef cnp.ndarray ptr_to_reg_predictions(data_t* predictions, size_t n_rows)

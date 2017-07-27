@@ -12,25 +12,55 @@ LANGUAGE = "c++"
 CPP_SRC_FOLDER = "../../src"
 
 cpp_src_files = [
-    "densities/continuous.cpp",
-    "forest/classification_complete_rf.cpp",
-    "forest/classification_rf.cpp",
-    "forest/forest.cpp",
-    "misc/bagging.cpp",
-    "misc/sets.cpp",
-    "tree/cart.cpp",
-    "tree/heuristics.cpp"
+    (
+        "core.cpp",
+        [
+            "densities/continuous.cpp",
+            "forest/classification_complete_rf.cpp",
+            "forest/classification_rf.cpp",
+            "forest/forest.cpp",
+            "misc/bagging.cpp",
+            "misc/sets.cpp",
+            "tree/cart.cpp",
+            "tree/heuristics.cpp",
+            "scythe.cpp",
+        ],
+        "core"
+    ),
+    (
+        "layers.cpp",
+        [
+            "densities/continuous.cpp",
+            "forest/classification_complete_rf.cpp",
+            "forest/classification_rf.cpp",
+            "forest/forest.cpp",
+            "misc/bagging.cpp",
+            "misc/sets.cpp",
+            "tree/cart.cpp",
+            "tree/heuristics.cpp",
+            "scythe.cpp",
+            "deep_learning/layers/layer.cpp",
+            "deep_learning/layers/concatenation_layer.cpp",
+            "deep_learning/layers/scanner1D.cpp",
+            "deep_learning/layers/scanner2D.cpp",
+            "deep_learning/layers/scanner3D.cpp",
+            "deep_learning/deep_forest.cpp",
+            "deep_scythe.cpp",
+        ],
+        "layers"
+    ),
 ]
-cpp_src_filepaths = list()
-for src_file in cpp_src_files:
-    cpp_src_filepaths.append(os.path.join(CPP_SRC_FOLDER, src_file))
+
+source_files = list()
+for module in cpp_src_files:
+    cpp_src_filepaths = [module[0]]
+    for filename in module[1]:
+        cpp_src_filepaths.append(os.path.join(CPP_SRC_FOLDER, filename))
+    source_files.append((cpp_src_filepaths, module[2]))
 
 
 source_folder = "scythe"
 sub_packages = []
-source_files = [
-    (["core.cpp"] + cpp_src_filepaths, "core")
-]
 
 extra_compile_args = [
     "-std=c++14", 

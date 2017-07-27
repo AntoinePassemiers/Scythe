@@ -4,8 +4,8 @@
 
 import os, sys
 
-from core import *   # TODO
-from layers import * # TODO
+from scythe.core import *
+from scythe.layers import *
 from MNIST import *  # TODO
 
 
@@ -26,21 +26,14 @@ Cascade layer:
 def main():
     n_forests_per_layer = 2
     kc, kr = 22, 22
-    required_nbytes = MultiGrainedScanner2D.estimateRequiredBufferSize(
-        60000, 28, 28, kc, kr, 10, n_forests_per_layer) * 8
-    nbytes = bytesToStr(required_nbytes)
-    print("Required number of bytes in the convolutional layer : %s" % nbytes)
 
-    fconfig = ForestConfig(
-        bag_size       = 60000,
-        n_classes      = 10,
-        n_iter         = 4,
-        max_n_trees    = 4,
-        max_n_features = 20,
-        max_depth      = 4)
-    lconfig = LayerConfig(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
-
-    X_test, y_test = loadMNISTTestSet(location = sys.argv[1])
+    fconfig = ForestConfiguration()
+    fconfig.bag_size       = 60000
+    fconfig.n_classes      = 10
+    fconfig.max_n_trees    = 4
+    fconfig.max_n_features = 20
+    fconfig.max_depth      = 4
+    lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
     graph = DeepForest(task = "classification")
@@ -51,6 +44,7 @@ def main():
     print("Add cascade layer")
     graph.add(CascadeLayer(lconfig))
 
+    X_test, y_test = loadMNISTTestSet(location = sys.argv[1])
     X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
     X_train, y_train = MDDataset(X_train), Labels(y_train)
 

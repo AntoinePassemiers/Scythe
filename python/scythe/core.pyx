@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # distutils: language=c++
-# distutils: sources = ../../src/scythe.cpp
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: initializedcheck=True
@@ -15,43 +14,6 @@ from libc.string cimport *
 from cython cimport view
 
 from libcpp.limits cimport numeric_limits
-
-
-target_np = np.double
-data_np = np.double
-ctypedef cnp.double_t cy_target_np
-ctypedef cnp.double_t cy_data_np
-
-# Magic numbers
-CLASSIFICATION_TASK = 0xF55A90
-REGRESSION_TASK     = 0xF55A91
-
-MLOG_LOSS = 0x7711A0
-MSE       = 0xC97B00
-
-QUARTILE_PARTITIONING   = 0xB23A40
-DECILE_PARTITIONING     = 0xB23A41
-PERCENTILE_PARTITIONING = 0xB23A42
-
-RANDOM_FOREST          = 0
-COMPLETE_RANDOM_FOREST = 1
-GRADIENT_BOOSTING      = 2
-
-REG_L1 = 0x778C10
-REG_L2 = 0x778C11
-
-ADABOOST          = 0x28FE90
-GRADIENT_BOOSTING = 0x28FE91
-
-DTYPE_PROBA  = 0
-DTYPE_DATA   = 1
-DTYPE_UINT_8 = 2
-
-CLASSIFICATION = "classification"
-REGRESSION     = "regression"
-RF_FOREST  = ["random forest", "rf"]
-CRF_FOREST = ["complete random forest", "crf"]
-GB_FOREST  = ["gradient boosting", "gb"]
 
 
 cdef Dataset to_dataset(object X):
@@ -307,25 +269,6 @@ cdef class Forest:
                 forest_classify(&dataset, self.predictor_p, &self.config),
                 n_rows, n_classes)
         return preds
-
-    """
-    def predict(self, X):
-        if not isinstance(X, Dataset):
-            X = MDDataset(X)
-        n_classes = self.config_p.n_classes
-        n_rows = len(X)
-        if self.task == REGRESSION:
-            raise NotImplementedError()
-        else:
-            n_classes = self.config_p.n_classes
-            preds_addr = scythe.forest_classify(
-                ctypes.byref(X),
-                ctypes.c_void_p(self.predictor_p),
-                ctypes.byref(self.config_p))
-            preds_p = ctypes.cast(preds_addr, c_float_p)
-            preds = np.ctypeslib.as_array(preds_p, shape = (n_rows, n_classes))
-        return preds
-    """
 
 
 def py_api_test():

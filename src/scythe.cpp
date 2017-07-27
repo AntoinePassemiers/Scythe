@@ -166,4 +166,9 @@ extern "C" {
         probabilites = forest->classify(vdataset);
         return probabilites;
     }
+
+    void api_test(Dataset* dataset) { 
+        assert(dataset->n_rows == 42);
+        std::cout << "C interface ok !" << std::endl;
+    }
 }
