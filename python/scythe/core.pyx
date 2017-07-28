@@ -20,10 +20,9 @@ from scythe.utils import *
 
 cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
-    cdef cnp.ndarray[cy_data_np, ndim = 2] np_data = np.ascontiguousarray(X, dtype = data_np)
-    dataset.n_rows = np_data.shape[0]
-    dataset.n_cols = np_data.shape[1]
-    dataset.data = <data_t*>np_data.data
+    dataset.n_rows = X.shape[0]
+    dataset.n_cols = X.shape[1]
+    dataset.data = <data_t*>X.data
     return dataset
 
 cdef MDDataset to_md_dataset(cnp.ndarray X):
