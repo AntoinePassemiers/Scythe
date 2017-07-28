@@ -122,7 +122,7 @@ double getFeatureCost(const Density* const density, const size_t n_classes) {
     return left_cost * left_rate + right_cost * right_rate;
 }
 
-__attribute__((noinline)) double evaluatePartitions(
+double evaluatePartitions(
     VirtualDataset* RESTRICT data, Density* RESTRICT density, 
     Splitter* RESTRICT splitter, size_t k) {
     size_t* counters_left = density->counters_left;
@@ -147,8 +147,7 @@ __attribute__((noinline)) double evaluatePartitions(
         else {
             counters_left[contiguous_labels[j]]++;
         }
-    }
-    
+    }    
     return getFeatureCost(density, splitter->n_classes);
 }
 
@@ -188,7 +187,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     splitter->mean_right = mean_right;
     splitter->n_left = n_left;
     splitter->n_right = n_right;
-    if ((n_left == 0) or (n_right == 0)) { return INFINITY; }
+    if ((n_left == 0) || (n_right == 0)) { return INFINITY; }
     for (uint j = 0; j < splitter->n_instances; j++) {
         if (splitter->belongs_to[j] == id) {
             data_point = (*data)(j, i);
@@ -226,8 +225,8 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         splitter->n_instances_in_node,
         splitter->n_instances);
 
-    size_t best_counters_left[n_classes];
-    size_t best_counters_right[n_classes];
+    size_t best_counters_left[MAX_N_CLASSES];
+    size_t best_counters_right[MAX_N_CLASSES];
 
     size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];

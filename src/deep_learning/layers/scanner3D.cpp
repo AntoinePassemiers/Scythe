@@ -40,7 +40,7 @@ void ScannedDataset3D::_iterator_inc() {
 }
 
 data_t ScannedDataset3D::_iterator_deref() {
-    // TODO
+    return 0.0; // TODO
 }
 
 ScannedTargets3D::ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd) :

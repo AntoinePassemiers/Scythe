@@ -13,6 +13,9 @@ CPP_SRC_FOLDER = "../../src"
 
 cpp_src_files = [
     (
+        "utils.py", [], "utils"
+    ),
+    (
         "core.cpp",
         [
             "densities/continuous.cpp",

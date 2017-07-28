@@ -15,8 +15,10 @@ from cython cimport view
 
 from libcpp.limits cimport numeric_limits
 
+from scythe.utils import *
 
-cdef Dataset to_dataset(object X):
+
+cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
     cdef cnp.ndarray[cy_data_np, ndim = 2] np_data = np.ascontiguousarray(X, dtype = data_np)
     dataset.n_rows = np_data.shape[0]
@@ -24,23 +26,19 @@ cdef Dataset to_dataset(object X):
     dataset.data = <data_t*>np_data.data
     return dataset
 
-cdef MDDataset to_md_dataset(object X):
+cdef MDDataset to_md_dataset(cnp.ndarray X):
     cdef MDDataset dataset
-    cdef cnp.ndarray np_data = np.ascontiguousarray(X, dtype = data_np)
     dataset.dtype = DTYPE_UINT_8 if X.dtype == np.uint8 else DTYPE_DATA
-    dataset.data = <data_t*>np_data.data
-    dataset.n_dims = np_data.ndim
+    dataset.data = <data_t*>X.data
+    dataset.n_dims = X.ndim
     for i in range(7):
-        dataset.dims[i] = np_data.shape[i] if i < dataset.n_dims else 0
+        dataset.dims[i] = X.shape[i] if i < dataset.n_dims else 0
     return dataset
 
-cdef Labels to_labels(object y):
+cdef Labels to_labels(cnp.ndarray y):
     cdef Labels labels
-    m, M = np.min(y), np.max(y)
-    n_classes = M + 1
-    cdef cnp.ndarray[cy_target_np, ndim = 1] np_data = np.ascontiguousarray(y, dtype = target_np)
-    labels.n_rows = np_data.shape[0]
-    labels.data = <target_t*>np_data.data
+    labels.n_rows = y.shape[0]
+    labels.data = <target_t*>y.data
     return labels
 
 cdef cnp.ndarray ptr_to_cls_predictions(float* predictions, size_t n_rows, size_t n_classes):
@@ -198,30 +196,28 @@ cdef class ForestConfiguration:
 
 
 cdef class Tree:
-    cdef char* task
     cdef TreeConfig config
     cdef void* predictor_p
 
     def __init__(self, cy_config, task):
-        self.task = task
-        if task == CLASSIFICATION:
-            cy_config.task = CLASSIFICATION_TASK
-        else:
-            cy_config.task = REGRESSION_TASK
+        cy_config.task = TASKS[task]
         self.config = cy_config.get_c_config()
     def fit(self, X, y):
-        cdef Dataset dataset = to_dataset(X)
-        cdef Labels labels = to_labels(y)
-        if self.task == REGRESSION:
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
+        cdef Dataset dataset = to_dataset(cX)
+        cdef Labels labels = to_labels(cy)
+        if self.config.task == REGRESSION_TASK:
             self.predictor_p = fit_regression_tree(
                 &dataset, &labels, &self.config)
         else:
             self.predictor_p = fit_classification_tree(
                 &dataset, &labels, &self.config)
     def predict(self, X):
-        cdef Dataset dataset = to_dataset(X)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef Dataset dataset = to_dataset(cX)
         n_rows = len(X)
-        if self.task == REGRESSION:
+        if self.config.task == REGRESSION_TASK:
             preds = ptr_to_reg_predictions(
                 tree_predict(&dataset, self.predictor_p, &self.config), n_rows)
         else:
@@ -233,35 +229,29 @@ cdef class Tree:
 
 
 cdef class Forest:
-    cdef char* task
-    cdef char* forest_type
     cdef ForestConfig config
     cdef void* predictor_p
 
     def __init__(self, cy_config, task, forest_type):
-        self.task = task
-        cdef object lowered_forest_type = forest_type.lower()
-        self.forest_type = lowered_forest_type
+        cy_config.task = TASKS[task]
+        cy_config.type = FOREST_TYPES[forest_type.lower()]
         self.config = cy_config.get_c_config()
-        if self.forest_type in RF_FOREST:
-            self.config.type = RANDOM_FOREST
-        elif forest_type in CRF_FOREST:
-            self.config.type = COMPLETE_RANDOM_FOREST
-        else:
-            self.config.type = GRADIENT_BOOSTING
     def fit(self, X, y):
-        dataset = to_dataset(X)
-        labels = to_labels(y)
-        if self.task == REGRESSION:
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
+        cdef Dataset dataset = to_dataset(cX)
+        cdef Labels labels = to_labels(cy)
+        if self.config.task == REGRESSION_TASK:
             raise NotImplementedError()
         else:
             self.predictor_p = fit_classification_forest(
                 &dataset, &labels, &self.config)
     def predict(self, X):
-        dataset = to_dataset(X)
-        n_classes = self.config_p.n_classes
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef Dataset dataset = to_dataset(cX)
+        n_classes = self.config.n_classes
         n_rows = len(X)
-        if self.task == REGRESSION:
+        if self.config.task == REGRESSION_TASK:
             raise NotImplementedError()
         else:
             n_classes = self.config.n_classes

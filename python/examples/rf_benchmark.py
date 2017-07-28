@@ -32,14 +32,14 @@ def main():
     y_test = y[n_samples:]
 
     fconfig = ForestConfiguration()
-    fconfig.n_classes = n_classes
-    fconfig.n_iter    = n_estimators
-    fconfig.bag_size  = 10000
-    fconfig.max_depth = max_depth - 8
+    fconfig.n_classes      = n_classes
+    fconfig.max_n_trees    = n_estimators
+    fconfig.bag_size       = 10000
+    fconfig.max_depth      = max_depth - 8
     fconfig.max_n_features = max_n_features
-    fconfig.min_threshold = min_threshold
+    fconfig.min_threshold  = min_threshold
 
-    forest = Forest(fconfig, "classification", "random forest")
+    forest = Forest(fconfig, "classification", "rf")
     t0 = time.time()
     forest.fit(X_train, y_train)
     predictions = forest.predict(X_test)
@@ -82,21 +82,19 @@ def convForest():
         n_features = n_features, 
         n_classes  = n_classes)
 
-    tmp = X[:n_samples].reshape(n_samples, 20, 20)
-    X_train = MDDataset(tmp)
-    y_train = Labels(y[:n_samples])
+    X_train = X[:n_samples]
+    y_train = y[:n_samples]
 
-    tmp = X[n_samples:].reshape(n_samples, 20, 20)
-    X_test = MDDataset(tmp)
-    y_test = Labels(y[n_samples:])    
+    X_test = X[n_samples:]
+    y_test = y[n_samples:]  
 
-    fconfig = ForestConfig()
-    fconfig.n_classes = n_classes
-    fconfig.n_iter    = 5
-    fconfig.bag_size  = 1000
-    fconfig.max_depth = 30
+    fconfig = ForestConfiguration()
+    fconfig.n_classes      = n_classes
+    fconfig.max_n_trees    = 5
+    fconfig.bag_size       = 1000
+    fconfig.max_depth      = 30
     fconfig.max_n_features = max_n_features
-    lconfig = LayerConfig(fconfig, 2, RANDOM_FOREST)
+    lconfig = LayerConfiguration(fconfig, 2, RANDOM_FOREST)
 
 
     forest = DeepForest(task = "classification")
@@ -128,6 +126,6 @@ def convForest():
 
 
 if __name__ == "__main__":
-    convForest()
-    # main()
+    # convForest()
+    main()
     print("Finished")

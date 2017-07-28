@@ -7,6 +7,7 @@ cnp.import_array()
 
 import abc
 
+from scythe.utils import *
 
 
 cdef class LayerConfiguration:
@@ -99,11 +100,14 @@ class DeepForest:
         layer.addToGraph(self.deep_forest_id)
         self.n_classes = layer.get_c_config().fconfig.n_classes
     def fit(self, X, y):
-        cdef MDDataset dataset = to_md_dataset(X)
-        cdef Labels labels = to_labels(y)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
+        cdef MDDataset dataset = to_md_dataset(cX)
+        cdef Labels labels = to_labels(cy)
         c_fit_deep_forest(dataset, &labels, self.deep_forest_id)
     def classify(self, X):
-        cdef MDDataset dataset = to_md_dataset(X)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef MDDataset dataset = to_md_dataset(cX)
         n_instances, n_classes = len(X), self.n_classes
         preds = ptr_to_cls_predictions(
 	        c_deep_forest_classify(dataset, self.deep_forest_id),

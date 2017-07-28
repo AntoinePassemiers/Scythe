@@ -27,6 +27,8 @@
 
 namespace scythe {
 
+constexpr size_t MAX_N_CLASSES = 100;
+
 constexpr int NO_FEATURE = -1;
 constexpr int NO_INSTANCE = 0;
 constexpr int NO_SPLIT_VALUE = std::numeric_limits<int>::max();

@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+
+import numpy as np
+
+target_np = np.double
+data_np = np.double
+
+# Magic numbers
+CLASSIFICATION_TASK = 0xF55A90
+REGRESSION_TASK     = 0xF55A91
+
+MLOG_LOSS = 0x7711A0
+MSE       = 0xC97B00
+
+QUARTILE_PARTITIONING   = 0xB23A40
+DECILE_PARTITIONING     = 0xB23A41
+PERCENTILE_PARTITIONING = 0xB23A42
+
+RANDOM_FOREST          = 0
+COMPLETE_RANDOM_FOREST = 1
+GRADIENT_BOOSTING      = 2
+
+REG_L1 = 0x778C10
+REG_L2 = 0x778C11
+
+ADABOOST          = 0x28FE90
+GRADIENT_BOOSTING = 0x28FE91
+
+DTYPE_PROBA  = 0
+DTYPE_DATA   = 1
+DTYPE_UINT_8 = 2
+
+TASKS = {
+    "classification" : CLASSIFICATION_TASK,
+    "regression"     : REGRESSION_TASK
+}
+
+FOREST_TYPES = {
+    "rf"  : RANDOM_FOREST,
+    "crf" : COMPLETE_RANDOM_FOREST,
+    "gb"  : GRADIENT_BOOSTING
+}
