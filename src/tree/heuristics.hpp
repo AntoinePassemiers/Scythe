@@ -32,12 +32,14 @@ struct FeatureInfo {
 class SplitManager {
 private:
     size_t n_features;
+    size_t n_grown_trees;
     std::vector<std::shared_ptr<FeatureInfo>> features;
 public:
     SplitManager(Density* const densities, size_t n_densities);
     SplitManager(const SplitManager&) = default;
     SplitManager& operator=(const SplitManager&) = default;
 
+    void notifyGrownTree() { n_grown_trees++; }
     void updateCurrentBestSplit(size_t feature_id, size_t split_id, double score);
     bool shouldEvaluate(size_t feature_id, size_t split_id);
 };

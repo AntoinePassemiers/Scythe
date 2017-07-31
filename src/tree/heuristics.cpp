@@ -12,7 +12,7 @@
 namespace scythe {
 
 SplitManager::SplitManager(Density* const densities, size_t n_features) : 
-    n_features(n_features), features() {
+    n_features(n_features), n_grown_trees(0), features() {
 
     for (size_t f = 0; f < n_features; f++) {
         std::shared_ptr<FeatureInfo> feature(

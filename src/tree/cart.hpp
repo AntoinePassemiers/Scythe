@@ -126,7 +126,9 @@ NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 
 NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
-double getFeatureCost(const Density* const density, const size_t n_classes);
+double getFeatureCost(size_t* const, size_t* const, size_t n_classes);
+
+double informationGain(size_t*, size_t*, size_t*, size_t);
 
 void initRoot(Node* root, VirtualTargets* const targets, size_t n_instances, size_t n_classes);
 

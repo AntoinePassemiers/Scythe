@@ -86,9 +86,8 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     is_complete_random(config->is_complete_random),
     split_manager(split_manager) {}
 
-double getFeatureCost(const Density* const density, const size_t n_classes) {
-    size_t* counters_left = density->counters_left;
-    size_t* counters_right = density->counters_right;
+
+double getFeatureCost(size_t* const counters_left, size_t* const counters_right, size_t n_classes) {
     size_t n_left = sum_counts(counters_left, n_classes);
     size_t n_right = sum_counts(counters_right, n_classes);
     size_t total = n_left + n_right;
@@ -122,6 +121,22 @@ double getFeatureCost(const Density* const density, const size_t n_classes) {
     return left_cost * left_rate + right_cost * right_rate;
 }
 
+double informationGain(
+    size_t* counters, size_t* counters_left, size_t* counters_right, size_t n_classes) {
+
+    double gini = getFeatureCost(counters_left, counters_right, n_classes);
+    size_t n_total = sum_counts(counters, n_classes);
+    double cost = 0.0;
+    for (uint i = 0; i < n_classes; i++) {
+        if (counters[i] > 0) {
+            cost += pow2(static_cast<float>(counters[i]) / static_cast<float>(n_total));
+        }
+    }
+    cost = (1.0 - cost);
+    double gain = cost - gini;
+    return gain;
+}
+
 double evaluatePartitions(
     VirtualDataset* RESTRICT data, Density* RESTRICT density, 
     Splitter* RESTRICT splitter, size_t k) {
@@ -148,7 +163,7 @@ double evaluatePartitions(
             counters_left[contiguous_labels[j]]++;
         }
     }    
-    return getFeatureCost(density, splitter->n_classes);
+    return getFeatureCost(counters_left, counters_right, splitter->n_classes);
 }
 
 double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
@@ -328,7 +343,9 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
             sum_counts(next_density->counters_left, config->n_classes),
             sum_counts(next_density->counters_right, config->n_classes)
         };
-        if ((tree->n_nodes < config->max_nodes) &&
+        bool improving = (informationGain(current_node->counters, next_density->counters_left,
+            next_density->counters_right, config->n_classes) > 1e-06);
+        if ((tree->n_nodes < config->max_nodes) && (improving) &&
             (current_node_space.current_depth < config->max_height) &&
             (((split_totals[0] && split_totals[1])
                 && (config->task == CLASSIFICATION_TASK))
