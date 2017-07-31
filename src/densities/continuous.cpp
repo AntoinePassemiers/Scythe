@@ -51,6 +51,11 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
             current_index += step_size;
         }
     }
+    SplitManager* owner = new SplitManager(densities, n_features);
+    for (uint f = 0; f < n_features; f++) {
+        densities[f].owner = owner;
+    }
+
     return densities;
 }
 

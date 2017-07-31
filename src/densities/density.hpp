@@ -25,6 +25,9 @@
 
 namespace scythe {
 
+// Forward declaration
+class SplitManager;
+
 // Partitioning of the input's density function
 constexpr int QUARTILE_PARTITIONING   = 0xB23A40;
 constexpr int DECILE_PARTITIONING     = 0xB23A41;
@@ -38,6 +41,7 @@ struct Density {
     size_t* counters_left;
     size_t* counters_right;
     size_t* counters_nan;
+    SplitManager* owner;
 };
 
 }

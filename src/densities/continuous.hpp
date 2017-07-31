@@ -10,6 +10,7 @@
 #define CONTINUOUS_HPP
 
 #include "density.hpp"
+#include "../tree/heuristics.hpp"
 
 
 namespace scythe {

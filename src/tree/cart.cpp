@@ -301,7 +301,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     size_t** split_sides = new size_t*[2];
     Density* next_density;
     NodeSpace current_node_space(current_node, n_features, densities);
-    SplitManager* split_manager = new SplitManager(densities, n_features);
+    SplitManager* split_manager = densities[0].owner;
     Splitter splitter(current_node_space, config, n_instances, n_features, 
         belongs_to, targets, split_manager);
     Splitter best_splitter = splitter;
@@ -409,11 +409,11 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
             }
         }
     }
+    split_manager->notifyGrownTree();
     std::cout << "Tree depth : " << tree->level << std::endl;
     std::cout << "Node count : " << tree->n_nodes << std::endl;
     delete[] features_to_use;
     delete[] split_sides;
-    delete split_manager;
     return tree;
 }
 

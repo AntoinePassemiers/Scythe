@@ -19,7 +19,7 @@
 #include <string.h>
 #include <limits>
 
-#include "../densities/continuous.hpp"
+#include "../densities/density.hpp"
 
 
 namespace scythe {
