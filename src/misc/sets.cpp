@@ -41,9 +41,6 @@ void VirtualDataset::allocateFromSampleMask(
 
     uint k = 0;
     _iterator_begin(feature_id);
-    #ifdef _OMP
-        #pragma omp simd
-    #endif
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
             contiguous_data[k++] = static_cast<fast_data_t>(_iterator_deref());
@@ -69,15 +66,15 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
         @param j
             Column id
     */
-    return this->data[i * this->n_cols + j];
+    return this->data[j * this->n_rows + i];
 }
 
 void DirectDataset::_iterator_begin(const size_t j) {
-    iterator_cursor = j;
+    iterator_cursor = j * this->n_rows;
 }
 
 void DirectDataset::_iterator_inc() {
-    iterator_cursor += n_cols;
+    iterator_cursor++;
 }
 
 data_t DirectDataset::_iterator_deref() {

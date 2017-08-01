@@ -20,8 +20,8 @@ from scythe.utils import *
 
 cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
-    dataset.n_rows = X.shape[0]
-    dataset.n_cols = X.shape[1]
+    dataset.n_rows = X.shape[1]
+    dataset.n_cols = X.shape[0]
     dataset.data = <data_t*>X.data
     return dataset
 
@@ -202,7 +202,7 @@ cdef class Tree:
         cy_config.task = TASKS[task]
         self.config = cy_config.get_c_config()
     def fit(self, X, y):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
         cdef Dataset dataset = to_dataset(cX)
         cdef Labels labels = to_labels(cy)
@@ -213,7 +213,7 @@ cdef class Tree:
             self.predictor_p = fit_classification_tree(
                 &dataset, &labels, &self.config)
     def predict(self, X):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_rows = len(X)
         if self.config.task == REGRESSION_TASK:
@@ -236,7 +236,7 @@ cdef class Forest:
         cy_config.type = FOREST_TYPES[forest_type.lower()]
         self.config = cy_config.get_c_config()
     def fit(self, X, y):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
         cdef Dataset dataset = to_dataset(cX)
         cdef Labels labels = to_labels(cy)
@@ -246,7 +246,7 @@ cdef class Forest:
             self.predictor_p = fit_classification_forest(
                 &dataset, &labels, &self.config)
     def predict(self, X):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_classes = self.config.n_classes
         n_rows = len(X)
