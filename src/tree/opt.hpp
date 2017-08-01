@@ -14,7 +14,7 @@
 
 namespace scythe {
 
-#if defined(_OPENMP) && 0 // TODO
+#if defined(_OPENMP) // TODO
     #include <omp.h>
     #define _OMP _OPENMP
 #else

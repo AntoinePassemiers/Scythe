@@ -142,7 +142,8 @@ float* classifyFromTree(VirtualDataset* data, size_t n_instances, size_t n_featu
 data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
 
-double evaluatePartitions(VirtualDataset* data, Density* density, Splitter* splitter, size_t k);
+double evaluatePartitions(const VirtualDataset* RESTRICT data, const Density* RESTRICT density, 
+    const Splitter* RESTRICT splitter, size_t k);
 
 double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
                                  Splitter* splitter, size_t k);

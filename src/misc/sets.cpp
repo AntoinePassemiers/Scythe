@@ -42,8 +42,6 @@ void VirtualDataset::allocateFromSampleMask(
     uint k = 0;
     _iterator_begin(feature_id);
     #ifdef _OMP
-        #pragma ivdep
-        #pragma ibm independent_loop
         #pragma omp simd
     #endif
     for (uint i = 0; i < n_instances; i++) {

@@ -87,38 +87,26 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     split_manager(split_manager) {}
 
 
-double getFeatureCost(size_t* const counters_left, size_t* const counters_right, size_t n_classes) {
+double getFeatureCost(size_t* RESTRICT const counters_left, 
+    size_t* RESTRICT const counters_right, size_t n_classes) {
+
     size_t n_left = sum_counts(counters_left, n_classes);
     size_t n_right = sum_counts(counters_right, n_classes);
-    size_t total = n_left + n_right;
     if (n_left == 0 || n_right == 0) {
         return COST_OF_EMPTINESS;
     }
     double left_cost = 0.0;
-    #ifdef _OMP
-        #pragma omp simd
-    #endif
     for (uint i = 0; i < n_classes; i++) {
-        size_t n_p = counters_left[i];
-        if (n_p > 0) {
-            left_cost += pow2(static_cast<float>(n_p) / static_cast<float>(n_left));
-        }
+        left_cost += pow2(static_cast<float>(counters_left[i]) / static_cast<float>(n_left));
     }
     left_cost = (1.0 - left_cost);
     double right_cost = 0.0;
-    #ifdef _OMP
-        #pragma omp simd
-    #endif
     for (uint i = 0; i < n_classes; i++) {
-        size_t n_n = counters_right[i];
-        if (n_n > 0) {
-            right_cost += pow2(static_cast<float>(n_n) / static_cast<float>(n_right));
-        }
+        right_cost += pow2(static_cast<float>(counters_right[i]) / static_cast<float>(n_right));
     }
     right_cost = (1.0 - right_cost);
-    float left_rate = static_cast<float>(n_left) / static_cast<float>(total);
-    float right_rate = static_cast<float>(n_right) / static_cast<float>(total);
-    return left_cost * left_rate + right_cost * right_rate;
+    float left_rate = static_cast<float>(n_left) / static_cast<float>(n_left + n_right);
+    return left_cost * left_rate + right_cost * (1.0 - left_rate);
 }
 
 double informationGain(
@@ -138,30 +126,33 @@ double informationGain(
 }
 
 double evaluatePartitions(
-    VirtualDataset* RESTRICT data, Density* RESTRICT density, 
-    Splitter* RESTRICT splitter, size_t k) {
+    VirtualDataset* RESTRICT data, const Density* RESTRICT density, 
+    const Splitter* RESTRICT splitter, size_t k) {
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;
     std::fill(counters_left, counters_left + splitter->n_classes, 0);
     std::fill(counters_right, counters_right + splitter->n_classes, 0);
     // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
-    fast_data_t split_value = static_cast<fast_data_t>(
-        density->split_value = splitter->partition_values[k]);
+    fast_data_t split_value = static_cast<fast_data_t>(splitter->partition_values[k]);
     
     fast_data_t* RESTRICT contiguous_data = data->retrieveContiguousData();
     label_t* RESTRICT contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
 
+    size_t* counter_ptrs[2] = { counters_left, counters_right };
     #ifdef _OMP
         #pragma omp simd aligned(contiguous_data : 32)
     #endif
-    // Canonical loop form
-    for (uint j = 0; j < splitter->n_instances_in_node; j++) {
+    // Canonical loop form (signed variable, no data dependency, no virtual call...)
+    for (signed int j = 0; j < splitter->n_instances_in_node; j++) {
+        /**
         if (contiguous_data[j] >= split_value) {
             counters_right[contiguous_labels[j]]++;
         }
         else {
             counters_left[contiguous_labels[j]]++;
         }
+        */
+        counter_ptrs[(contiguous_data[j] >= split_value)][contiguous_labels[j]]++;
     }    
     return getFeatureCost(counters_left, counters_right, splitter->n_classes);
 }
@@ -222,15 +213,12 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
 
 double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data) {
     size_t n_classes = splitter->n_classes;
-    size_t feature_id = splitter->feature_id;
-    size_t best_split_id = 0;
-    double lowest_cost = INFINITY;
     splitter->partition_values = density->values;
 
     data->allocateFromSampleMask(
         splitter->belongs_to,
         splitter->node->id,
-        feature_id,
+        splitter->feature_id,
         splitter->n_instances_in_node,
         splitter->n_instances);
 
@@ -240,22 +228,25 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         splitter->n_instances_in_node,
         splitter->n_instances);
 
-    size_t best_counters_left[MAX_N_CLASSES];
-    size_t best_counters_right[MAX_N_CLASSES];
-
-    size_t lower_bound = splitter->node_space.feature_left_bounds[feature_id];
-    size_t upper_bound = splitter->node_space.feature_right_bounds[feature_id];
+    size_t lower_bound = splitter->node_space.feature_left_bounds[splitter->feature_id];
+    size_t upper_bound = splitter->node_space.feature_right_bounds[splitter->feature_id];
     if (splitter->is_complete_random) {
         if (lower_bound == upper_bound) { return INFINITY; }
         size_t random_bound = lower_bound + (rand() % (upper_bound - lower_bound));
         lower_bound = random_bound;
         upper_bound = random_bound + 1;
     }
+
+    size_t best_split_id = 0;
+    double lowest_cost = INFINITY;
+    size_t best_counters_left[MAX_N_CLASSES];
+    size_t best_counters_right[MAX_N_CLASSES];
     for (uint k = lower_bound; k < upper_bound; k++) {
-        if (splitter->split_manager->shouldEvaluate(feature_id, k)) {
+        if (splitter->split_manager->shouldEvaluate(splitter->feature_id, k)) {
             double cost;
             if (splitter->task == CLASSIFICATION_TASK) {
                 cost = evaluatePartitions(data, density, splitter, k);
+                density->split_value = splitter->partition_values[k];
             }
             else {
                 cost = evaluatePartitionsWithRegression(data, density, splitter, k);
@@ -345,6 +336,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         };
         bool improving = (informationGain(current_node->counters, next_density->counters_left,
             next_density->counters_right, config->n_classes) > 1e-06);
+        improving &= (!std::isinf(lowest_e_cost));
         if ((tree->n_nodes < config->max_nodes) && (improving) &&
             (current_node_space.current_depth < config->max_height) &&
             (((split_totals[0] && split_totals[1])
@@ -379,7 +371,6 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 }
                 dataset->_iterator_inc();
             }
-
             for (uint i = 0; i < 2; i++) {
                 child_node = &new_children[i];
                 child_node->id = static_cast<int>(tree->n_nodes);
