@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 
+#include "tree/pruning.hpp"
 #include "misc/sets.hpp"
 #include "forest/forest.hpp"
 #include "forest/classification_gb.hpp"
@@ -27,6 +28,12 @@
 using namespace scythe;
 
 extern "C" {
+
+    struct double_vec_t {
+        double* data;
+        size_t length;
+    };
+
     void* fit_classification_tree(Dataset*, Labels*, TreeConfig*);
 
     void* fit_regression_tree(Dataset*, Labels*, TreeConfig*);
@@ -35,9 +42,15 @@ extern "C" {
 
     data_t* tree_predict(Dataset*, void*, TreeConfig*);
 
+    double_vec_t tree_get_feature_importances(void*);
+
     void* fit_classification_forest(Dataset*, Labels*, ForestConfig*);
 
     float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config);
+
+    double_vec_t forest_get_feature_importances(void* forest_p);
+
+    void forest_prune_height(void* forest_p, size_t max_height);
 
     void api_test(Dataset* dataset);
 }

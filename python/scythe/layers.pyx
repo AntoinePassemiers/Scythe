@@ -7,6 +7,8 @@ cnp.import_array()
 
 import abc
 
+from scythe.core cimport *
+from scythe.core import *
 from scythe.utils import *
 
 
@@ -21,10 +23,29 @@ cdef class LayerConfiguration:
     cpdef LayerConfig get_c_config(self):
         return self.config
 
+    property n_forests:
+        def __get__(self): return self.config.n_forests
+    property fconfig:
+        def __get__(self): return self.config.fconfig
+
 class Layer(object):
     def __init__(self, **kwargs):
-        self.config = None
-        # TODO
+        self.layer_id = None
+        self.owner_id = None
+    def getForests(self):
+        assert(self.layer_id is not None)
+        cdef void* forest_ptr
+        forests = list()
+        for i in range(self.lconfig.n_forests):
+            
+            forest_ptr = c_get_forest(self.owner_id, self.layer_id, i)
+            forest_configuration = ForestConfiguration()
+            forest_configuration.set_c_config(self.lconfig.fconfig)
+            current_forest = Forest(forest_configuration, "classification", "rf")
+            current_forest.set_predictor_p(<object>forest_ptr)
+            forests.append(current_forest)
+        return forests
+
     @abc.abstractmethod
     def addToGraph(self, graph_id):
         return None
@@ -45,7 +66,7 @@ class CascadeLayer(Layer):
         assert(isinstance(lconfig, LayerConfiguration))
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
-        c_add_cascade_layer(graph_id, self.lconfig.get_c_config())
+        self.layer_id = c_add_cascade_layer(graph_id, self.lconfig.get_c_config())
 
 
 class MultiGrainedScanner1D(Layer):
@@ -57,7 +78,7 @@ class MultiGrainedScanner1D(Layer):
         self.kernel_shape = kernel_shape
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
-        c_add_scanner_1d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0])
+        self.layer_id = c_add_scanner_1d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0])
 
 
 class MultiGrainedScanner2D(Layer):
@@ -69,12 +90,7 @@ class MultiGrainedScanner2D(Layer):
         self.kernel_shape = kernel_shape
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
-        c_add_scanner_2d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0], self.kernel_shape[1])
-    @staticmethod
-    def estimateRequiredBufferSize(N, M, P, kc, kr, n_classes, n_forests):
-        sc = M - kc + 1
-        sr = P - kr + 1
-        return N * sc * sr * n_forests * n_classes
+        self.layer_id = c_add_scanner_2d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0], self.kernel_shape[1])
 
 
 class MultiGrainedScanner3D(Layer):
@@ -86,25 +102,26 @@ class MultiGrainedScanner3D(Layer):
         self.kernel_shape = kernel_shape
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
-        c_add_scanner_3d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0], self.kernel_shape[1], self.kernel_shape[2])
+        self.layer_id = c_add_scanner_3d(graph_id, self.lconfig.get_c_config().fconfig, self.kernel_shape[0], self.kernel_shape[1], self.kernel_shape[2])
 
 
 class DeepForest:
-    def __init__(self, task = "classification"):
-        assert(task in [REGRESSION, CLASSIFICATION])
-        self.n_classes = 0
+    def __init__(self, n_classes = 2, task = "classification"):
+        self.n_classes = n_classes
         self.task = task
-        d = CLASSIFICATION_TASK if (self.task == CLASSIFICATION) else REGRESSION_TASK
-        self.deep_forest_id = c_create_deep_forest(d)
+        self.deep_forest_id = c_create_deep_forest(TASKS[task])
+        self.layers = list()
     def add(self, layer):
         layer.addToGraph(self.deep_forest_id)
-        self.n_classes = layer.get_c_config().fconfig.n_classes
+        layer.owner_id = self.deep_forest_id
+        self.layers.append(layer)
     def fit(self, X, y):
         cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
         cdef MDDataset dataset = to_md_dataset(cX)
         cdef Labels labels = to_labels(cy)
         c_fit_deep_forest(dataset, &labels, self.deep_forest_id)
+
     def classify(self, X):
         cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef MDDataset dataset = to_md_dataset(cX)

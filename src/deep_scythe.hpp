@@ -34,17 +34,15 @@ extern "C" {
 
     float* c_deep_forest_classify(scythe::MDDataset dataset, size_t forest_id);
 
-    void c_add_cascade_layer(size_t forest_id, scythe::LayerConfig lconfig);
+    size_t c_add_cascade_layer(size_t forest_id, scythe::LayerConfig lconfig);
 
-    void c_add_scanner_1d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc);
+    size_t c_add_scanner_1d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc);
 
-    void c_add_scanner_2d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr);
+    size_t c_add_scanner_2d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr);
 
-    void c_add_scanner_3d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
+    size_t c_add_scanner_3d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
 
-    /**
-    void c_add_direct_layer(void* forest_p, LayerConfig lconfig);
-    */
+    void* c_get_forest(size_t deep_forest_id, size_t layer_id, size_t forest_id);
 
 }
 

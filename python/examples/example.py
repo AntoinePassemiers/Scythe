@@ -6,7 +6,10 @@ import os, sys
 
 from scythe.core import *
 from scythe.layers import *
+
 from MNIST import *  # TODO
+
+import matplotlib.pyplot as plt
 
 
 """
@@ -32,55 +35,73 @@ def main():
     fconfig.n_classes      = 10
     fconfig.max_n_trees    = 4
     fconfig.max_n_features = 20
-    fconfig.max_depth      = 4
+    fconfig.max_depth      = 20
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
-    graph = DeepForest(task = "classification")
+    graph = DeepForest(task = "classification", n_classes = 10)
 
     print("Add 2D Convolutional layer")
-    graph.add(MultiGrainedScanner2D(lconfig, (kc, kr)))
+    scanner = MultiGrainedScanner2D(lconfig, (kc, kr))
+    graph.add(scanner)
+
+    fconfig = ForestConfiguration()
+    fconfig.bag_size       = 60000
+    fconfig.n_classes      = 10
+    fconfig.max_n_trees    = 4
+    fconfig.max_n_features = 20
+    fconfig.max_depth      = 20
+    lconfig = LayerConfiguration(fconfig, 10, COMPLETE_RANDOM_FOREST)
 
     print("Add cascade layer")
     graph.add(CascadeLayer(lconfig))
 
     X_test, y_test = loadMNISTTestSet(location = sys.argv[1])
     X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
-    X_train, y_train = MDDataset(X_train), Labels(y_train)
 
     print("Fit gcForest")
+    X_train, y_train = X_train[:500], y_train[:500]
     graph.fit(X_train, y_train)
 
     X_test, labels = loadMNISTTestSet(location = sys.argv[1])
-    X_test, y_test = MDDataset(X_test), Labels(y_test)
 
     print("Classify with gcForest")
     probas = graph.classify(X_test)
     predictions = probas.argmax(axis = 1)
     ga = np.sum(predictions == labels)
-    print(list(predictions))
+    print(predictions[:100])
+    print(labels[:100])
     print("Correct predictions : %i / %i" % (ga, len(labels)))
+
+    print("A")
+    f = scanner.getForests()
+    print("B ")
+    feature_importances = f[0].getFeatureImportances()
+    print("C")
+    plt.bar(np.arange(len(feature_importances)), feature_importances)
+    plt.title("Feature importances")
+    plt.xlabel("Feature id")
+    plt.ylabel("Weighted information gain")
+    plt.show()
 
 
 def testRF():
     X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
     X_train = X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2])
-    X_train, y_train = Dataset(X_train), Labels(y_train)
 
     X_test, labels = loadMNISTTestSet(location = sys.argv[1])
     X_test = X_test.reshape(X_test.shape[0], X_test.shape[1] * X_test.shape[2])
-    X_test, y_test = Dataset(X_test), Labels(labels)
 
     n_samples = len(labels)
 
-    fconfig = ForestConfig()
+    fconfig = ForestConfiguration()
     fconfig.n_classes = 10
-    fconfig.n_iter    = 4
+    fconfig.max_n_trees = 50
     fconfig.bag_size  = 60000
     fconfig.max_depth = 20
     fconfig.max_n_features = 50
 
-    forest = Forest(fconfig, "classification", "random forest")
+    forest = Forest(fconfig, "classification", "rf")
     forest.fit(X_train, y_train)
 
     probabilities = forest.predict(X_test)

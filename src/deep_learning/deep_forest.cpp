@@ -12,13 +12,14 @@
 namespace scythe {
 
 DeepForest::DeepForest(int task) : 
-    layers(), 
+    layers(),
+    n_layers(0),
     task(task), 
     front(nullptr), 
     rear(nullptr), 
     cascade_buffer(nullptr) {}
 
-void DeepForest::add(layer_p layer) {
+size_t DeepForest::add(layer_p layer) {
     layer->setTask(task);
     layers.push_back(layer);
     if (front.get() == nullptr) {
@@ -31,12 +32,16 @@ void DeepForest::add(layer_p layer) {
     }
     rear = layer;
     assert(rear.get() == layer.get());
+    return n_layers++;
 }
 
-void DeepForest::add(layer_p parent, layer_p child) {
+size_t DeepForest::add(layer_p parent, layer_p child) {
     assert(parent.get() != child.get());
-    parent.get()->add(child);
     rear = child;
+    parent.get()->add(child);
+    child->setTask(task);
+    layers.push_back(child);
+    return n_layers++;
 }
 
 size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {

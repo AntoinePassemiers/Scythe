@@ -113,6 +113,14 @@ extern "C" {
         return predictions;
     }
 
+    double_vec_t tree_get_feature_importances(void* tree_p) {
+        Tree* tree = static_cast<Tree*>(tree_p);
+        double_vec_t importances;
+        importances.data = tree->split_manager->getFeatureImportances();
+        importances.length = tree->split_manager->getNumFeatures();
+        return importances;
+    }
+
     /* FOREST API */
 
     void* fit_classification_forest(
@@ -165,6 +173,21 @@ extern "C" {
         DirectDataset* vdataset = new DirectDataset(*dataset);
         probabilites = forest->classify(vdataset);
         return probabilites;
+    }
+
+    void forest_prune_height(void* forest_p, size_t max_height) {
+        Forest* forest = static_cast<Forest*>(forest_p);
+        for (auto it = begin(forest->getTrees()); it != end(forest->getTrees()); ++it) {
+            prune((*it).get(), max_height);
+        }
+    }
+
+    double_vec_t forest_get_feature_importances(void* forest_p) {
+        Forest* forest = static_cast<Forest*>(forest_p);
+        double_vec_t importances;
+        importances.data = forest->getTrees().at(0)->split_manager->getFeatureImportances();
+        importances.length = forest->getTrees().at(0)->split_manager->getNumFeatures();
+        return importances;
     }
 
     void api_test(Dataset* dataset) { 

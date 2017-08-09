@@ -11,6 +11,7 @@
 
 #include "../metrics/metrics.hpp"
 #include "../tree/cart.hpp"
+#include "../tree/pruning.hpp"
 #include "../densities/continuous.hpp"
 #include "../densities/grayscale.hpp"
 #include "../densities/proba.hpp"
@@ -95,6 +96,8 @@ public:
     virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
     void preprocessDensities(VirtualDataset* dataset);
     virtual size_t getInstanceStride() = 0;
+
+    std::vector<std::shared_ptr<Tree>>& getTrees() { return trees; }
 };
 
 class ClassificationForest : public Forest {

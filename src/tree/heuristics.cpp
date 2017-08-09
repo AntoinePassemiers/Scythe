@@ -14,6 +14,7 @@ namespace scythe {
 SplitManager::SplitManager(Density* const densities, size_t n_features) : 
     n_features(n_features), n_grown_trees(0), features() {
 
+    feature_importances = new double[n_features]();
     for (size_t f = 0; f < n_features; f++) {
         std::shared_ptr<FeatureInfo> feature(
             static_cast<FeatureInfo*>(malloc(sizeof(FeatureInfo))));
@@ -24,9 +25,11 @@ SplitManager::SplitManager(Density* const densities, size_t n_features) :
     }
 }
 
-void SplitManager::updateCurrentBestSplit(size_t feature_id, size_t split_id, double score) {
+void SplitManager::updateCurrentBestSplit(size_t feature_id, size_t split_id, double score, 
+    double information_gain, double weight) {
     // TODO : adapt the manager's behavior as a function of the given score
     features.at(feature_id)->ntimes_best[split_id]++;
+    feature_importances[feature_id] += weight * information_gain;
 }
 
 bool SplitManager::shouldEvaluate(size_t feature_id, size_t split_id) {

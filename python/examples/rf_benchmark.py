@@ -8,7 +8,9 @@ import time
 
 from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import log_loss
 
+import matplotlib.pyplot as plt
 
 def main():
     n_features = 100
@@ -21,9 +23,10 @@ def main():
     min_threshold = 1e-07
 
     X, y = make_classification(
-        n_samples  = 2 * n_samples, 
-        n_features = n_features, 
-        n_classes  = n_classes)
+        n_samples     = 2 * n_samples, 
+        n_features    = n_features, 
+        n_informative = 7,
+        n_classes     = n_classes)
 
     X_train = X[:n_samples]
     y_train = y[:n_samples]
@@ -35,16 +38,30 @@ def main():
     fconfig.n_classes      = n_classes
     fconfig.max_n_trees    = n_estimators
     fconfig.bag_size       = 10000
-    fconfig.max_depth      = max_depth - 8
+    fconfig.max_depth      = max_depth
     fconfig.max_n_features = max_n_features
     fconfig.min_threshold  = min_threshold
 
     forest = Forest(fconfig, "classification", "rf")
     t0 = time.time()
     forest.fit(X_train, y_train)
-    predictions = forest.predict(X_test)
     dt_scythe = time.time() - t0
-    scythe_acc = (predictions.argmax(axis = 1) == y[n_samples:]).sum() / float(n_samples)
+
+    hs, losses = list(), list()
+    for h in range(20, 0, -1):
+        forest.prune_height(h)
+        predictions = forest.predict(X_test)
+        scythe_acc = (predictions.argmax(axis = 1) == y[n_samples:]).sum() / float(n_samples)
+        loss = log_loss(y[n_samples:], predictions)
+        hs.append(h)
+        losses.append(loss)
+
+    feature_importances = forest.getFeatureImportances()
+    plt.bar(np.arange(len(feature_importances)), feature_importances)
+    plt.title("Feature importances")
+    plt.xlabel("Feature id")
+    plt.ylabel("Weighted information gain")
+    plt.show()
 
     forest = RandomForestClassifier(
         criterion = "gini",
@@ -53,20 +70,23 @@ def main():
         n_estimators = n_estimators,
         min_impurity_split = min_threshold)
     t0 = time.time()
-    forest.fit(X[:n_samples], y[:n_samples])
-    predictions = forest.predict(X[n_samples:])
+    forest.fit(X_train, y_train)
     dt_sklearn = time.time() - t0
+    predictions = forest.predict(X_test)
     node_counts = list()
     for i, tree in enumerate(forest.estimators_):
         node_counts.append(tree.tree_.node_count)
     sklearn_mnode_count = sum(node_counts)
-    sklearn_acc = (predictions == y[n_samples:]).sum() / float(n_samples)
+    sklearn_acc = (predictions == y_test).sum() / float(n_samples)
 
     print("Sklearn mean node count : %i" % sklearn_mnode_count)
     print("Scythe time      : %.3f s" % dt_scythe)
     print("Sklearn time     : %.3f s" % dt_sklearn)
     print("Scythe accuracy  : %f" % scythe_acc)
     print("Sklearn accuracy : %f" % sklearn_acc)
+
+    plt.plot(hs, losses)
+    plt.show()
 
 def convForest():
     n_features = 400

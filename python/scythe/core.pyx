@@ -128,6 +128,8 @@ cdef class ForestConfiguration:
 
     cpdef ForestConfig get_c_config(self):
         return self.config
+    cpdef void set_c_config(self, ForestConfig fconfig):
+        self.config = fconfig
 
     property type:
         def __get__(self): return self.config.type
@@ -197,6 +199,7 @@ cdef class ForestConfiguration:
 cdef class Tree:
     cdef TreeConfig config
     cdef void* predictor_p
+    cdef size_t n_features
 
     def __init__(self, cy_config, task):
         cy_config.task = TASKS[task]
@@ -212,10 +215,12 @@ cdef class Tree:
         else:
             self.predictor_p = fit_classification_tree(
                 &dataset, &labels, &self.config)
+        self.n_features = cX.shape[0]
     def predict(self, X):
         cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_rows = len(X)
+        assert(self.n_features == cX.shape[0])
         if self.config.task == REGRESSION_TASK:
             preds = ptr_to_reg_predictions(
                 tree_predict(&dataset, self.predictor_p, &self.config), n_rows)
@@ -225,16 +230,24 @@ cdef class Tree:
                 tree_classify(&dataset, self.predictor_p, &self.config),
                 n_rows, n_classes)
         return preds
+    def getFeatureImportances(self):
+        importances = tree_get_feature_importances(self.predictor_p)
+        self.n_features = importances.length
+        return np.asarray(<double[:self.n_features:1]>importances.data)
+
 
 
 cdef class Forest:
     cdef ForestConfig config
     cdef void* predictor_p
+    cdef size_t n_features
 
     def __init__(self, cy_config, task, forest_type):
         cy_config.task = TASKS[task]
         cy_config.type = FOREST_TYPES[forest_type.lower()]
         self.config = cy_config.get_c_config()
+    def set_predictor_p(self, ptr):
+        self.predictor_p = <void*>ptr
     def fit(self, X, y):
         cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
@@ -245,11 +258,13 @@ cdef class Forest:
         else:
             self.predictor_p = fit_classification_forest(
                 &dataset, &labels, &self.config)
+        self.n_features = cX.shape[0]
     def predict(self, X):
         cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_classes = self.config.n_classes
         n_rows = len(X)
+        assert(self.n_features == cX.shape[0])
         if self.config.task == REGRESSION_TASK:
             raise NotImplementedError()
         else:
@@ -258,6 +273,12 @@ cdef class Forest:
                 forest_classify(&dataset, self.predictor_p, &self.config),
                 n_rows, n_classes)
         return preds
+    def prune_height(self, max_height):
+        forest_prune_height(self.predictor_p, max_height) 
+    def getFeatureImportances(self):
+        importances = forest_get_feature_importances(self.predictor_p)
+        self.n_features = importances.length
+        return np.asarray(<double[:self.n_features:1]>importances.data)
 
 
 def py_api_test():

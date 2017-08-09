@@ -13,11 +13,35 @@ namespace scythe {
 
 Tree::Tree() :
     root(nullptr), n_nodes(0), n_classes(0), 
-    n_features(0), config(nullptr), level(1) {}
+    n_features(0), config(nullptr), level(1), split_manager(nullptr) {}
 
 Tree::Tree(Node* root, TreeConfig* config, size_t n_features) :
     root(root), n_nodes(1), n_classes(config->n_classes),
-    n_features(n_features), config(config), level(1) {}
+    n_features(n_features), config(config), level(1), split_manager(nullptr) {}
+
+Tree::Tree(const Tree& other) {
+    Node* nodes = new Node[other.n_nodes];
+    this->root = &nodes[0];
+    this->n_nodes = other.n_nodes;
+    this->n_classes = other.n_classes;
+    this->n_features = other.n_features;
+    this->config = other.config;
+    this->level = other.level;
+    this->split_manager = other.split_manager;
+
+    size_t current_node_id = 0;
+    std::queue<Node*> queue;
+    queue.push(other.root);
+    while (!queue.empty()) {
+        Node* next_node = queue.front(); queue.pop();
+        std::memcpy(&nodes[current_node_id], next_node, sizeof(Node));
+        current_node_id++;
+        if (next_node->left_child != nullptr) {
+            queue.push(next_node->left_child);
+            queue.push(next_node->right_child);
+        }
+    }
+}
 
 Node::Node(size_t n_classes, int id, size_t n_instances):
     id(id),
@@ -70,7 +94,6 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     node(node_space.owner),
     n_instances(n_instances),
     n_instances_in_node(n_instances),
-    partition_values(nullptr),
     n_classes(config->n_classes),
     mean_left(0.0),
     mean_right(0.0),
@@ -116,12 +139,11 @@ double informationGain(
     size_t n_total = sum_counts(counters, n_classes);
     double cost = 0.0;
     for (uint i = 0; i < n_classes; i++) {
-        if (counters[i] > 0) {
-            cost += pow2(static_cast<float>(counters[i]) / static_cast<float>(n_total));
-        }
+        cost += pow2(static_cast<float>(counters[i]) / static_cast<float>(n_total));
     }
     cost = (1.0 - cost);
     double gain = cost - gini;
+    gain = (gain < 0.0) ? 0.0 : gain;
     return gain;
 }
 
@@ -133,7 +155,7 @@ double evaluatePartitions(
     std::fill(counters_left, counters_left + splitter->n_classes, 0);
     std::fill(counters_right, counters_right + splitter->n_classes, 0);
     // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
-    fast_data_t split_value = static_cast<fast_data_t>(splitter->partition_values[k]);
+    fast_data_t split_value = static_cast<fast_data_t>(density->values[k]);
     
     fast_data_t* RESTRICT contiguous_data = data->retrieveContiguousData();
     label_t* RESTRICT contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
@@ -166,7 +188,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     size_t id = splitter->node->id;
     size_t* belongs_to = splitter->belongs_to;
     size_t n_left = 0, n_right = 0;
-    density->split_value = splitter->partition_values[k];
+    density->split_value = density->values[k];
     VirtualTargets* targets = splitter->targets;
     data_t split_value = density->split_value;
     double mean_left = 0.0, mean_right = 0.0;
@@ -213,7 +235,6 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
 
 double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data) {
     size_t n_classes = splitter->n_classes;
-    splitter->partition_values = density->values;
 
     data->allocateFromSampleMask(
         splitter->belongs_to,
@@ -230,8 +251,8 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
 
     size_t lower_bound = splitter->node_space.feature_left_bounds[splitter->feature_id];
     size_t upper_bound = splitter->node_space.feature_right_bounds[splitter->feature_id];
+    if (lower_bound == upper_bound) { return INFINITY; }
     if (splitter->is_complete_random) {
-        if (lower_bound == upper_bound) { return INFINITY; }
         size_t random_bound = lower_bound + (rand() % (upper_bound - lower_bound));
         lower_bound = random_bound;
         upper_bound = random_bound + 1;
@@ -246,7 +267,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
             double cost;
             if (splitter->task == CLASSIFICATION_TASK) {
                 cost = evaluatePartitions(data, density, splitter, k);
-                density->split_value = splitter->partition_values[k];
+                density->split_value = density->values[k];
             }
             else {
                 cost = evaluatePartitionsWithRegression(data, density, splitter, k);
@@ -258,7 +279,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
                 memcpy(best_counters_right, density->counters_right, n_classes * sizeof(size_t));
             }
             splitter->best_split_id = best_split_id;
-            density->split_value = splitter->partition_values[best_split_id];
+            density->split_value = density->values[best_split_id];
         }
     }
     if (splitter->task == CLASSIFICATION_TASK) {
@@ -293,6 +314,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     Density* next_density;
     NodeSpace current_node_space(current_node, n_features, densities);
     SplitManager* split_manager = densities[0].owner;
+    tree->split_manager = split_manager;
     Splitter splitter(current_node_space, config, n_instances, n_features, 
         belongs_to, targets, split_manager);
     Splitter best_splitter = splitter;
@@ -328,27 +350,28 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         }
         splitter.feature_id = best_feature;
         next_density = &densities[best_feature];
-        split_manager->updateCurrentBestSplit(best_feature, splitter.best_split_id, lowest_e_cost);
+        double information_gain = informationGain(current_node->counters, next_density->counters_left,
+            next_density->counters_right, config->n_classes);
+        split_manager->updateCurrentBestSplit(
+            best_feature, splitter.best_split_id, lowest_e_cost, information_gain,
+            static_cast<double>(best_splitter.n_instances_in_node) / static_cast<double>(best_splitter.n_instances));
 
         size_t split_totals[2] = {
             sum_counts(next_density->counters_left, config->n_classes),
             sum_counts(next_density->counters_right, config->n_classes)
         };
-        bool improving = (informationGain(current_node->counters, next_density->counters_left,
-            next_density->counters_right, config->n_classes) > 1e-06);
-        improving &= (!std::isinf(lowest_e_cost));
-        if ((tree->n_nodes < config->max_nodes) && (improving) &&
+        if ((tree->n_nodes < config->max_nodes) && (!std::isinf(lowest_e_cost)) && (information_gain > 1e-06) &&
             (current_node_space.current_depth < config->max_height) &&
             (((split_totals[0] && split_totals[1])
                 && (config->task == CLASSIFICATION_TASK))
                 || ((config->task == REGRESSION_TASK)
                 && (best_splitter.n_left > 0) && (best_splitter.n_right > 0)))) {
-            Node* new_children = new Node[2];
+            Node* new_children[2];
             data_t split_value = next_density->split_value;
             current_node->feature_id = static_cast<int>(best_feature);
             current_node->split_value = split_value;
-            current_node->left_child = &new_children[0];
-            current_node->right_child = &new_children[1];
+            current_node->left_child = new_children[0] = static_cast<Node*>(malloc(sizeof(Node)));
+            current_node->right_child = new_children[1] = static_cast<Node*>(malloc(sizeof(Node)));
 
             split_sides[0] = next_density->counters_left;
             split_sides[1] = next_density->counters_right;
@@ -372,7 +395,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 dataset->_iterator_inc();
             }
             for (uint i = 0; i < 2; i++) {
-                child_node = &new_children[i];
+                child_node = new_children[i];
                 child_node->id = static_cast<int>(tree->n_nodes);
                 child_node->split_value = split_value;
                 child_node->n_instances = split_totals[i];
@@ -395,8 +418,8 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                 ++tree->n_nodes;
             }
             if (config->task == REGRESSION_TASK) {
-                new_children[0].mean = best_splitter.mean_left;
-                new_children[1].mean = best_splitter.mean_right;
+                current_node->left_child->mean = best_splitter.mean_left;
+                current_node->right_child->mean = best_splitter.mean_right;
             }
         }
     }

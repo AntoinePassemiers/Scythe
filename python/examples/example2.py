@@ -43,6 +43,9 @@ if __name__ == "__main__":
     preds = tree.predict(X_test)
     print("\n%s" % preds)
 
+    feature_importances = tree.getFeatureImportances()
+    print(feature_importances)
+
     """
     # REGRESSION TREE
     targets = np.array([5.6, 7.8, 4.2, 3.5, 9.8, 5.4, 2.1, 7.7, 8.8, 6.0, 5.7, 7.0, 6.9, 6.3])

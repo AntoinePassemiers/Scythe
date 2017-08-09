@@ -90,7 +90,6 @@ struct Splitter {
     Node*           node;
     size_t          n_instances;
     size_t          n_instances_in_node;
-    data_t*         partition_values;
     size_t          n_classes;
     double          mean_left;
     double          mean_right;
@@ -111,15 +110,17 @@ struct Splitter {
 };
 
 struct Tree {
-    Node*       root;
-    size_t      n_nodes;
-    size_t      n_classes;
-    size_t      n_features;
-    TreeConfig* config;
-    ptrdiff_t   level;
+    Node*         root;
+    size_t        n_nodes;
+    size_t        n_classes;
+    size_t        n_features;
+    TreeConfig*   config;
+    ptrdiff_t     level;
+    SplitManager* split_manager;
 
     explicit Tree();
     explicit Tree(Node* root, TreeConfig* config, size_t n_features);
+    explicit Tree(const Tree&);
 };
 
 NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
@@ -150,6 +151,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
 
 double evaluateByThreshold(Splitter* splitter, Density* density, const VirtualDataset* data);
 
+double fastEvaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data);
 
 inline size_t sum_counts(size_t* counters, size_t n_counters) {
     /**

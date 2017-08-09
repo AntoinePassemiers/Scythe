@@ -78,12 +78,20 @@ cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
         double    min_threshold        
 
 cdef extern from "../../src/scythe.hpp":
+    struct double_vec_t:
+        double* data
+        size_t length
+
     void* fit_classification_tree(Dataset*, Labels*, TreeConfig*)
     void* fit_regression_tree(Dataset*, Labels*, TreeConfig*)
     float* tree_classify(Dataset*, void*, TreeConfig*)
     data_t* tree_predict(Dataset*, void*, TreeConfig*)
+    double_vec_t tree_get_feature_importances(void*)
+
     void* fit_classification_forest(Dataset*, Labels*, ForestConfig*)
     float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config)
+    void forest_prune_height(void* forest_p, size_t max_height)
+    double_vec_t forest_get_feature_importances(void* forest_p);
     void api_test(Dataset*)
 
 

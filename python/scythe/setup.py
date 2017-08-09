@@ -26,6 +26,7 @@ cpp_src_files = [
             "misc/sets.cpp",
             "tree/cart.cpp",
             "tree/heuristics.cpp",
+            "tree/pruning.cpp",
             "scythe.cpp",
         ],
         "core"
@@ -41,6 +42,7 @@ cpp_src_files = [
             "misc/sets.cpp",
             "tree/cart.cpp",
             "tree/heuristics.cpp",
+            "tree/pruning.cpp",
             "scythe.cpp",
             "deep_learning/layers/layer.cpp",
             "deep_learning/layers/concatenation_layer.cpp",

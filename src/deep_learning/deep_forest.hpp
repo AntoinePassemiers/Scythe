@@ -21,6 +21,7 @@ namespace scythe {
 class DeepForest {
 private:
     std::vector<layer_p> layers;
+    size_t n_layers;
     int task;
     layer_p front;
     layer_p rear;
@@ -32,12 +33,14 @@ public:
     ~DeepForest() = default;
     void fit(MDDataset dataset, Labels* labels);
     float* classify(MDDataset dataset);
-    void add(layer_p layer);
-    void add(layer_p parent, layer_p child);
+    size_t add(layer_p layer);
+    size_t add(layer_p parent, layer_p child);
     std::vector<layer_p> iterateOverLayers();
     size_t allocateCascadeBuffer(MDDataset dataset);
     void transfer(layer_p, vdataset_p, std::shared_ptr<ConcatenationDataset>);
+
     layer_p getFront() { return front; }
+    layer_p getLayerByID(size_t layer_id) { return layers.at(layer_id); }
 };
 
 } // namespace
