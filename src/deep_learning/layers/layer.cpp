@@ -61,18 +61,17 @@ void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
 float* Layer::classify(vdataset_p vdataset) {
     assert(grown);
     size_t n_instances = vdataset->getNumInstances();
-    size_t n_classes = lconfig.fconfig.n_classes;
-    float* predictions = static_cast<float*>(calloc(n_instances * n_classes, sizeof(float)));
+    float* predictions = static_cast<float*>(calloc(n_instances * getNumClasses(), sizeof(float)));
     ClassificationForest* forest_p;
     for (unsigned int i = 0; i < lconfig.n_forests; i++) {
         forest_p = dynamic_cast<ClassificationForest*>(forests.at(i).get());
         float* local_predictions = forest_p->classify(vdataset.get());
-        for (unsigned int j = 0; j < n_instances * n_classes; j++) {
+        for (unsigned int j = 0; j < n_instances * getNumClasses(); j++) {
             predictions[j] += local_predictions[j];
         }
         delete[] local_predictions;
     }
-    for (unsigned int j = 0; j < n_instances * n_classes; j++) {
+    for (unsigned int j = 0; j < n_instances * getNumClasses(); j++) {
         predictions[j] /= lconfig.n_forests;
     }
     return predictions;

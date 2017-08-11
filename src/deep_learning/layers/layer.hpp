@@ -90,12 +90,13 @@ public:
     std::vector<layer_p> getChildren() { return children; }
     std::vector<std::shared_ptr<Forest>> getForests() { return forests; }
     size_t getNumForests() { return getForests().size(); }
+    size_t getNumClasses() { return lconfig.fconfig.n_classes; }
     std::shared_ptr<Forest> getForestByID(size_t forest_id) { return forests.at(forest_id); }
     bool isClassifier() { return (lconfig.fconfig.task == CLASSIFICATION_TASK); }
 };
 
 std::ostream& operator<<(std::ostream& os, Layer* const layer);
 
-}
+} // namespace
 
 #endif // LAYER_HPP_

@@ -30,12 +30,10 @@ Fitting a single tree
 from scythe.core import *
 
 config = TreeConfiguration()
-config.is_incremental = False
 config.min_threshold = 1e-06
 config.max_height = 50
 config.n_classes = 3
 config.max_nodes = 30
-config.partitioning = PERCENTILE_PARTITIONING
 config.nan_value = -1.0
 
 tree = Tree(config, "classification")
@@ -56,6 +54,12 @@ fconfig.max_n_features = 20
 forest = Forest(fconfig, "classification", "random forest")
 forest.fit(X_train, y_train)
 probas = forest.predict(X_test)
+```
+
+Get the feature importances
+
+```python
+
 ```
 	
 	
