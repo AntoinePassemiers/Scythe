@@ -142,6 +142,11 @@ public:
     virtual size_t getNumInstances() = 0;
     virtual target_t* getValues() = 0;
 
+    // Virtual iterator
+    virtual void   _iterator_begin() = 0;
+    virtual void   _iterator_inc() = 0;
+    virtual data_t _iterator_deref() = 0;
+
     void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
     label_t* retrieveContiguousData() { return contiguous_labels; }
 };
@@ -151,6 +156,9 @@ class DirectTargets : public VirtualTargets {
 private:
     target_t* data;
     size_t n_rows;
+
+    // Iterator cursor
+    size_t iterator_cursor;
 public:
     DirectTargets(target_t* data, size_t n_instances);
     DirectTargets(const DirectTargets& other) = default;
@@ -159,6 +167,11 @@ public:
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
+
+    // Virtual iterator
+    virtual void   _iterator_begin();
+    virtual void   _iterator_inc();
+    virtual data_t _iterator_deref();
 };
 
 }  // namespace

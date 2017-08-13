@@ -63,6 +63,11 @@ public:
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
+
+    // Virtual iterator
+    virtual void   _iterator_begin();
+    virtual void   _iterator_inc();
+    virtual data_t _iterator_deref();
 };
 
 
@@ -79,6 +84,6 @@ public:
     virtual std::string getType() { return std::string("MultiGrainedScanner1D"); }
 };
 
-}
+} // namespace
 
 #endif // SCANNER1D_HPP_

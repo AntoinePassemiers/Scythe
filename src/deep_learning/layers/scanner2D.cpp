@@ -70,6 +70,21 @@ data_t ScannedDataset2D::_iterator_deref() {
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
     VirtualTargets::VirtualTargets(), data(data), n_rows(n_instances), s(sc * sr) {}
 
+void ScannedTargets2D::_iterator_begin() {
+    _it_x = _it_i = 0;
+}
+
+void ScannedTargets2D::_iterator_inc() {
+    if (++_it_x == s) {
+        _it_i++;
+        _it_x = 0;
+    }
+}
+
+target_t ScannedTargets2D::_iterator_deref() {
+    return data[_it_i];
+}
+
 target_t ScannedTargets2D::operator[](const size_t i) {
     return data[i / s];
 }

@@ -46,6 +46,18 @@ data_t ScannedDataset3D::_iterator_deref() {
 ScannedTargets3D::ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd) :
     data(data), n_rows(n_instances), s(sc * sr * sd) {}
 
+void ScannedTargets3D::_iterator_begin() {
+    // TODO
+}
+
+void ScannedTargets3D::_iterator_inc() {
+    // TODO
+}
+
+target_t ScannedTargets3D::_iterator_deref() {
+    return 0.0; // TODO
+}
+
 target_t ScannedTargets3D::operator[](const size_t i) {
     return data[i / s];
 }

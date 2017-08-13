@@ -234,7 +234,7 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
 }
 
 double evaluateBySingleThreshold(Splitter* splitter, Density* density, const VirtualDataset* data) {
-    
+    return 0.0; // TODO
 }
 
 double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data) {
@@ -242,7 +242,10 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
     size_t upper_bound = splitter->node_space.feature_right_bounds[splitter->feature_id];
     if (lower_bound == upper_bound) { return INFINITY; }
     if (splitter->is_complete_random) {
-        return evaluateBySingleThreshold(splitter, density, data);
+        // return evaluateBySingleThreshold(splitter, density, data);
+        size_t random_bound = lower_bound + (rand() % (upper_bound - lower_bound));
+        lower_bound = random_bound;
+        upper_bound = random_bound + 1;
     }
     size_t n_classes = splitter->n_classes;
 

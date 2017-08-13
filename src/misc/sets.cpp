@@ -107,16 +107,30 @@ void VirtualTargets::allocateFromSampleMask(
         this->n_contiguous_items = n_items;
     }
     uint k = 0;
+    _iterator_begin();
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_labels[k++] = operator[](i);
+            contiguous_labels[k++] = _iterator_deref();
         }
+        _iterator_inc();
     }
     assert(k == n_items);
 }
 
 DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
     data(data), n_rows(n_instances) {}
+
+void DirectTargets::_iterator_begin() {
+    iterator_cursor = 0;
+}
+
+void DirectTargets::_iterator_inc() {
+    iterator_cursor++;
+}
+
+data_t DirectTargets::_iterator_deref() {
+    return data[iterator_cursor];
+}
 
 target_t DirectTargets::operator[](const size_t i) {
     /**

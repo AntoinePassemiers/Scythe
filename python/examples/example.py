@@ -28,7 +28,7 @@ Cascade layer:
 
 def main():
     n_forests_per_layer = 2
-    kc, kr = 19, 19
+    kc, kr = 22, 22
 
     fconfig = ForestConfiguration()
     fconfig.bag_size       = 60000

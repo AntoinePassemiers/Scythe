@@ -40,6 +40,18 @@ data_t ScannedDataset1D::_iterator_deref() {
 ScannedTargets1D::ScannedTargets1D(target_t* data, size_t n_instances, size_t sc) :
     data(data), n_rows(n_instances), s(sc) {}
 
+void ScannedTargets1D::_iterator_begin() {
+    // TODO
+}
+
+void ScannedTargets1D::_iterator_inc() {
+    // TODO
+}
+
+data_t ScannedTargets1D::_iterator_deref() {
+    return 0.0; // TODO
+}
+
 target_t ScannedTargets1D::operator[](const size_t i) {
     return data[i / s];
 }
@@ -79,4 +91,4 @@ size_t MultiGrainedScanner1D::getNumVirtualFeatures() {
     return n_vfeatures * lconfig.n_forests;
 }
 
-}
+} // namespace

@@ -62,6 +62,8 @@ private:
     target_t* data;
     size_t n_rows;
     size_t s;
+    size_t _it_x;
+    size_t _it_i;
 public:
     ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr);
     ScannedTargets2D(const ScannedTargets2D& other) = default;
@@ -70,6 +72,11 @@ public:
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
+
+    // Virtual iterator
+    virtual void _iterator_begin();
+    virtual void _iterator_inc();
+    virtual data_t _iterator_deref();
 };
 
 
