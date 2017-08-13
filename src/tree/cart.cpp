@@ -233,7 +233,17 @@ double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
     return cost;
 }
 
+double evaluateBySingleThreshold(Splitter* splitter, Density* density, const VirtualDataset* data) {
+    
+}
+
 double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data) {
+    size_t lower_bound = splitter->node_space.feature_left_bounds[splitter->feature_id];
+    size_t upper_bound = splitter->node_space.feature_right_bounds[splitter->feature_id];
+    if (lower_bound == upper_bound) { return INFINITY; }
+    if (splitter->is_complete_random) {
+        return evaluateBySingleThreshold(splitter, density, data);
+    }
     size_t n_classes = splitter->n_classes;
 
     data->allocateFromSampleMask(
@@ -248,15 +258,6 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         splitter->node->id,
         splitter->n_instances_in_node,
         splitter->n_instances);
-
-    size_t lower_bound = splitter->node_space.feature_left_bounds[splitter->feature_id];
-    size_t upper_bound = splitter->node_space.feature_right_bounds[splitter->feature_id];
-    if (lower_bound == upper_bound) { return INFINITY; }
-    if (splitter->is_complete_random) {
-        size_t random_bound = lower_bound + (rand() % (upper_bound - lower_bound));
-        lower_bound = random_bound;
-        upper_bound = random_bound + 1;
-    }
 
     size_t best_split_id = 0;
     double lowest_cost = INFINITY;

@@ -28,14 +28,14 @@ Cascade layer:
 
 def main():
     n_forests_per_layer = 2
-    kc, kr = 22, 22
+    kc, kr = 19, 19
 
     fconfig = ForestConfiguration()
     fconfig.bag_size       = 60000
     fconfig.n_classes      = 10
-    fconfig.max_n_trees    = 40
+    fconfig.max_n_trees    = 4
     fconfig.max_n_features = 20
-    fconfig.max_depth      = 100
+    fconfig.max_depth      = 20
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
@@ -45,20 +45,21 @@ def main():
     scanner = MultiGrainedScanner2D(lconfig, (kc, kr))
     graph.add(scanner)
 
+    #print("Add cascade layer")
+    #cascade = CascadeLayer(lconfig)
+    #graph.add(cascade)
+
     print("Add cascade layer")
     cascade = CascadeLayer(lconfig)
     graph.add(cascade)
 
-    X_test, y_test = loadMNISTTestSet(location = sys.argv[1])
     X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
+    X_test, labels = loadMNISTTestSet(location = sys.argv[1])
+    X_train, y_train = X_train[:500], y_train[:500]
+    X_test, labels = X_train, y_train # TO REMOVE
 
     print("Fit gcForest")
-    X_train, y_train = X_train[:500], y_train[:500]
     graph.fit(X_train, y_train)
-
-    X_test, labels = loadMNISTTestSet(location = sys.argv[1])
-
-    X_test, labels = X_train, y_train # TO REMOVE
 
     print("Classify with gcForest")
     probas = graph.classify(X_test)
@@ -68,13 +69,12 @@ def main():
     print(labels)
     print("Correct predictions : %i / %i" % (ga, len(labels)))
 
-    f = cascade.getForests()
+    f = scanner.getForests()
     feature_importances = f[0].getFeatureImportances()
+    feature_importances = feature_importances.reshape(kc, kr)
 
-    plt.bar(np.arange(len(feature_importances)), feature_importances)
+    plt.imshow(feature_importances)
     plt.title("Feature importances")
-    plt.xlabel("Feature id")
-    plt.ylabel("Weighted information gain")
     plt.show()
 
 

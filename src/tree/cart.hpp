@@ -149,6 +149,8 @@ double evaluatePartitions(const VirtualDataset* RESTRICT data, const Density* RE
 double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
                                  Splitter* splitter, size_t k);
 
+double evaluateBySingleThreshold(Splitter* splitter, Density* density, const VirtualDataset* data);
+
 double evaluateByThreshold(Splitter* splitter, Density* density, const VirtualDataset* data);
 
 double fastEvaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset* data);

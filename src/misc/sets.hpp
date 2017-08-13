@@ -52,23 +52,23 @@ typedef std::shared_ptr<VirtualTargets> vtargets_p;
 
 // Data samples without target values
 struct Dataset {
-    void* data;
+    void*  data;
     size_t n_rows;
     size_t n_cols;
 };
 
 // Data samples contained in a multi-dimensional dataset
 struct MDDataset {
-    void* data;
+    void*  data;
     size_t n_dims;
     size_t dims[MAX_N_DIMS];
-    int dtype;
+    int    dtype;
 };
 
 // Target values
 struct Labels {
     target_t* data;
-    size_t n_rows;
+    size_t    n_rows;
 };
 
 
@@ -84,15 +84,15 @@ public:
     virtual data_t operator()(const size_t i, const size_t j) = 0;
 
     // Virtual iterator
-    virtual void _iterator_begin(const size_t j) = 0;
-    virtual void _iterator_inc() = 0;
+    virtual void   _iterator_begin(const size_t j) = 0;
+    virtual void   _iterator_inc() = 0;
     virtual data_t _iterator_deref() = 0;
 
     // Getters
     virtual size_t getNumInstances() = 0;
     virtual size_t getNumFeatures() = 0;
     virtual size_t getNumVirtualInstancesPerInstance() = 0;
-    virtual int getDataType() = 0;
+    virtual int    getDataType() = 0;
 
     void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
     fast_data_t* retrieveContiguousData() { return contiguous_data; }
@@ -102,9 +102,9 @@ public:
 class DirectDataset : public VirtualDataset {
 private:
     data_t* data;
-    size_t n_rows;
-    size_t n_cols;
-    int dtype;
+    size_t  n_rows;
+    size_t  n_cols;
+    int     dtype;
 
     // Iterator cursor
     size_t iterator_cursor;
@@ -117,15 +117,15 @@ public:
     virtual data_t operator()(const size_t i, const size_t j);
 
     // Virtual iterator
-    virtual void _iterator_begin(const size_t j);
-    virtual void _iterator_inc();
+    virtual void   _iterator_begin(const size_t j);
+    virtual void   _iterator_inc();
     virtual data_t _iterator_deref();
 
     // Getters
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
     virtual size_t getNumVirtualInstancesPerInstance() { return 1; }
-    virtual int getDataType() { return dtype; }
+    virtual int    getDataType() { return dtype; }
 };
 
 
@@ -161,6 +161,6 @@ public:
     virtual target_t* getValues() { return data; }
 };
 
-}
+}  // namespace
 
 #endif // SETS_HPP_
