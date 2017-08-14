@@ -27,6 +27,11 @@ ScannedDataset3D::ScannedDataset3D(
     data(data), // Pointer to the raw data
     dtype(dtype) {} // Raw data type
 
+void ScannedDataset3D::allocateFromSampleMask(
+    size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
+    // TODO
+}
+
 data_t ScannedDataset3D::operator()(size_t i, size_t j) {
     return 0; // TODO
 }
@@ -45,6 +50,11 @@ data_t ScannedDataset3D::_iterator_deref() {
 
 ScannedTargets3D::ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd) :
     data(data), n_rows(n_instances), s(sc * sr * sd) {}
+
+void ScannedTargets3D::allocateFromSampleMask(
+    size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {
+    // TODO
+}
 
 void ScannedTargets3D::_iterator_begin() {
     // TODO

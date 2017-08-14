@@ -32,6 +32,45 @@ void ConcatenationDataset::concatenate(float* new_data, size_t width) {
     this->stride += width;
 }
 
+void ConcatenationDataset::allocateFromSampleMask(
+    size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
+    /**
+        Allocate memory for storing temporary values of a single feature,
+        for the data samples belonging to the current node.
+        This method is called right before the inner loop of the CART algorithm,
+        and its purpose is to avoid calling virtual functions inside the vectorized
+        inner loop.
+
+        @param sample_mask
+            Pointer indicating for each data sample the id of the node it belongs to
+        @param node_id
+            Id of the current node
+        @param feature_id
+            Id of the attribute whose values are going to be stored
+        @param n_items
+            Number of data samples belonging to the current node
+        @param n_instances
+            Number of data samples in the whole dataset
+    */
+    if (n_items != this->n_contiguous_items) { // TODO
+        if (contiguous_data != nullptr) {
+            delete[] contiguous_data;
+        }
+        contiguous_data = new fast_data_t[n_items];
+        this->n_contiguous_items = n_items;
+    }
+
+    uint k = 0;
+    iterator_cursor = feature_id;
+    for (uint i = 0; i < n_instances; i++) {
+        if (sample_mask[i] == node_id) {
+            contiguous_data[k++] = static_cast<fast_data_t>(data[iterator_cursor]);
+        }
+        iterator_cursor += n_virtual_cols;
+    }
+    assert(k == n_items);
+}
+
 data_t ConcatenationDataset::operator()(const size_t i, const size_t j) {
     return static_cast<data_t>(data[i * n_virtual_cols + j]);
 }

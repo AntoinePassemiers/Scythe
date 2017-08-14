@@ -3,6 +3,7 @@
 # author : Antoine Passemiers
 
 from scythe.core import *
+from scythe.plot import plot_feature_importances
 
 import time
 
@@ -47,21 +48,26 @@ def main():
     forest.fit(X_train, y_train)
     dt_scythe = time.time() - t0
 
-    hs, losses = list(), list()
+    scythe = Scythe()
+    pruning_ids, hs, losses = list(), list(), list()
     for h in range(20, 0, -1):
-        forest.prune_height(h)
+        pruning_ids.append(scythe.prune_forest_height(forest, h))
         predictions = forest.predict(X_test)
-        scythe_acc = (predictions.argmax(axis = 1) == y[n_samples:]).sum() / float(n_samples)
-        loss = log_loss(y[n_samples:], predictions)
+        loss = log_loss(y_test, predictions)
         hs.append(h)
         losses.append(loss)
+        scythe.restore(pruning_ids[-1])
+    
+    # scythe.prune(pruning_ids[np.argmin(losses)])
+    predictions = forest.predict(X_test)
+    scythe_acc = (predictions.argmax(axis = 1) == y_test).sum() / float(n_samples)
 
-    feature_importances = forest.getFeatureImportances()
-    plt.bar(np.arange(len(feature_importances)), feature_importances)
-    plt.title("Feature importances")
-    plt.xlabel("Feature id")
-    plt.ylabel("Weighted information gain")
+    plot_feature_importances(forest)
     plt.show()
+
+    plt.plot(hs, losses)
+    plt.show()
+
 
     forest = RandomForestClassifier(
         criterion = "gini",
@@ -84,9 +90,6 @@ def main():
     print("Sklearn time     : %.3f s" % dt_sklearn)
     print("Scythe accuracy  : %f" % scythe_acc)
     print("Sklearn accuracy : %f" % sklearn_acc)
-
-    plt.plot(hs, losses)
-    plt.show()
 
 def convForest():
     n_features = 400

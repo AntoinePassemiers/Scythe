@@ -11,7 +11,14 @@
 
 namespace scythe {
 
-void VirtualDataset::allocateFromSampleMask(
+DirectDataset::DirectDataset(Dataset dataset) :
+    data(static_cast<data_t*>(dataset.data)), // TODO : type erasure
+    n_rows(dataset.n_rows), n_cols(dataset.n_cols) {}
+
+DirectDataset::DirectDataset(data_t* data, size_t n_instances, size_t n_features) :
+    data(data), n_rows(n_instances), n_cols(n_features) {}
+
+void DirectDataset::allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     /**
         Allocate memory for storing temporary values of a single feature,
@@ -40,22 +47,15 @@ void VirtualDataset::allocateFromSampleMask(
     }
 
     uint k = 0;
-    _iterator_begin(feature_id);
+    iterator_cursor = feature_id * this->n_rows;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_data[k++] = static_cast<fast_data_t>(_iterator_deref());
+            contiguous_data[k++] = static_cast<fast_data_t>(data[iterator_cursor]);
         }
-        _iterator_inc();
+        iterator_cursor++;
     }
     assert(k == n_items);
 }
-
-DirectDataset::DirectDataset(Dataset dataset) :
-    data(static_cast<data_t*>(dataset.data)), // TODO : type erasure
-    n_rows(dataset.n_rows), n_cols(dataset.n_cols) {}
-
-DirectDataset::DirectDataset(data_t* data, size_t n_instances, size_t n_features) :
-    data(data), n_rows(n_instances), n_cols(n_features) {}
 
 data_t DirectDataset::operator()(size_t i, size_t j) {
     /**
@@ -81,7 +81,10 @@ data_t DirectDataset::_iterator_deref() {
     return data[iterator_cursor];
 }
 
-void VirtualTargets::allocateFromSampleMask(
+DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
+    data(data), n_rows(n_instances) {}
+
+void DirectTargets::allocateFromSampleMask(
     size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {
     /**
         Allocate memory for storing temporary values of the labels,
@@ -107,18 +110,15 @@ void VirtualTargets::allocateFromSampleMask(
         this->n_contiguous_items = n_items;
     }
     uint k = 0;
-    _iterator_begin();
+    iterator_cursor = 0;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_labels[k++] = _iterator_deref();
+            contiguous_labels[k++] = data[iterator_cursor];
         }
-        _iterator_inc();
+        iterator_cursor++;
     }
     assert(k == n_items);
 }
-
-DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
-    data(data), n_rows(n_instances) {}
 
 void DirectTargets::_iterator_begin() {
     iterator_cursor = 0;

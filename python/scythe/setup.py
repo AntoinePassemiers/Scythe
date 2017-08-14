@@ -16,6 +16,9 @@ cpp_src_files = [
         "utils.py", [], "utils"
     ),
     (
+        "plot.py", [], "plot"
+    ),
+    (
         "core.cpp",
         [
             "densities/continuous.cpp",

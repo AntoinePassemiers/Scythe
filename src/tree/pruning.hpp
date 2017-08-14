@@ -30,9 +30,28 @@ struct NodeLevel {
     size_t level;
 };
 
-size_t cut(Node* node);
+struct Cut {
+    Node* leaf;
+    Node* left;
+    Node* right;  
+};
 
-void prune(Tree* tree, size_t max_depth);
+
+class Scythe {
+private:
+	std::vector<Tree*> trees;
+    std::vector<std::vector<Cut>> prunings;
+    size_t n_prunings;
+    bool delete_branches;
+public:
+	Scythe();
+
+	void add(Tree* tree) { trees.push_back(tree); }
+	size_t cut(Node* node);
+	int prune(size_t max_depth);
+    void restore(int pruning_id);
+    void prune(int pruning_id);
+};
 
 } // namespace
 

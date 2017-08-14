@@ -175,19 +175,40 @@ extern "C" {
         return probabilites;
     }
 
-    void forest_prune_height(void* forest_p, size_t max_height) {
-        Forest* forest = static_cast<Forest*>(forest_p);
-        for (auto it = begin(forest->getTrees()); it != end(forest->getTrees()); ++it) {
-            prune((*it).get(), max_height);
-        }
-    }
-
     double_vec_t forest_get_feature_importances(void* forest_p) {
         Forest* forest = static_cast<Forest*>(forest_p);
         double_vec_t importances;
         importances.data = forest->getTrees().at(0)->split_manager->getFeatureImportances();
         importances.length = forest->getTrees().at(0)->split_manager->getNumFeatures();
         return importances;
+    }
+
+    void* create_scythe() {
+        return static_cast<void*>(new Scythe());
+    }
+
+    void add_tree_to_scythe(void* scythe_p, void* tree_p) {
+        Scythe* s = static_cast<Scythe*>(scythe_p);
+        s->add(static_cast<Tree*>(tree_p));
+    }
+
+    int forest_prune_height(void* scythe_p, void* forest_p, size_t max_height) {
+        Scythe* s = static_cast<Scythe*>(scythe_p);
+        Forest* forest = static_cast<Forest*>(forest_p);
+        for (auto it = begin(forest->getTrees()); it != end(forest->getTrees()); ++it) {
+            s->add((*it).get());
+        }
+        return s->prune(max_height);
+    }
+
+    void restore_pruning(void* scythe_p, int pruning_id) {
+        Scythe* s = static_cast<Scythe*>(scythe_p);
+        s->restore(pruning_id);
+    }
+
+    void prune(void* scythe_p, int pruning_id) {
+        Scythe* s = static_cast<Scythe*>(scythe_p);
+        s->prune(pruning_id);
     }
 
     void api_test(Dataset* dataset) { 

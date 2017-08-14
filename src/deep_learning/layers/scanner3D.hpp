@@ -44,6 +44,8 @@ public:
     virtual void _iterator_inc();
     virtual data_t _iterator_deref();
 
+    virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
+
     // Getters
     size_t getSc() { return sc; }
     size_t getSr() { return sr; }
@@ -73,6 +75,8 @@ public:
     virtual void _iterator_begin();
     virtual void _iterator_inc();
     virtual data_t _iterator_deref();
+
+    virtual void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
 };
 
 

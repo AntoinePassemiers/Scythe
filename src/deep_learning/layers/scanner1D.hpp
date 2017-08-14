@@ -47,6 +47,8 @@ public:
     virtual size_t getNumFeatures() { return Mprime; }
     virtual size_t getNumVirtualInstancesPerInstance() { return sc; }
     virtual int getDataType() { return dtype; }
+
+    virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
 };
 
 
@@ -68,6 +70,8 @@ public:
     virtual void   _iterator_begin();
     virtual void   _iterator_inc();
     virtual data_t _iterator_deref();
+
+    virtual void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
 };
 
 

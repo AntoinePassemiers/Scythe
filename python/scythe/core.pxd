@@ -90,8 +90,14 @@ cdef extern from "../../src/scythe.hpp":
 
     void* fit_classification_forest(Dataset*, Labels*, ForestConfig*)
     float* forest_classify(Dataset* dataset, void* forest_p, ForestConfig* config)
-    void forest_prune_height(void* forest_p, size_t max_height)
-    double_vec_t forest_get_feature_importances(void* forest_p);
+    double_vec_t forest_get_feature_importances(void* forest_p)
+
+    void* create_scythe()
+    void add_tree_to_scythe(void* scythe_p, void* tree_p)
+    int forest_prune_height(void* scythe_p, void* forest_p, size_t max_height)
+    void restore_pruning(void* scythe_p, int pruning_id)
+    void prune(void* scythe_p, int pruning_id)
+
     void api_test(Dataset*)
 
 

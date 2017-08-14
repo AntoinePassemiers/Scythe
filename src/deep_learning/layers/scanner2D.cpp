@@ -38,6 +38,55 @@ ScannedDataset2D::ScannedDataset2D(
     }
 }
 
+void ScannedDataset2D::allocateFromSampleMask(
+    size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
+    /**
+        Allocate memory for storing temporary values of a single feature,
+        for the data samples belonging to the current node.
+        This method is called right before the inner loop of the CART algorithm,
+        and its purpose is to avoid calling virtual functions inside the vectorized
+        inner loop.
+
+        @param sample_mask
+            Pointer indicating for each data sample the id of the node it belongs to
+        @param node_id
+            Id of the current node
+        @param feature_id
+            Id of the attribute whose values are going to be stored
+        @param n_items
+            Number of data samples belonging to the current node
+        @param n_instances
+            Number of data samples in the whole dataset
+    */
+    if (n_items != this->n_contiguous_items) { // TODO
+        if (contiguous_data != nullptr) {
+            delete[] contiguous_data;
+        }
+        contiguous_data = new fast_data_t[n_items];
+        this->n_contiguous_items = n_items;
+    }
+
+    uint k = 0;
+    _it_x = P * (feature_id % kc) + (feature_id / kr);
+    _it_i = 0;
+    _it_q = 0;
+    for (uint i = 0; i < n_instances; i++) {
+        if (sample_mask[i] == node_id) {
+            contiguous_data[k++] = static_cast<fast_data_t>(data[_it_x + _it_i + _it_q]);
+        }
+        _it_i++;
+        if (_it_i == sc) {
+            _it_q += M;
+            _it_i = 0;
+            if (_it_q == sr * M) {
+                _it_q = 0;
+                _it_x += (M * P);
+            }
+        }
+    }
+    assert(k == n_items);
+}
+
 data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     size_t n = i / (sr * sc);
     size_t m = (i % sc) + (j % kc);
@@ -69,6 +118,45 @@ data_t ScannedDataset2D::_iterator_deref() {
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
     VirtualTargets::VirtualTargets(), data(data), n_rows(n_instances), s(sc * sr) {}
+
+void ScannedTargets2D::allocateFromSampleMask(
+    size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {
+    /**
+        Allocate memory for storing temporary values of the labels,
+        for the data samples belonging to the current node.
+        This method is called right before the inner loop of the CART algorithm,
+        and its purpose is to avoid calling virtual functions inside the vectorized
+        inner loop.
+
+        @param sample_mask
+            Pointer indicating for each data sample the id of the node it belongs to
+        @param node_id
+            Id of the current node
+        @param n_items
+            Number of data samples belonging to the current node
+        @param n_instances
+            Number of data samples in the whole dataset
+    */
+    if (n_items != this->n_contiguous_items) { // TODO
+        if (contiguous_labels != nullptr) {
+            delete[] contiguous_labels;
+        }
+        contiguous_labels = new label_t[n_items];
+        this->n_contiguous_items = n_items;
+    }
+    uint k = 0;
+    _it_x = _it_i = 0;
+    for (uint i = 0; i < n_instances; i++) {
+        if (sample_mask[i] == node_id) {
+            contiguous_labels[k++] = data[_it_i];
+        }
+        if (++_it_x == s) {
+            _it_i++;
+            _it_x = 0;
+        }
+    }
+    assert(k == n_items);
+}
 
 void ScannedTargets2D::_iterator_begin() {
     _it_x = _it_i = 0;

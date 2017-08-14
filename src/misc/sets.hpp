@@ -73,7 +73,7 @@ struct Labels {
 
 
 class VirtualDataset {
-private:
+protected:
     fast_data_t* contiguous_data = nullptr;
     size_t n_contiguous_items = 0;
 public:
@@ -94,7 +94,7 @@ public:
     virtual size_t getNumVirtualInstancesPerInstance() = 0;
     virtual int    getDataType() = 0;
 
-    void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
+    virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t) = 0;
     fast_data_t* retrieveContiguousData() { return contiguous_data; }
 };
 
@@ -121,6 +121,8 @@ public:
     virtual void   _iterator_inc();
     virtual data_t _iterator_deref();
 
+    virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
+
     // Getters
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
@@ -130,7 +132,7 @@ public:
 
 
 class VirtualTargets {
-private:
+protected:
     label_t* contiguous_labels = nullptr;
     size_t n_contiguous_items = 0;
 public:
@@ -147,7 +149,7 @@ public:
     virtual void   _iterator_inc() = 0;
     virtual data_t _iterator_deref() = 0;
 
-    void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
+    virtual void allocateFromSampleMask(size_t*, size_t, size_t, size_t) = 0;
     label_t* retrieveContiguousData() { return contiguous_labels; }
 };
 
@@ -172,6 +174,8 @@ public:
     virtual void   _iterator_begin();
     virtual void   _iterator_inc();
     virtual data_t _iterator_deref();
+
+    virtual void allocateFromSampleMask(size_t*, size_t, size_t, size_t);
 };
 
 }  // namespace

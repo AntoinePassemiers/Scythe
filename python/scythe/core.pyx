@@ -273,13 +273,25 @@ cdef class Forest:
                 forest_classify(&dataset, self.predictor_p, &self.config),
                 n_rows, n_classes)
         return preds
-    def prune_height(self, max_height):
-        forest_prune_height(self.predictor_p, max_height) 
     def getFeatureImportances(self):
         importances = forest_get_feature_importances(self.predictor_p)
         self.n_features = importances.length
         return np.asarray(<double[:self.n_features:1]>importances.data)
 
+cdef class Scythe:
+    cdef void* scythe_p
+
+    def __init__(self):
+        self.scythe_p = create_scythe()
+
+    def prune_forest_height(self, Forest forest, max_height):
+        return forest_prune_height(self.scythe_p, forest.predictor_p, max_height)
+
+    def restore(self, int pruning_id):
+        restore_pruning(self.scythe_p, pruning_id)
+    
+    def prune(self, int pruning_id):
+        prune(self.scythe_p, pruning_id)
 
 def py_api_test():
     cdef Dataset* dataset_p = <Dataset*>malloc(sizeof(Dataset))
