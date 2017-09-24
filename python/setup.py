@@ -20,7 +20,8 @@ except ImportError:
 source_folder = "scythe"
 source_files = [
     "core.pyx",
-    "layers.pyx"
+    "layers.pyx",
+    "tools/encoders.pyx"
 ]
 
 def configuration(parent_package = str(), top_path = None):

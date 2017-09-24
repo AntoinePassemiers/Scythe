@@ -325,8 +325,6 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 
     if (config->max_n_features > n_features) { config->max_n_features = n_features; }
     size_t max_n_features = config->max_n_features;
-    size_t* features_to_use = new size_t[n_features];
-    // memset(features_to_use, 0x01, n_features * sizeof(size_t));
     uint best_feature = 0;
 
     std::queue<NodeSpace> queue;
@@ -340,16 +338,13 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         splitter.node = current_node;
         splitter.node_space = current_node_space;
         splitter.n_instances_in_node = current_node->n_instances;
-        selectFeaturesToConsider(features_to_use, n_features, max_n_features);
-        for (uint f = 0; f < n_features; f++) {
-            if (features_to_use[f]) {
-                splitter.feature_id = f;
-                e_cost = evaluateByThreshold(&splitter, &densities[f], dataset);
-                if (e_cost < lowest_e_cost) {
-                    lowest_e_cost = e_cost;
-                    best_feature = f;
-                    best_splitter = splitter;
-                }
+        for (size_t f : selectFeaturesToConsider(n_features, max_n_features)) {
+            splitter.feature_id = f;
+            e_cost = evaluateByThreshold(&splitter, &densities[f], dataset);
+            if (e_cost < lowest_e_cost) {
+                lowest_e_cost = e_cost;
+                best_feature = f;
+                best_splitter = splitter;
             }
         }
         splitter.feature_id = best_feature;
@@ -428,9 +423,8 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         }
     }
     split_manager->notifyGrownTree();
-    std::cout << "Tree depth : " << tree->level << std::endl;
-    std::cout << "Node count : " << tree->n_nodes << std::endl;
-    delete[] features_to_use;
+    // std::cout << "Tree depth : " << tree->level << std::endl;
+    // std::cout << "Node count : " << tree->n_nodes << std::endl;
     delete[] split_sides;
     return tree;
 }

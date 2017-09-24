@@ -17,7 +17,6 @@ from libcpp.limits cimport numeric_limits
 
 from scythe.utils import *
 
-
 cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
     dataset.n_rows = X.shape[1]

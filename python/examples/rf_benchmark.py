@@ -39,7 +39,7 @@ def main():
     fconfig.n_classes      = n_classes
     fconfig.max_n_trees    = n_estimators
     fconfig.bag_size       = 10000
-    fconfig.max_depth      = max_depth
+    fconfig.max_depth      = max_depth - 8
     fconfig.max_n_features = max_n_features
     fconfig.min_threshold  = min_threshold
 
@@ -62,7 +62,7 @@ def main():
     predictions = forest.predict(X_test)
     scythe_acc = (predictions.argmax(axis = 1) == y_test).sum() / float(n_samples)
 
-    plot_feature_importances(forest)
+    plot_feature_importances(forest, alpha = 1.4)
     plt.show()
 
     plt.plot(hs, losses)

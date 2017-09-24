@@ -2,6 +2,7 @@
 
 import os, sys
 from distutils.extension import Extension
+from distutils.command.build_ext import build_ext
 
 import numpy as np
 from numpy.distutils.misc_util import Configuration
@@ -13,10 +14,16 @@ CPP_SRC_FOLDER = "../../src"
 
 cpp_src_files = [
     (
+        "MNIST.py", [], "MNIST"
+    ),
+    (
         "utils.py", [], "utils"
     ),
     (
         "plot.py", [], "plot"
+    ),
+    (
+        "tools/encoders.cpp", [], "encoders",
     ),
     (
         "core.cpp",
@@ -70,21 +77,32 @@ for module in cpp_src_files:
 source_folder = "scythe"
 sub_packages = []
 
-extra_compile_args = [
-    "-std=c++14", 
-    "-ftree-loop-optimize",
-    "-ftree-vectorize",
-    "-funroll-loops",
-    "-ftree-vectorizer-verbose=1",
-    "-g",
-    # "-fopenmp",
-    # "-fopenmp-simd"
-    "-Iinclude",
-    "-O3"
-]
-extra_link_args = [
-    # "-fopenmp",
-]
+
+COMPILER = "mingw"
+
+if COMPILER == "mingw":
+    extra_compile_args = [
+        "-std=c++14", 
+        "-ftree-loop-optimize",
+        "-ftree-vectorize",
+        "-funroll-loops",
+        "-ftree-vectorizer-verbose=1",
+        "-g",
+        # "-fopenmp",
+        # "-fopenmp-simd"
+        "-Iinclude",
+        "-O3"
+    ]
+elif COMPILER == "msvc":
+    # https://msdn.microsoft.com/en-us/library/fwkeyyhe.aspx
+    extra_compile_args = [
+        "/O2",
+        "/arch",
+        "/GA",
+        "/Wall"
+    ]
+extra_link_args = []
+
 
 libraries = ["m"] if os.name == "posix" else list()
 include_dirs = [np.get_include()]

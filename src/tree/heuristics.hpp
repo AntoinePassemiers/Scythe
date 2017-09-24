@@ -48,7 +48,7 @@ public:
     double* getFeatureImportances() { return feature_importances; }
 };
 
-void selectFeaturesToConsider(size_t* to_use, size_t n_features, size_t max_n_features);
+std::vector<size_t> selectFeaturesToConsider(size_t n_features, size_t max_n_features);
 
 } // namespace
 

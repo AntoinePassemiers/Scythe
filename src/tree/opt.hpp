@@ -11,7 +11,6 @@
 
 #include <stdlib.h>
 
-
 namespace scythe {
 
 #if true
