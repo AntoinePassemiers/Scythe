@@ -78,6 +78,7 @@ Get the feature importances
 - [ ] Adapt random forests code for regression tasks
 - [x] Proper setup.py file
 - [x] Python wrapper of the LayerConfig structure
+- [ ] Sort queue by information gain in decision tree algorithm
 
 ### R installation
 
