@@ -24,6 +24,41 @@ source_files = [
     "tools/encoders.pyx"
 ]
 
+extra_compiler_args = [
+    "-std=c++14",
+    "-Iinclude",
+    "-fPIC",
+    "-Wpedantic",
+    "-Wall",
+    "-Wextra",
+    "-Wconversion",
+    "-Weffc++",
+    "-Wstrict-null-sentinel",
+    "-Wold-style-cast",
+    "-Wnoexcept",
+    "-Wctor-dtor-privacy",
+    "-Woverloaded-virtual",
+    "-Wsign-promo",
+    "-Wzero-as-null-pointer-constant",
+    "-Wconversion",
+    "-pthread",
+    "-O3",
+    "-ftree-loop-optimize",
+    "-ftree-vectorize",
+    "-funroll-loops",
+    "-ftree-vectorizer-verbose=1",
+    "-g",
+    "-fopenmp",
+    "-fopenmp-simd"
+]
+extra_compiler_args += [
+    "/O2",
+    "/Ox",
+    "/arch",
+    "/GA",
+    "/openmp",
+]
+
 def configuration(parent_package = str(), top_path = None):
     config = Configuration(None, parent_package, top_path)
     config.set_options(ignore_setup_xxx_py = True,
@@ -60,6 +95,7 @@ for source_file in source_files:
         Extension(extension_name,
                   sources,
                   language = "c++",
+                  extra_compiler_args = extra_compiler_args,
                   include_dirs = [np.get_include()]
         )
     )

@@ -7,7 +7,7 @@ import os, sys
 from scythe.core import *
 from scythe.layers import *
 
-from MNIST import *  # TODO
+from scythe.MNIST import *  # TODO
 
 import matplotlib.pyplot as plt
 
