@@ -128,7 +128,7 @@ struct Tree {
     explicit Tree(const Tree&);
 };
 
-void ordered_push(std::list<NodeSpace> queue, NodeSpace nodespace, bool ordered);
+void ordered_push(std::list<NodeSpace>& queue, NodeSpace nodespace, bool ordered);
 
 NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 

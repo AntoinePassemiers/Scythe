@@ -62,7 +62,7 @@ cdef class TreeConfiguration:
         self.config.partitioning = PERCENTILE_PARTITIONING
         self.config.nan_value = <data_t>np.nan
         self.config.is_complete_random = False
-        self.config.ordered_queue = True
+        self.config.ordered_queue = False
 
     cpdef TreeConfig get_c_config(self):
         return self.config
@@ -100,6 +100,7 @@ cdef class TreeConfiguration:
     property ordered_queue:
         def __get__(self): return self.config.ordered_queue
         def __set__(self, value): self.config.ordered_queue = value
+
 
 cdef class ForestConfiguration:
     cdef ForestConfig config

@@ -13,6 +13,7 @@ from sklearn.metrics import log_loss
 
 import matplotlib.pyplot as plt
 
+
 def main():
     n_features = 100
     n_samples  = 10000

@@ -110,7 +110,7 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     split_manager(split_manager) {}
 
 
-void ordered_push(std::list<NodeSpace> queue, NodeSpace nodespace, bool ordered) {
+void ordered_push(std::list<NodeSpace>& queue, NodeSpace nodespace, bool ordered) {
     if (ordered) {
         bool inserted = false;
         for (std::list<NodeSpace>::iterator it = queue.begin(); it != queue.end(); ++it) {
@@ -346,8 +346,10 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 
     std::list<NodeSpace> queue;
     queue.push_back(current_node_space);
-    while ((tree->n_nodes < config->max_nodes) && !queue.empty()) {
+    // std::queue<NodeSpace> queue;
+    // queue.push(current_node_space);
 
+    while ((tree->n_nodes < config->max_nodes) && !queue.empty()) {
         current_node_space = queue.front(); queue.pop_front();
         current_node = current_node_space.owner;
         double e_cost = INFINITY;
@@ -426,7 +428,9 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                     child_space.current_depth = current_node_space.current_depth + 1;
                     child_space.feature_left_bounds[best_feature] = new_left_bounds[i];
                     child_space.feature_right_bounds[best_feature] = new_right_bounds[i];
+                    
                     ordered_push(queue, child_space, config->ordered_queue);
+                    
                     if (child_space.current_depth > tree->level) {
                         tree->level = child_space.current_depth;
                     }
@@ -440,8 +444,8 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         }
     }
     split_manager->notifyGrownTree();
-    // std::cout << "Tree depth : " << tree->level << std::endl;
-    // std::cout << "Node count : " << tree->n_nodes << std::endl;
+    std::cout << "Tree depth : " << tree->level << std::endl;
+    std::cout << "Node count : " << tree->n_nodes << std::endl;
     delete[] split_sides;
     return tree;
 }
