@@ -127,7 +127,7 @@ float* DeepForest::classify(MDDataset dataset) {
             }
         }
     }
-    return current_layer->classify(current_vdataset);
+    return current_layer->classify(cascade_buffer);
 }
 
 } // namespace

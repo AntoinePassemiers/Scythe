@@ -110,6 +110,23 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     split_manager(split_manager) {}
 
 
+void ordered_push(std::list<NodeSpace> queue, NodeSpace nodespace, bool ordered) {
+    if (ordered) {
+        bool inserted = false;
+        for (std::list<NodeSpace>::iterator it = queue.begin(); it != queue.end(); ++it) {
+            if ((*it).information_gain <= nodespace.information_gain) {
+                queue.insert(it, nodespace);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) queue.push_back(nodespace);
+    }
+    else {
+        queue.push_back(nodespace);
+    }
+}
+
 double getFeatureCost(size_t* RESTRICT const counters_left, 
     size_t* RESTRICT const counters_right, size_t n_classes) {
 
@@ -266,7 +283,7 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
     double lowest_cost = INFINITY;
     size_t best_counters_left[MAX_N_CLASSES];
     size_t best_counters_right[MAX_N_CLASSES];
-    for (uint k = lower_bound; k < upper_bound; k++) {
+    for (size_t k = lower_bound; k < upper_bound; k++) {
         if (splitter->split_manager->shouldEvaluate(splitter->feature_id, k)) {
             double cost;
             if (splitter->task == CLASSIFICATION_TASK) {
@@ -327,11 +344,11 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
     size_t max_n_features = config->max_n_features;
     uint best_feature = 0;
 
-    std::queue<NodeSpace> queue;
-    queue.push(current_node_space);
+    std::list<NodeSpace> queue;
+    queue.push_back(current_node_space);
     while ((tree->n_nodes < config->max_nodes) && !queue.empty()) {
 
-        current_node_space = queue.front(); queue.pop();
+        current_node_space = queue.front(); queue.pop_front();
         current_node = current_node_space.owner;
         double e_cost = INFINITY;
         double lowest_e_cost = INFINITY;
@@ -409,7 +426,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
                     child_space.current_depth = current_node_space.current_depth + 1;
                     child_space.feature_left_bounds[best_feature] = new_left_bounds[i];
                     child_space.feature_right_bounds[best_feature] = new_right_bounds[i];
-                    queue.push(child_space);
+                    ordered_push(queue, child_space, config->ordered_queue);
                     if (child_space.current_depth > tree->level) {
                         tree->level = child_space.current_depth;
                     }

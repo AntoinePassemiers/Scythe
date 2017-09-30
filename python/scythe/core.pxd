@@ -50,6 +50,7 @@ cdef extern from "../../src/tree/cart.hpp" namespace "scythe":
         int    partitioning
         data_t nan_value
         bool   is_complete_random
+        bool   ordered_queue
 
 cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
     struct ForestConfig:

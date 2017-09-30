@@ -13,6 +13,7 @@
 #include <math.h>
 #include <numeric>
 #include <queue>
+#include <list>
 #include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,6 +70,7 @@ struct NodeSpace {
     size_t  current_depth;
     size_t* feature_left_bounds;
     size_t* feature_right_bounds;
+    double  information_gain;
 
     explicit NodeSpace(Node* owner, size_t n_features, Density* densities);
     explicit NodeSpace(const NodeSpace& node_space, size_t n_features);
@@ -85,6 +87,7 @@ struct TreeConfig {
     int    partitioning;
     data_t nan_value;
     bool   is_complete_random;
+    bool   ordered_queue;
 };
 
 struct Splitter {
@@ -124,6 +127,8 @@ struct Tree {
     explicit Tree(Node* root, TreeConfig* config, size_t n_features);
     explicit Tree(const Tree&);
 };
+
+void ordered_push(std::list<NodeSpace> queue, NodeSpace nodespace, bool ordered);
 
 NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 
