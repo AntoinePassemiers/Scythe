@@ -11,10 +11,6 @@
 
 namespace scythe {
 
-void VirtualDataset::allocateFromSampleMask(
-    size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
-        // TODO
-}
 
 DirectDataset::DirectDataset(Dataset dataset) :
     data(dataset.data), n_rows(dataset.n_rows), n_cols(dataset.n_cols), dtype(dataset.dtype) {}

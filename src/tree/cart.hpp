@@ -15,6 +15,7 @@
 #include <queue>
 #include <list>
 #include <cstddef>
+#include <cstdint>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,7 @@
 
 #include "opt.hpp"
 #include "../misc/sets.hpp"
+#include "../misc/utils.hpp"
 #include "heuristics.hpp"
 #include "../densities/continuous.hpp"
 

@@ -97,8 +97,7 @@ public:
     virtual int    getDataType() = 0;
 
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t) = 0;
-    void generic_allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
-    fast_data_t* retrieveContiguousData() { return contiguous_data; }
+    void* retrieveContiguousData() { return static_cast<fast_data_t*>(contiguous_data); }
 };
 
 

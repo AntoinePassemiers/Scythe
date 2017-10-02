@@ -178,14 +178,16 @@ double evaluatePartitions(
 
     size_t* counter_ptrs[2] = { counters_left, counters_right };
 
-    if (true) {
-        fast_data_t* RESTRICT contiguous_data = data->retrieveContiguousData();
-        count_instances(contiguous_data, contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value);   
-    }
-    else {
-        // TODO
-    }
-    
+    switch (data->getDataType()) {
+        case NPY_UINT8_NUM:
+            count_instances(static_cast<uint8_t*>(data->retrieveContiguousData()),
+                contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value);
+            break;
+        default:
+            count_instances(static_cast<fast_data_t*>(data->retrieveContiguousData()), 
+                contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value);
+            break;
+    }    
       
     return getFeatureCost(counters_left, counters_right, splitter->n_classes);
 }

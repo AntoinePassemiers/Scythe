@@ -22,7 +22,7 @@ cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
     dataset.n_rows = X.shape[1]
     dataset.n_cols = X.shape[0]
-    dataset.data = <data_t*>X.data
+    dataset.data = <void*>X.data
     dataset.dtype = np.dtype(X.dtype).num
     return dataset
 
