@@ -30,10 +30,10 @@ private:
     size_t Nprime; // Number of instances after scanning
     size_t Mprime; // Number of features after scanning
 
-    data_t* data; // Pointer to the raw data
+    void* data; // Pointer to the raw data
     int dtype;    // Raw data type
 public:
-    ScannedDataset3D(data_t* data, size_t kc, size_t kr, size_t kd, int dtype);
+    ScannedDataset3D(void* data, size_t kc, size_t kr, size_t kd, int dtype);
     ScannedDataset3D(const ScannedDataset3D& other) = default;
     ScannedDataset3D& operator=(const ScannedDataset3D& other) = default;
     ~ScannedDataset3D() override = default;

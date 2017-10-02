@@ -13,7 +13,7 @@ namespace scythe {
 Parameters parameters;
 
 ScannedDataset2D::ScannedDataset2D(
-    data_t* data, size_t N, size_t M, size_t P, size_t kc, size_t kr, int dtype) : 
+    void* data, size_t N, size_t M, size_t P, size_t kc, size_t kr, int dtype) : 
     N(N),                // Number of instances
     M(M),                // Instance height
     P(P),                // Instance width
@@ -72,7 +72,7 @@ void ScannedDataset2D::allocateFromSampleMask(
     _it_q = 0;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_data[k++] = static_cast<fast_data_t>(data[_it_x + _it_i + _it_q]);
+            contiguous_data[k++] = static_cast<fast_data_t>(static_cast<data_t*>(data)[_it_x + _it_i + _it_q]);
         }
         _it_i++;
         if (_it_i == sc) {
@@ -91,7 +91,7 @@ data_t ScannedDataset2D::operator()(size_t i, size_t j) {
     size_t n = i / (sr * sc);
     size_t m = (i % sc) + (j % kc);
     size_t p = ((i % (sr * sc)) / sr) + (j / kr);
-    return data[(M * P) * n + (P * m) + p];
+    return static_cast<data_t*>(data)[(M * P) * n + (P * m) + p];
 }
 
 void ScannedDataset2D::_iterator_begin(const size_t j) {
@@ -113,7 +113,7 @@ void ScannedDataset2D::_iterator_inc() {
 }
 
 data_t ScannedDataset2D::_iterator_deref() {
-    return data[_it_x + _it_i + _it_q];
+    return static_cast<data_t*>(data)[_it_x + _it_i + _it_q];
 }
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :

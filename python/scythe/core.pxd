@@ -27,6 +27,7 @@ cdef extern from "../../src/misc/sets.hpp" namespace "scythe":
         void* data
         size_t n_rows
         size_t n_cols
+        int dtype
 
     struct MDDataset:
         void* data

@@ -11,7 +11,7 @@
 namespace scythe {
 
 ScannedDataset3D::ScannedDataset3D(
-    data_t* data, size_t kc, size_t kr, size_t kd, int dtype) : 
+    void* data, size_t kc, size_t kr, size_t kd, int dtype) : 
     N(0),       // Number of instances
     M(0),       // Instance height
     P(0),       // Instance width

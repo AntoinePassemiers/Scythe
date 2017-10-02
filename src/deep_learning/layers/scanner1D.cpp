@@ -11,7 +11,7 @@
 namespace scythe {
 
 ScannedDataset1D::ScannedDataset1D(
-    data_t* data, size_t N, size_t M, size_t kc, int dtype) : 
+    void* data, size_t N, size_t M, size_t kc, int dtype) : 
     N(N),                // Number of instances
     M(M),                // Instance height
     kc(kc),              // Kernel width
@@ -76,7 +76,7 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
     assert(dataset.dims[1] > 0);
     Layer::vdataset = std::shared_ptr<ScannedDataset1D>(
         new ScannedDataset1D(
-            static_cast<data_t*>(dataset.data), // TODO : type erasure
+            dataset.data,
             dataset.dims[0],
             dataset.dims[1],
             this->kc,

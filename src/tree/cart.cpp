@@ -174,25 +174,19 @@ double evaluatePartitions(
     // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     fast_data_t split_value = static_cast<fast_data_t>(density->values[k]);
     
-    fast_data_t* RESTRICT contiguous_data = data->retrieveContiguousData();
     label_t* RESTRICT contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
 
     size_t* counter_ptrs[2] = { counters_left, counters_right };
-    #ifdef _OMP
-        #pragma omp simd aligned(contiguous_data : 32)
-    #endif
-    // Canonical loop form (signed variable, no data dependency, no virtual call...)
-    for (signed int j = 0; j < splitter->n_instances_in_node; j++) {
-        /**
-        if (contiguous_data[j] >= split_value) {
-            counters_right[contiguous_labels[j]]++;
-        }
-        else {
-            counters_left[contiguous_labels[j]]++;
-        }
-        */
-        counter_ptrs[(contiguous_data[j] >= split_value)][contiguous_labels[j]]++;
-    }    
+
+    if (true) {
+        fast_data_t* RESTRICT contiguous_data = data->retrieveContiguousData();
+        count_instances(contiguous_data, contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value);   
+    }
+    else {
+        // TODO
+    }
+    
+      
     return getFeatureCost(counters_left, counters_right, splitter->n_classes);
 }
 

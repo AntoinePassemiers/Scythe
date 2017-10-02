@@ -27,7 +27,7 @@ private:
     size_t Nprime; // Number of instances after scanning
     size_t Mprime; // Number of features after scanning
 
-    data_t* data; // Pointer to the raw data
+    void* data; // Pointer to the raw data
     int dtype;    // Raw data type
 
     // Iterator cursors
@@ -35,7 +35,7 @@ private:
     size_t _it_i;
     size_t _it_q;
 public:
-    ScannedDataset2D(data_t* data, size_t N, size_t M, 
+    ScannedDataset2D(void* data, size_t N, size_t M, 
         size_t P, size_t kc, size_t kr, int dtype);
     ScannedDataset2D(const ScannedDataset2D& other) = default;
     ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;

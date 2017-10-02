@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "exceptions.hpp"
+#include "utils.hpp"
 
 
 namespace scythe {
@@ -55,6 +56,7 @@ struct Dataset {
     void*  data;
     size_t n_rows;
     size_t n_cols;
+    int    dtype;
 };
 
 // Data samples contained in a multi-dimensional dataset
@@ -95,22 +97,23 @@ public:
     virtual int    getDataType() = 0;
 
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t) = 0;
+    void generic_allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
     fast_data_t* retrieveContiguousData() { return contiguous_data; }
 };
 
 
 class DirectDataset : public VirtualDataset {
 private:
-    data_t* data;
+    void* data;
     size_t  n_rows;
     size_t  n_cols;
-    int     dtype;
+    int dtype;
 
     // Iterator cursor
     size_t iterator_cursor;
 public:
     DirectDataset(Dataset dataset);
-    DirectDataset(data_t* data, size_t n_instances, size_t n_features);
+    DirectDataset(void* data, size_t n_instances, size_t n_features);
     DirectDataset(const DirectDataset& other) = default;
     DirectDataset& operator=(const DirectDataset& other) = default;
     ~DirectDataset() override = default;

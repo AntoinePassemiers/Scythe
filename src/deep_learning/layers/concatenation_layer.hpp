@@ -58,6 +58,6 @@ public:
     virtual std::string getType() { return std::string("CascadeLayer"); }
 };
 
-}
+} // namespace
 
 #endif // CONCATENATION_LAYER_HPP_

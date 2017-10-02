@@ -30,8 +30,7 @@ extern "C" {
         config->task = CLASSIFICATION_TASK;
         config->max_n_features = dataset->n_cols;
         DirectDataset* direct_dataset = new DirectDataset(
-            static_cast<data_t*>(dataset->data), // TODO : type erasure
-            dataset->n_rows, dataset->n_cols);
+            dataset->data, dataset->n_rows, dataset->n_cols);
         DirectTargets* direct_targets = new DirectTargets(
             labels->data, dataset->n_rows);
         Density* densities = computeDensities(
@@ -55,8 +54,7 @@ extern "C" {
         config->task = REGRESSION_TASK;
         config->max_n_features = dataset->n_cols;
         DirectDataset* direct_dataset = new DirectDataset(
-            static_cast<data_t*>(dataset->data), // TODO : type erasure
-            dataset->n_rows, dataset->n_cols);
+            dataset->data, dataset->n_rows, dataset->n_cols);
         DirectTargets* direct_targets = new DirectTargets(
             targets->data, dataset->n_rows);
         Density* densities = computeDensities(
@@ -84,8 +82,7 @@ extern "C" {
         */
         Tree* tree = static_cast<Tree*>(tree_p);
         DirectDataset* direct_dataset = new DirectDataset(
-            static_cast<data_t*>(dataset->data), // TODO : type erasure
-            dataset->n_rows, dataset->n_cols);
+            dataset->data, dataset->n_rows, dataset->n_cols);
         float* predictions = classifyFromTree(direct_dataset, dataset->n_rows, dataset->n_cols,
             tree, config);
         return predictions;
@@ -107,8 +104,7 @@ extern "C" {
         */
         Tree* tree = static_cast<Tree*>(tree_p);
         DirectDataset* direct_dataset = new DirectDataset(
-            static_cast<data_t*>(dataset->data), // TODO : type erasure
-            dataset->n_rows, dataset->n_cols);
+            dataset->data, dataset->n_rows, dataset->n_cols);
         data_t* predictions = predict(direct_dataset, dataset->n_rows, dataset->n_cols, tree, config);
         return predictions;
     }

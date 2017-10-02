@@ -17,11 +17,13 @@ from libcpp.limits cimport numeric_limits
 
 from scythe.utils import *
 
+
 cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
     dataset.n_rows = X.shape[1]
     dataset.n_cols = X.shape[0]
     dataset.data = <data_t*>X.data
+    dataset.dtype = np.dtype(X.dtype).num
     return dataset
 
 cdef MDDataset to_md_dataset(cnp.ndarray X):

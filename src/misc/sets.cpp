@@ -11,11 +11,15 @@
 
 namespace scythe {
 
-DirectDataset::DirectDataset(Dataset dataset) :
-    data(static_cast<data_t*>(dataset.data)), // TODO : type erasure
-    n_rows(dataset.n_rows), n_cols(dataset.n_cols) {}
+void VirtualDataset::allocateFromSampleMask(
+    size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
+        // TODO
+}
 
-DirectDataset::DirectDataset(data_t* data, size_t n_instances, size_t n_features) :
+DirectDataset::DirectDataset(Dataset dataset) :
+    data(dataset.data), n_rows(dataset.n_rows), n_cols(dataset.n_cols), dtype(dataset.dtype) {}
+
+DirectDataset::DirectDataset(void* data, size_t n_instances, size_t n_features) :
     data(data), n_rows(n_instances), n_cols(n_features) {}
 
 void DirectDataset::allocateFromSampleMask(
@@ -50,7 +54,7 @@ void DirectDataset::allocateFromSampleMask(
     iterator_cursor = feature_id * this->n_rows;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_data[k++] = static_cast<fast_data_t>(data[iterator_cursor]);
+            contiguous_data[k++] = static_cast<fast_data_t>(static_cast<data_t*>(data)[iterator_cursor]);
         }
         iterator_cursor++;
     }
@@ -66,7 +70,7 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
         @param j
             Column id
     */
-    return this->data[j * this->n_rows + i];
+    return static_cast<data_t*>(this->data)[j * this->n_rows + i];
 }
 
 void DirectDataset::_iterator_begin(const size_t j) {
@@ -78,7 +82,7 @@ void DirectDataset::_iterator_inc() {
 }
 
 data_t DirectDataset::_iterator_deref() {
-    return data[iterator_cursor];
+    return static_cast<data_t*>(data)[iterator_cursor];
 }
 
 DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
