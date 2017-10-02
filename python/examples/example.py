@@ -56,7 +56,7 @@ def main():
     X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
     X_test, labels = loadMNISTTestSet(location = sys.argv[1])
     X_train, y_train = X_train[:500], y_train[:500]
-    X_test, labels = X_train, y_train # TO REMOVE
+    # X_test, labels = X_train, y_train # TO REMOVE
 
     print("Fit gcForest")
     graph.fit(X_train, y_train)

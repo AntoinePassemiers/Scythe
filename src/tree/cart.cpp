@@ -346,8 +346,6 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
 
     std::list<NodeSpace> queue;
     queue.push_back(current_node_space);
-    // std::queue<NodeSpace> queue;
-    // queue.push(current_node_space);
 
     while ((tree->n_nodes < config->max_nodes) && !queue.empty()) {
         current_node_space = queue.front(); queue.pop_front();
