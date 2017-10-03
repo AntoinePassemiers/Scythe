@@ -35,7 +35,7 @@ def main():
     fconfig.n_classes      = 10
     fconfig.max_n_trees    = 4
     fconfig.max_n_features = 20
-    fconfig.max_depth      = 20
+    fconfig.max_depth      = 8
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
@@ -45,9 +45,9 @@ def main():
     scanner = MultiGrainedScanner2D(lconfig, (kc, kr))
     graph.add(scanner)
 
-    #print("Add cascade layer")
-    #cascade = CascadeLayer(lconfig)
-    #graph.add(cascade)
+    print("Add cascade layer")
+    cascade = CascadeLayer(lconfig)
+    graph.add(cascade)
 
     print("Add cascade layer")
     cascade = CascadeLayer(lconfig)
@@ -55,7 +55,7 @@ def main():
 
     X_train, y_train = loadMNISTTrainingSet(location = sys.argv[1])
     X_test, labels = loadMNISTTestSet(location = sys.argv[1])
-    X_train, y_train = X_train[:500], y_train[:500]
+    X_train, y_train = X_train[:100], y_train[:100]
     # X_test, labels = X_train, y_train # TO REMOVE
 
     print("Fit gcForest")

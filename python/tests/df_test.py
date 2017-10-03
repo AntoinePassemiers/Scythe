@@ -28,6 +28,10 @@ def minimal_test():
     cascade = CascadeLayer(lconfig)
     graph.add(cascade)
 
+    cascade2 = CascadeLayer(lconfig)
+    graph.add(cascade2)
+
+
     X_train = np.array(
         [[[25, 20, 15], [5, 0, 0], [0, 1, 0]],
         [[0, 4, 2], [5, 0, 15], [20, 42, 15]]], dtype = np.uint8)

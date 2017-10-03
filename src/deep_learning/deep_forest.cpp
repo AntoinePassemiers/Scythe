@@ -71,7 +71,6 @@ size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
 
 void DeepForest::transfer(layer_p layer,
     vdataset_p vdataset, std::shared_ptr<ConcatenationDataset> buffer) {
-
     buffer->reset();
     for (std::shared_ptr<Forest> forest_p : layer->getForests()) {
         if (layer->isClassifier()) {
@@ -90,43 +89,58 @@ void DeepForest::transfer(layer_p layer,
 
 void DeepForest::fit(MDDataset dataset, Labels* labels) {
     size_t n_instances = dataset.dims[0];
-    DirectTargets* direct_targets = new DirectTargets(
-        labels->data, n_instances);
+    std::shared_ptr<VirtualTargets> direct_targets = std::shared_ptr<VirtualTargets>(
+        new DirectTargets(labels->data, n_instances));
     allocateCascadeBuffer(dataset);
     std::queue<layer_p> queue;
     queue.push(front);
     vdataset_p current_vdataset = front->virtualize(dataset);
     vtargets_p current_vtargets = front->virtualizeTargets(labels);
     front->grow(current_vdataset, current_vtargets);
+    std::cout << "AAAAAA" << std::endl;
     while (!queue.empty()) {
         layer_p current_layer = queue.front(); queue.pop();
         if (current_layer->getChildren().size() > 0) {
+            std::cout << "VVVVVV" << std::endl;
             transfer(current_layer, current_vdataset, cascade_buffer);
-            current_vtargets = std::shared_ptr<VirtualTargets>(direct_targets);
+            std::cout << "XXXXXX" << std::endl;
+            current_vtargets = direct_targets;
             for (layer_p child : current_layer->getChildren()) {
                 // current_vtargets = child->virtualizeTargets(labels);
+                std::cout << "LLLLLL" << std::endl;
                 child->grow(cascade_buffer, current_vtargets);
+                std::cout << "EEEEEE" << std::endl;
                 queue.push(child);
             }
+            std::cout << "SSSSSS" << std::endl;
         }
+        std::cout << "OOOOOO" << std::endl;
     }
+    std::cout << "RRRRRR" << std::endl;
 }
 
 float* DeepForest::classify(MDDataset dataset) {
+    std::cout << "QQQQQQ" << std::endl;
     allocateCascadeBuffer(dataset);
+    std::cout << "KKKKKK" << std::endl;
     std::queue<layer_p> queue;
     queue.push(front);
     layer_p current_layer;
     vdataset_p current_vdataset = front->virtualize(dataset);
+    std::cout << "CCCCCC" << std::endl;
     while (!queue.empty()) {
+        std::cout << "BBBBBB" << std::endl;
         current_layer = queue.front(); queue.pop();
         if (current_layer->getChildren().size() > 0) {
+            std::cout << "NNNNNN" << std::endl;
             transfer(current_layer, current_vdataset, cascade_buffer);
+            std::cout << "FFFFFF" << std::endl;
             for (layer_p child : current_layer->getChildren()) {
                 queue.push(child);
             }
         }
     }
+    std::cout << "ZZZZZZ" << std::endl;
     return current_layer->classify(cascade_buffer);
 }
 

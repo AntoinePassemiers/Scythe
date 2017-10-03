@@ -31,6 +31,7 @@ extern "C" {
     }
 
     float* c_deep_forest_classify(scythe::MDDataset dataset, size_t forest_id) {
+        std::cout << "p";
         scythe::DeepForest* forest = cpp_classes_interface.get(forest_id);
         return forest->classify(dataset);
     }
