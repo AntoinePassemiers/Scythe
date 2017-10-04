@@ -28,7 +28,8 @@ size_t DeepForest::add(layer_p layer) {
         assert(front.get() == layer.get());
     }
     if (rear.get() != nullptr) {
-        rear.get()->add(layer);
+        rear->addChild(layer);
+        layer->addParent(rear);
     }
     rear = layer;
     assert(rear.get() == layer.get());
@@ -38,13 +39,15 @@ size_t DeepForest::add(layer_p layer) {
 size_t DeepForest::add(layer_p parent, layer_p child) {
     assert(parent.get() != child.get());
     rear = child;
-    parent.get()->add(child);
+    parent->addChild(child);
+    child->addParent(parent);
     child->setTask(task);
     layers.push_back(child);
     return n_layers++;
 }
 
 size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
+    /**
     size_t required_mgs_size = 0;
     size_t required_cascade_size = 0;
     for (layer_p current_layer : layers) {
@@ -64,6 +67,25 @@ size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
     }
     size_t n_instances = dataset.dims[0];
     size_t n_virtual_cols = required_mgs_size + required_cascade_size;
+    this->cascade_buffer = std::shared_ptr<ConcatenationDataset>(
+        new ConcatenationDataset(n_instances, n_virtual_cols));
+    return n_instances * n_virtual_cols;
+    */
+    size_t required_mgs_size = 0;
+    size_t required_cascade_size = 0;
+    for (layer_p current_layer : layers) {
+        assert(current_layer.get() != nullptr);
+        size_t current_layer_required_mgs_size = 0;
+        for (layer_p parent : current_layer->getParents()) {
+            parent->virtualize(dataset);
+            current_layer_required_mgs_size += parent->getNumVirtualFeatures();
+        }
+        required_mgs_size = std::max(
+            required_mgs_size, current_layer_required_mgs_size);
+    }
+    size_t n_instances = dataset.dims[0];
+    size_t n_virtual_cols = required_mgs_size + required_cascade_size;
+
     this->cascade_buffer = std::shared_ptr<ConcatenationDataset>(
         new ConcatenationDataset(n_instances, n_virtual_cols));
     return n_instances * n_virtual_cols;

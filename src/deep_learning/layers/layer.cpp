@@ -16,7 +16,7 @@ LayerConfig::LayerConfig() :
 
 Layer::Layer(LayerConfig lconfig) :
     name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
-    children(), forests(), vdataset(nullptr), vtargets(nullptr), lconfig() {
+    children(), parents(), forests(), vdataset(nullptr), vtargets(nullptr), lconfig() {
     this->lconfig = lconfig;
 }
 
@@ -77,8 +77,12 @@ float* Layer::classify(vdataset_p vdataset) {
     return predictions;
 }
 
-void Layer::add(layer_p layer) {
+void Layer::addChild(layer_p layer) {
     children.push_back(layer);
+}
+
+void Layer::addParent(layer_p layer) {
+    parents.push_back(layer);
 }
 
 vdataset_p Layer::getVirtualDataset() {

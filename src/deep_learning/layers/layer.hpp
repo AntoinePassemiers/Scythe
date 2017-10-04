@@ -63,7 +63,8 @@ protected:
     std::vector<size_t> virtual_in_shape;  // Virtual input shape
     std::vector<size_t> virtual_out_shape; // Virtual output shape
 
-    std::vector<layer_p> children; // children layers
+    std::vector<layer_p> children; // child layers
+    std::vector<layer_p> parents;  // parent layers
     std::vector<std::shared_ptr<Forest>> forests; // Intern forests
 
     vdataset_p vdataset; // Virtual dataset
@@ -75,7 +76,8 @@ protected:
 public:
     Layer(LayerConfig lconfig);
     virtual ~Layer() = 0;
-    void add(layer_p layer);
+    void addChild(layer_p layer);
+    void addParent(layer_p layer);
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
     virtual vtargets_p virtualizeTargets(Labels* targets) = 0;
     size_t getNumChildren();
@@ -88,6 +90,7 @@ public:
     float* classify(vdataset_p vdataset);
 
     std::vector<layer_p> getChildren() { return children; }
+    std::vector<layer_p> getParents() { return parents; }
     std::vector<std::shared_ptr<Forest>> getForests() { return forests; }
     size_t getNumForests() { return getForests().size(); }
     size_t getNumClasses() { return lconfig.fconfig.n_classes; }

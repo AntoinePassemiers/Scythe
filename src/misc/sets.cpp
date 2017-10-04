@@ -102,7 +102,6 @@ void DirectTargets::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    std::cout << "a, ";
     if (n_items != this->n_contiguous_items) { // TODO
         if (contiguous_labels != nullptr) {
             delete[] contiguous_labels;
@@ -110,7 +109,6 @@ void DirectTargets::allocateFromSampleMask(
         contiguous_labels = new label_t[n_items];
         this->n_contiguous_items = n_items;
     }
-    std::cout << "b, ";
     uint k = 0;
     iterator_cursor = 0;
     for (uint i = 0; i < n_instances; i++) {
@@ -120,7 +118,6 @@ void DirectTargets::allocateFromSampleMask(
         iterator_cursor++;
     }
     assert(k == n_items);
-    std::cout << "c, ";
 }
 
 void DirectTargets::_iterator_begin() {
