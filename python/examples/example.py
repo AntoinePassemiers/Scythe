@@ -11,20 +11,6 @@ from scythe.MNIST import *
 import matplotlib.pyplot as plt
 
 
-"""
-Hyper-parameters (as determined by Zhi-Hua Zhou and Ji Feng)
-----------------
-
-Multi-grained scanner:
-    Number of forests: 2
-    Number of trees per forest: 500
-    Maximum depth: 100
-Cascade layer:
-    Number of forests: 8
-    Number of trees per forest: 500
-    Maximum depth: infinite
-"""
-
 def main():
     if len(sys.argv) < 2:
         print("Please provide the path to the MNIST dataset as first argument")
@@ -35,36 +21,39 @@ def main():
     kc, kr = 22, 22
 
     fconfig = ForestConfiguration()
-    fconfig.bag_size       = 60000
     fconfig.n_classes      = 10
-    fconfig.max_n_trees    = 4
+    fconfig.max_n_trees    = 50
     fconfig.max_n_features = 20
-    fconfig.max_depth      = 12
+    fconfig.max_depth      = 8
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
     graph = DeepForest(task = "classification", n_classes = 10)
 
-    print("Add 2D Convolutional layer")
+    # scanner is set as both front layer and rear layer
     scanner = MultiGrainedScanner2D(lconfig, (kc, kr))
     scanner_id = graph.add(scanner)
 
-    print("Add cascade layer")
+    # cascade is added to rear's chidren (scanner)
+    # cascade is then set as rear layer
     cascade = CascadeLayer(lconfig)
     cascade_id = graph.add(cascade)
 
-    print("Add cascade layer")
+    # cascade2 is added to rear's children (cascade)
+    # cascade2 is then set as rear layer
     cascade2 = CascadeLayer(lconfig)
     cascade2_id = graph.add(cascade2)
 
+    # connect scanner and cascade2
     graph.connect(scanner_id, cascade2_id)
 
-
+    print("Load MNIST datasets")
     X_train, y_train = loadMNISTTrainingSet(location = mnist_folder)
     X_test, labels = loadMNISTTestSet(location = mnist_folder)
-    X_train, y_train = X_train[:100], y_train[:100]
-    # X_test, labels = X_train, y_train # TO REMOVE
-    # X_test, labels = X_test[:100, :], labels[:100]
+
+    # Scythe's deep forest is still relatively slow
+    # Better use a subset of the training set for experimenting purposes
+    X_train, y_train = X_train[:1000], y_train[:1000]
 
     print("Fit gcForest")
     graph.fit(X_train, y_train)

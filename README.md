@@ -6,16 +6,13 @@ A deep forest consists of a stack of layers, where each of them learns from both
 
 The rationale behind this project is to solve the problem of high dimensionality of fine grained scanners. Indeed, contrary to neural networks' convolutional layers, multi-grained scanners tend to increase the size of the temporary data due to slicing. To get around this issue, the concept of virtual datasets has been developed. Furthermore, fast tree learning algorithms have been implemented.
 
-## Deep forests
-
 The idea is partly inspired by the [original deep forest article](https://arxiv.org/abs/1702.08835):
 
 <i> Deep Forest: Towards An Alternative to Deep Neural Networks, by Zhi-Hua Zhou and Ji Feng (arXiv:1702.08835 [cs.LG]) </i>
 
 ![alt text](https://raw.githubusercontent.com/AntoinePassemiers/Scythe/master/doc/imgs/gcForest.png)
 
-How to use it
--------------
+## Trees and random forests
 
 From the root, build the library by taping the following commands:
 
@@ -41,7 +38,7 @@ tree.fit(X_train, y_train)
 probas = tree.predict(X_test)
 ```
 
-Fitting a random forest
+Fitting a random forest:
 
 ```python
 fconfig = ForestConfiguration()
@@ -56,14 +53,71 @@ forest.fit(X_train, y_train)
 probas = forest.predict(X_test)
 ```
 
-Get the feature importances
+Get the feature importances:
 
 ```python
+from scythe.plot import plot_feature_importances
 
+plot_feature_importances(forest, alpha = 1.4)
+plt.show()
 ```
+
+![alt text](https://raw.githubusercontent.com/AntoinePassemiers/Scythe/master/doc/imgs/importances.png)
 	
+## Deep forests
+
+A complete example on the MNIST dataset can be found [here](https://github.com/AntoinePassemiers/Scythe/blob/master/python/examples/example.py).
+
+Create an empty deep forest model:
+
+```python
+from scythe.core import *
+
+graph = DeepForest(task = "classification", n_classes = 10)
+```
+
+Create a forest configuration:
+
+```python
+fconfig = ForestConfiguration()
+fconfig.bag_size       = 60000
+fconfig.n_classes      = 10
+fconfig.max_n_trees    = 4
+fconfig.max_n_features = 20
+fconfig.max_depth      = 12
+lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
+```
+
+Add layers to model:
+
+```python
+scanner  = graph.add(MultiGrainedScanner2D(lconfig, (15, 15)))
+cascade  = graph.add(CascadeLayer(lconfig))
+cascade2 = graph.add(CascadeLayer(lconfig))
+cascade3 = graph.add(CascadeLayer(lconfig))
+```
+
+Two layers are called connected if one is parent of the other and vice versa. Each new layer is automatically connected as a child of the rear layer. The rear layer is always the last cascade layer that has been added to the graph. To connect a layer to a non-rear layer, use the *DeepForest.connect(parent_id, child_id)* method.
 	
-### Todo
+```python
+graph.connect(scanner, cascade2)
+graph.connect(scanner, cascade3)
+```
+
+Then fit the model:
+
+```python
+graph.fit(X_train, y_train)
+```
+
+And finally predict on new instances:
+
+```python
+probas = graph.classify(X_test)
+```
+
+
+## Todo
 
 - [ ] Create a R wrapper
 - [ ] Handle sparse matrices and arrays
