@@ -79,6 +79,8 @@ graph = DeepForest(task = "classification", n_classes = 10)
 Create a forest configuration:
 
 ```python
+from scythe.layers import *
+
 fconfig = ForestConfiguration()
 fconfig.bag_size       = 60000
 fconfig.n_classes      = 10
