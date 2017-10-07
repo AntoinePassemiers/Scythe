@@ -31,7 +31,6 @@ extern "C" {
     }
 
     float* c_deep_forest_classify(scythe::MDDataset dataset, size_t forest_id) {
-        std::cout << "p";
         scythe::DeepForest* forest = cpp_classes_interface.get(forest_id);
         return forest->classify(dataset);
     }
@@ -62,6 +61,11 @@ extern "C" {
         scythe::layer_p layer = std::shared_ptr<scythe::MultiGrainedScanner3D>(
             new scythe::MultiGrainedScanner3D(lconfig, kc, kr, kd));
         return forest->add(layer);
+    }
+
+    void c_connect_nodes(size_t forest_id, size_t parent_id, size_t child_id) {
+        scythe::DeepForest* forest = cpp_classes_interface.get(forest_id);
+        forest->connect(forest->getLayerByID(parent_id), forest->getLayerByID(child_id));
     }
 
     void* c_get_forest(size_t deep_forest_id, size_t layer_id, size_t forest_id) {

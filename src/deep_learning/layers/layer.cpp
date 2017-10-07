@@ -16,9 +16,8 @@ LayerConfig::LayerConfig() :
 
 Layer::Layer(LayerConfig lconfig) :
     name(), in_shape(), virtual_in_shape(), virtual_out_shape(), 
-    children(), parents(), forests(), vdataset(nullptr), vtargets(nullptr), lconfig() {
-    this->lconfig = lconfig;
-}
+    children(), parents(), forests(), vdataset(nullptr), vtargets(nullptr), 
+    lconfig(lconfig) {}
 
 Layer::~Layer() {}
 
@@ -26,10 +25,8 @@ void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
     assert(!grown);
     assert(forests.size() == 0);
     Forest* forest;
-    std::cout << "AA" << std::endl;
     assert(vdataset->getNumInstances() == vtargets->getNumInstances());
     for (unsigned int i = 0; i < lconfig.n_forests; i++) {
-        std::cout << "BB" << std::endl;
         if (lconfig.forest_type == RANDOM_FOREST) {
             forest = new ClassificationRF(
                 &lconfig.fconfig, 
@@ -49,12 +46,9 @@ void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
         else {
             std::cout << "Error: this type of forest does not exist" << std::endl;
         }
-        std::cout << "CC" << std::endl;
         forest->fit(vdataset.get(), vtargets.get());
         forests.push_back(std::shared_ptr<Forest>(forest));
-        std::cout << "DD" << std::endl;
     }
-    std::cout << "EE" << std::endl;
     grown = true;
 }
 
@@ -91,6 +85,10 @@ vdataset_p Layer::getVirtualDataset() {
 
 size_t Layer::getNumChildren() {
     return this->children.size();
+}
+
+size_t Layer::getNumParents() {
+    return this->parents.size();
 }
 
 std::ostream& operator<<(std::ostream& os, Layer* const layer) {

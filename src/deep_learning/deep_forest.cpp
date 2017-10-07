@@ -17,7 +17,7 @@ DeepForest::DeepForest(int task) :
     task(task), 
     front(nullptr), 
     rear(nullptr), 
-    cascade_buffer(nullptr) {}
+    cascade_buffers() {}
 
 size_t DeepForest::add(layer_p layer) {
     layer->setTask(task);
@@ -36,41 +36,29 @@ size_t DeepForest::add(layer_p layer) {
     return n_layers++;
 }
 
-size_t DeepForest::add(layer_p parent, layer_p child) {
+void DeepForest::connect(layer_p parent, layer_p child) {
     assert(parent.get() != child.get());
     rear = child;
+    // TODO: assert child and parent in this.layers
     parent->addChild(child);
     child->addParent(parent);
-    child->setTask(task);
-    layers.push_back(child);
-    return n_layers++;
+}
+
+void DeepForest::printGraph() {
+    size_t layer_id = 1;
+    std::cout << std::endl;
+    for (layer_p layer : layers) {
+        std::cout << "----------------------" << std::endl;
+        std::cout << "Layer " << std::setfill(' ') << std::setw(3) << layer_id << std::endl;
+        std::cout << "        | Type       : " << layer->getType() << std::endl;
+        std::cout << "        | n_parents  : " << layer->getNumParents() << std::endl;
+        std::cout << "        | n_children : " << layer->getNumChildren() << std::endl;
+        layer_id++;
+    }
+    std::cout << "----------------------\n" << std::endl;
 }
 
 size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
-    /**
-    size_t required_mgs_size = 0;
-    size_t required_cascade_size = 0;
-    for (layer_p current_layer : layers) {
-        assert(current_layer.get() != nullptr);
-        std::shared_ptr<VirtualDataset> current_vdataset = current_layer->virtualize(dataset);
-        size_t n_forests = current_layer->getNumForests();
-        if (!current_layer->isConcatenable()) {
-            required_mgs_size = std::max(
-                required_mgs_size,
-                current_layer->getNumVirtualFeatures());
-        }
-        else if (current_layer->getChildren().size() > 0) {
-            required_cascade_size = std::max(
-                required_cascade_size,
-                current_layer->getNumVirtualFeatures());
-        }
-    }
-    size_t n_instances = dataset.dims[0];
-    size_t n_virtual_cols = required_mgs_size + required_cascade_size;
-    this->cascade_buffer = std::shared_ptr<ConcatenationDataset>(
-        new ConcatenationDataset(n_instances, n_virtual_cols));
-    return n_instances * n_virtual_cols;
-    */
     size_t required_mgs_size = 0;
     size_t required_cascade_size = 0;
     for (layer_p current_layer : layers) {
@@ -86,14 +74,18 @@ size_t DeepForest::allocateCascadeBuffer(MDDataset dataset) {
     size_t n_instances = dataset.dims[0];
     size_t n_virtual_cols = required_mgs_size + required_cascade_size;
 
-    this->cascade_buffer = std::shared_ptr<ConcatenationDataset>(
-        new ConcatenationDataset(n_instances, n_virtual_cols));
+    cascade_buffers = std::queue<std::shared_ptr<ConcatenationDataset>>();
+    for (size_t i = 0; i < 2; i++) {
+        std::shared_ptr<ConcatenationDataset> cascade_buffer = std::shared_ptr<ConcatenationDataset>(
+            new ConcatenationDataset(n_instances, n_virtual_cols));
+        cascade_buffers.push(cascade_buffer);
+    }
     return n_instances * n_virtual_cols;
 }
 
 void DeepForest::transfer(layer_p layer,
     vdataset_p vdataset, std::shared_ptr<ConcatenationDataset> buffer) {
-    buffer->reset();
+    // buffer->reset();
     for (std::shared_ptr<Forest> forest_p : layer->getForests()) {
         if (layer->isClassifier()) {
             float* predictions = dynamic_cast<ClassificationForest*>(
@@ -110,60 +102,78 @@ void DeepForest::transfer(layer_p layer,
 }
 
 void DeepForest::fit(MDDataset dataset, Labels* labels) {
+    printGraph();
+
     size_t n_instances = dataset.dims[0];
     std::shared_ptr<VirtualTargets> direct_targets = std::shared_ptr<VirtualTargets>(
         new DirectTargets(labels->data, n_instances));
     allocateCascadeBuffer(dataset);
     std::queue<layer_p> queue;
-    queue.push(front);
-    vdataset_p current_vdataset = front->virtualize(dataset);
-    vtargets_p current_vtargets = front->virtualizeTargets(labels);
-    front->grow(current_vdataset, current_vtargets);
-    std::cout << "AAAAAA" << std::endl;
-    while (!queue.empty()) {
-        layer_p current_layer = queue.front(); queue.pop();
-        if (current_layer->getChildren().size() > 0) {
-            std::cout << "VVVVVV" << std::endl;
-            transfer(current_layer, current_vdataset, cascade_buffer);
-            std::cout << "XXXXXX" << std::endl;
-            current_vtargets = direct_targets;
-            for (layer_p child : current_layer->getChildren()) {
-                // current_vtargets = child->virtualizeTargets(labels);
-                std::cout << "LLLLLL" << std::endl;
-                child->grow(cascade_buffer, current_vtargets);
-                std::cout << "EEEEEE" << std::endl;
+    for (layer_p layer : layers) {
+        if (!layer->isConcatenable()) {
+            vdataset_p current_vdataset = layer->virtualize(dataset);
+            vtargets_p current_vtargets = layer->virtualizeTargets(labels);
+            layer->grow(current_vdataset, current_vtargets);
+            for (layer_p child : layer->getChildren()) {
                 queue.push(child);
             }
-            std::cout << "SSSSSS" << std::endl;
         }
-        std::cout << "OOOOOO" << std::endl;
     }
-    std::cout << "RRRRRR" << std::endl;
+    while (!queue.empty()) {
+        cascade_buffers.front()->reset();
+        cascade_buffers.back()->reset();
+
+        layer_p layer = queue.front(); queue.pop();
+        for (layer_p parent : layer->getParents()) {
+            if (!parent->isConcatenable()) {
+                vdataset_p current_vdataset = parent->virtualize(dataset);
+                transfer(parent, current_vdataset, cascade_buffers.front());
+            }
+            else {
+                std::shared_ptr<ConcatenationDataset> cb = cascade_buffers.front(); cascade_buffers.pop();
+                cascade_buffers.push(cb);
+                transfer(parent, cb, cascade_buffers.front());
+            }
+        }
+        layer->grow(cascade_buffers.front(), direct_targets);
+        for (layer_p child : layer->getChildren()) {
+            queue.push(child);
+        }
+    }
 }
 
 float* DeepForest::classify(MDDataset dataset) {
-    std::cout << "QQQQQQ" << std::endl;
     allocateCascadeBuffer(dataset);
-    std::cout << "KKKKKK" << std::endl;
     std::queue<layer_p> queue;
-    queue.push(front);
-    layer_p current_layer;
-    vdataset_p current_vdataset = front->virtualize(dataset);
-    std::cout << "CCCCCC" << std::endl;
-    while (!queue.empty()) {
-        std::cout << "BBBBBB" << std::endl;
-        current_layer = queue.front(); queue.pop();
-        if (current_layer->getChildren().size() > 0) {
-            std::cout << "NNNNNN" << std::endl;
-            transfer(current_layer, current_vdataset, cascade_buffer);
-            std::cout << "FFFFFF" << std::endl;
-            for (layer_p child : current_layer->getChildren()) {
+    for (layer_p layer : layers) {
+        if (!layer->isConcatenable()) {
+            for (layer_p child : layer->getChildren()) {
                 queue.push(child);
             }
         }
     }
-    std::cout << "ZZZZZZ" << std::endl;
-    return current_layer->classify(cascade_buffer);
+    layer_p layer;
+    while (!queue.empty()) {
+        cascade_buffers.front()->reset();
+        cascade_buffers.back()->reset();
+
+        layer = queue.front(); queue.pop();
+        for (layer_p parent : layer->getParents()) {
+            if (!parent->isConcatenable()) {
+                vdataset_p current_vdataset = parent->virtualize(dataset);
+                transfer(parent, current_vdataset, cascade_buffers.front());
+            }
+            else {
+                std::shared_ptr<ConcatenationDataset> cb = cascade_buffers.front(); cascade_buffers.pop();
+                cascade_buffers.push(cb);
+                transfer(parent, cb, cascade_buffers.front());
+            }
+        }
+        for (layer_p child : layer->getChildren()) {
+            queue.push(child);
+        }
+    }
+    return layer->classify(cascade_buffers.front());
 }
 
 } // namespace

@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <queue>
+#include <iomanip>
 
 #include "layers/layer.hpp"
 #include "layers/concatenation_layer.hpp"
@@ -25,7 +26,8 @@ private:
     int task;
     layer_p front;
     layer_p rear;
-    std::shared_ptr<ConcatenationDataset> cascade_buffer;
+    std::queue<std::shared_ptr<ConcatenationDataset>> cascade_buffers;
+
 public:
     DeepForest(int task);
     DeepForest(const DeepForest& other) = default;
@@ -34,7 +36,8 @@ public:
     void fit(MDDataset dataset, Labels* labels);
     float* classify(MDDataset dataset);
     size_t add(layer_p layer);
-    size_t add(layer_p parent, layer_p child);
+    void connect(layer_p parent, layer_p child);
+    void printGraph();
     std::vector<layer_p> iterateOverLayers();
     size_t allocateCascadeBuffer(MDDataset dataset);
     void transfer(layer_p, vdataset_p, std::shared_ptr<ConcatenationDataset>);

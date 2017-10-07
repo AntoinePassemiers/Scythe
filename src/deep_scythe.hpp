@@ -42,6 +42,8 @@ extern "C" {
 
     size_t c_add_scanner_3d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
 
+    void c_connect_nodes(size_t forest_id, size_t parent_id, size_t child_id);
+
     void* c_get_forest(size_t deep_forest_id, size_t layer_id, size_t forest_id);
 
 }

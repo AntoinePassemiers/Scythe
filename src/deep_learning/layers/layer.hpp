@@ -81,6 +81,7 @@ public:
     virtual vdataset_p virtualize(MDDataset dataset) = 0;
     virtual vtargets_p virtualizeTargets(Labels* targets) = 0;
     size_t getNumChildren();
+    size_t getNumParents();
     vdataset_p getVirtualDataset();
     virtual size_t getNumVirtualFeatures() = 0;
     virtual std::string getType() = 0;

@@ -67,6 +67,7 @@ class CascadeLayer(Layer):
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
         self.layer_id = c_add_cascade_layer(graph_id, self.lconfig.get_c_config())
+        return self.layer_id
 
 
 class MultiGrainedScanner1D(Layer):
@@ -79,6 +80,7 @@ class MultiGrainedScanner1D(Layer):
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
         self.layer_id = c_add_scanner_1d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0])
+        return self.layer_id
 
 
 class MultiGrainedScanner2D(Layer):
@@ -91,6 +93,7 @@ class MultiGrainedScanner2D(Layer):
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
         self.layer_id = c_add_scanner_2d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0], self.kernel_shape[1])
+        return self.layer_id
 
 
 class MultiGrainedScanner3D(Layer):
@@ -103,6 +106,7 @@ class MultiGrainedScanner3D(Layer):
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
         self.layer_id = c_add_scanner_3d(graph_id, self.lconfig.get_c_config().fconfig, self.kernel_shape[0], self.kernel_shape[1], self.kernel_shape[2])
+        return self.layer_id
 
 
 class DeepForest:
@@ -112,9 +116,12 @@ class DeepForest:
         self.deep_forest_id = c_create_deep_forest(TASKS[task])
         self.layers = list()
     def add(self, layer):
-        layer.addToGraph(self.deep_forest_id)
+        layer_id = layer.addToGraph(self.deep_forest_id)
         layer.owner_id = self.deep_forest_id
         self.layers.append(layer)
+        return layer_id
+    def connect(self, parent_id, child_id):
+        c_connect_nodes(self.deep_forest_id, parent_id, child_id)
     def fit(self, X, y):
         cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
