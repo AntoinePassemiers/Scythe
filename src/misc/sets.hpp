@@ -76,7 +76,7 @@ struct Labels {
 
 class VirtualDataset {
 protected:
-    fast_data_t* contiguous_data = nullptr;
+    void* contiguous_data = nullptr;
     size_t n_contiguous_items = 0;
 public:
     VirtualDataset() = default;
@@ -97,7 +97,7 @@ public:
     virtual int    getDataType() = 0;
 
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t) = 0;
-    void* retrieveContiguousData() { return static_cast<fast_data_t*>(contiguous_data); }
+    void* retrieveContiguousData() { return contiguous_data; }
 };
 
 

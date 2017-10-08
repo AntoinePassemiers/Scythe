@@ -54,11 +54,12 @@ void ConcatenationDataset::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
+    fast_data_t* t_contiguous_data = static_cast<fast_data_t*>(contiguous_data);
     if (n_items != this->n_contiguous_items) { // TODO
         if (contiguous_data != nullptr) {
             delete[] contiguous_data;
         }
-        contiguous_data = new fast_data_t[n_items];
+        t_contiguous_data = new fast_data_t[n_items];
         this->n_contiguous_items = n_items;
     }
 
@@ -66,10 +67,11 @@ void ConcatenationDataset::allocateFromSampleMask(
     iterator_cursor = feature_id;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            contiguous_data[k++] = static_cast<fast_data_t>(data[iterator_cursor]);
+            t_contiguous_data[k++] = static_cast<fast_data_t>(data[iterator_cursor]);
         }
         iterator_cursor += n_virtual_cols;
     }
+    contiguous_data = static_cast<void*>(t_contiguous_data);
     assert(k == n_items);
 }
 

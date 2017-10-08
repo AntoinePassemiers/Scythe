@@ -28,8 +28,8 @@ cdef Dataset to_dataset(cnp.ndarray X):
 
 cdef MDDataset to_md_dataset(cnp.ndarray X):
     cdef MDDataset dataset
-    dataset.dtype = DTYPE_UINT_8 if X.dtype == np.uint8 else DTYPE_DATA
-    dataset.data = <data_t*>X.data
+    dataset.dtype = np.dtype(X.dtype).num
+    dataset.data = <void*>X.data
     dataset.n_dims = X.ndim
     for i in range(7):
         dataset.dims[i] = X.shape[i] if i < dataset.n_dims else 0

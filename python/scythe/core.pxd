@@ -8,12 +8,10 @@ import numpy as np
 cimport numpy as cnp
 cnp.import_array()
 
-
 ctypedef double data_t
 
 ctypedef cnp.double_t cy_target_np
 ctypedef cnp.double_t cy_data_np
-
 
 cdef extern from "../../src/misc/sets.hpp" namespace "scythe":
     ctypedef unsigned int uint

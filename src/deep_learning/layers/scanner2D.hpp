@@ -47,6 +47,8 @@ public:
     virtual void _iterator_inc();
     virtual data_t _iterator_deref();
 
+    template<typename T, typename fast_T>
+    void generic_allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
 
     // Getters
@@ -97,6 +99,46 @@ public:
     virtual bool isConcatenable() { return false; }
     virtual std::string getType() { return std::string("MultiGrainedScanner2D"); }
 };
+
+
+template<typename T, typename fast_T>
+void ScannedDataset2D::generic_allocateFromSampleMask(
+    size_t* const sample_mask, size_t node_id, size_t feature_id, 
+    size_t n_items, size_t n_instances) {
+
+    T* t_data = static_cast<T*>(data);
+    fast_T* t_contiguous_data = static_cast<fast_T*>(contiguous_data);
+    if (n_items != this->n_contiguous_items) { // TODO
+        if (contiguous_data != nullptr) {
+            delete[] contiguous_data;
+        }
+        t_contiguous_data = new fast_T[n_items];
+        this->n_contiguous_items = n_items;
+    }
+
+    uint k = 0;
+    _it_x = P * (feature_id % kc) + (feature_id / kr);
+    _it_i = 0;
+    _it_q = 0;
+    for (uint i = 0; i < n_instances; i++) {
+        if (sample_mask[i] == node_id) {
+            t_contiguous_data[k++] = static_cast<fast_T>(t_data[_it_x + _it_i + _it_q]);
+        }
+        _it_i++;
+        if (_it_i == sc) {
+            _it_q += M;
+            _it_i = 0;
+            if (_it_q == sr * M) {
+                _it_q = 0;
+                _it_x += (M * P);
+            }
+        }
+    }
+    contiguous_data = static_cast<void*>(t_contiguous_data);
+    assert(k == n_items);
+}
+
+
 
 } // namespace
 

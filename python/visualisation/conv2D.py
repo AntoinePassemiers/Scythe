@@ -19,7 +19,7 @@ class Iterator:
     def _iterator_begin(self, j):
         self.i = 0
         self.q = 0
-        self.x = self.P * (j % self.kc) + (j / self.kr)
+        self.x = self.P * (j % self.kc) + (j // self.kr)
 
     def _iterator_inc(self):
         self.i += 1
