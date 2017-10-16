@@ -21,8 +21,6 @@
 #include <string.h>
 #include <limits>
 
-#include "numpy/ndarraytypes.h"
-
 #include "opt.hpp"
 #include "../misc/sets.hpp"
 #include "../misc/utils.hpp"

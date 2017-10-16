@@ -6,11 +6,21 @@
     @version 1.0 24/06/2017
 */
 
+#include <assert.h>
+#include <cstdint>
+
+#include "numpy/npy_common.h"
+#include "numpy/noprefix.h"
+
+#include "exceptions.hpp"
+
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
 
 namespace scythe {
+
+typedef uint8_t BYTE;
 
 constexpr int NPY_BOOL_NUM     =  0;
 constexpr int NPY_INT8_NUM     =  1;
@@ -24,6 +34,7 @@ constexpr int NPY_UINT64_NUM   = 10;
 constexpr int NPY_FLOAT32_NUM  = 11;
 constexpr int NPY_FLOAT64_NUM  = 12;
 constexpr int NPY_FLOAT16_NUM  = 23;
+
 
 struct Parameters {
     size_t n_jobs = 1;

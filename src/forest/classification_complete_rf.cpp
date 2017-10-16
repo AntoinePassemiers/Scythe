@@ -30,10 +30,18 @@ ClassificationCompleteRF::ClassificationCompleteRF
 void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
         dataset->getNumInstances(), config.bag_size);
-    std::cout << "v-dataset shape : " << dataset->getNumInstances() << ", ";
-    std::cout << dataset->getNumFeatures() << std::endl;
-    std::cout << "v-targets length : " << targets->getNumInstances() << std::endl;
+    // std::cout << "v-dataset shape : " << dataset->getNumInstances() << ", ";
+    // std::cout << dataset->getNumFeatures() << std::endl;
+    // std::cout << "v-targets length : " << targets->getNumInstances() << std::endl;
     assert(dataset->getNumInstances() == targets->getNumInstances());
+
+    std::vector<size_t> indexes { 2, 78, 45, 2, 98, 56 };
+    std::cout << "AAAAAAA" << std::endl;
+    dataset->shuffleLastNSamples(indexes);
+    std::cout << "BBBBBBB" << std::endl;
+    targets->shuffleLastNSamples(indexes);
+    std::cout << "CCCCCCC" << std::endl;
+
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,
         targets, 
@@ -41,6 +49,8 @@ void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTarget
         this->densities.get(),
         subset.get()));
     Forest::trees.push_back(new_tree);
+
+    std::cout << "DDDDDDD" << std::endl;
 }
 
 void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {

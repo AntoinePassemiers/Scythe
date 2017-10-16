@@ -11,8 +11,6 @@
 
 #include <stdexcept>
 
-#include "utils.hpp"
-
 
 namespace scythe {
 
@@ -24,6 +22,16 @@ public:
     OOPException(std::string msg) : runtime_error(msg.c_str()) {}
 };
 
-}
+class WrongVirtualDatasetException : public std::exception {
+public:
+    const char* what() const throw() { return "This kind of virtual dataset is not compatible\n"; }
+};
+
+class UnhandledDtypeException : public std::exception {
+public:
+    const char* what() const throw() { return "Unknown primitive data type.\n"; }
+};
+
+} // namespace
 
 #endif // EXCEPTIONS_HPP_

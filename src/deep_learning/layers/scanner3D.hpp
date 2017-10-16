@@ -53,7 +53,10 @@ public:
     virtual size_t getNumInstances() { return Nprime; }
     virtual size_t getNumFeatures() { return Mprime; }
     virtual size_t getNumVirtualInstancesPerInstance() { return sc * sr * sd; }
-    virtual int getDataType() { return dtype; }
+    virtual size_t getNumRows() { return N; }
+    virtual size_t getRowStride() { return M * P * Q; }
+    virtual int    getDataType() { return dtype; }
+    virtual void*  getData() { return data; }
 };
 
 

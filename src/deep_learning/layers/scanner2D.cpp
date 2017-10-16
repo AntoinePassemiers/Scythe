@@ -92,7 +92,7 @@ void ScannedDataset2D::allocateFromSampleMask(
 
     switch (getDataType()) {
         case NPY_UINT8_NUM:
-            generic_allocateFromSampleMask<uint8_t, uint8_t>(
+            generic_allocateFromSampleMask<npy_uint8, npy_uint8>(
                 sample_mask, node_id, feature_id, n_items, 
                 n_instances);
             break;

@@ -449,20 +449,13 @@ float* classifyFromTree(VirtualDataset* dataset, size_t n_instances, size_t n_fe
     size_t n_classes = config->n_classes;
     float* predictions = new float[n_instances * n_classes];
     for (uint k = 0; k < n_instances; k++) {
-        bool improving = true;
         Node* current_node = tree->root;
-        while (improving) {
-            size_t feature = current_node->feature_id;
-            if (current_node->left_child != NULL) {
-                if ((*dataset)(k, feature) >= current_node->split_value) {
-                    current_node = current_node->right_child;
-                }
-                else {
-                    current_node = current_node->left_child;
-                }
+        while (current_node->left_child != NULL) {
+            if ((*dataset)(k, current_node->feature_id) >= current_node->split_value) {
+                current_node = current_node->right_child;
             }
             else {
-                improving = false;
+                current_node = current_node->left_child;
             }
         }
         size_t node_instances = current_node->n_instances;

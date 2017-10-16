@@ -43,7 +43,10 @@ public:
     virtual size_t getNumInstances() { return n_instances; }
     virtual size_t getNumFeatures() { return stride; }
     virtual size_t getNumVirtualInstancesPerInstance() { return 1; }
-    virtual int getDataType() { return dtype; }
+    virtual size_t getNumRows() { return n_instances; }
+    virtual size_t getRowStride() { return n_virtual_cols; }
+    virtual int    getDataType() { return dtype; }
+    virtual void*  getData() { return static_cast<void*>(data); }
 };
 
 

@@ -84,6 +84,7 @@ public:
     VirtualDataset& operator=(const VirtualDataset&) = default;
     virtual ~VirtualDataset() = default;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
+    void shuffleLastNSamples(std::vector<size_t>& indexes);
 
     // Virtual iterator
     virtual void   _iterator_begin(const size_t j) = 0;
@@ -91,10 +92,14 @@ public:
     virtual data_t _iterator_deref() = 0;
 
     // Getters
-    virtual size_t getNumInstances() = 0;
-    virtual size_t getNumFeatures() = 0;
+    virtual size_t getNumInstances() = 0; // Number of virtual instances
+    virtual size_t getNumFeatures() = 0;  // Number of virtual features
     virtual size_t getNumVirtualInstancesPerInstance() = 0;
+    virtual size_t getRowStride() = 0; // Size of a swappable row
+    virtual size_t getNumRows() = 0;   // Number of swappable rows
     virtual int    getDataType() = 0;
+    virtual void*  getData() = 0;
+    size_t getItemStride();
 
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t) = 0;
     void* retrieveContiguousData() { return contiguous_data; }
@@ -129,7 +134,10 @@ public:
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
     virtual size_t getNumVirtualInstancesPerInstance() { return 1; }
+    virtual size_t getRowStride() { throw WrongVirtualDatasetException(); }
+    virtual size_t getNumRows() { throw WrongVirtualDatasetException(); }
     virtual int    getDataType() { return dtype; }
+    virtual void*  getData() { return data; }
 };
 
 
@@ -145,6 +153,7 @@ public:
     virtual target_t operator[](const size_t i) = 0;
     virtual size_t getNumInstances() = 0;
     virtual target_t* getValues() = 0;
+    void shuffleLastNSamples(std::vector<size_t>& indexes);
 
     // Virtual iterator
     virtual void   _iterator_begin() = 0;

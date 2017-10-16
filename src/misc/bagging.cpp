@@ -15,6 +15,14 @@ size_t randomInstance(size_t n_instances) {
     return rand() % n_instances;
 }
 
+std::vector<size_t> randomSet(size_t n, size_t upper_bound) {
+    std::vector<size_t> id_set;
+    for (unsigned int i = 0; i < n; i++) {
+        id_set.push_back(randomInstance(upper_bound));
+    }
+    return id_set;
+}
+
 std::shared_ptr<size_t> createSubsetWithReplacement(size_t n_instances, size_t m) {
     /**
         Warning : one instance cannot be used twice inside a same tree

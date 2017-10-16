@@ -46,7 +46,10 @@ public:
     virtual size_t getNumInstances() { return Nprime; }
     virtual size_t getNumFeatures() { return Mprime; }
     virtual size_t getNumVirtualInstancesPerInstance() { return sc; }
-    virtual int getDataType() { return dtype; }
+    virtual size_t getNumRows() { return N; }
+    virtual size_t getRowStride() { return M; }
+    virtual int    getDataType() { return dtype; }
+    virtual void*  getData() { return data; }
 
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
 };
