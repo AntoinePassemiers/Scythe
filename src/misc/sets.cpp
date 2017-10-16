@@ -56,7 +56,7 @@ void VirtualDataset::shuffleLastNSamples(std::vector<size_t>& indexes) {
         std::memcpy(b, a, n_bytes_per_sample);
         std::memcpy(a, temp, n_bytes_per_sample);
     }
-    delete temp;
+    std::free(temp);
 }
 
 DirectDataset::DirectDataset(Dataset dataset) :
@@ -64,6 +64,10 @@ DirectDataset::DirectDataset(Dataset dataset) :
 
 DirectDataset::DirectDataset(void* data, size_t n_instances, size_t n_features) :
     data(data), n_rows(n_instances), n_cols(n_features) {}
+
+VirtualDataset* DirectDataset::deepcopy() {
+    throw WrongVirtualDatasetException();
+}
 
 void DirectDataset::allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
@@ -130,6 +134,8 @@ data_t DirectDataset::_iterator_deref() {
     return static_cast<data_t*>(data)[iterator_cursor];
 }
 
+
+
 void VirtualTargets::shuffleLastNSamples(std::vector<size_t>& indexes) {
     size_t n_samples = getNumInstances();
     assert(indexes.size() <= n_samples);
@@ -145,6 +151,13 @@ void VirtualTargets::shuffleLastNSamples(std::vector<size_t>& indexes) {
 
 DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
     data(data), n_rows(n_instances) {}
+
+VirtualTargets* DirectTargets::deepcopy() {
+    size_t n_required_bytes = n_rows * sizeof(target_t);
+    target_t* new_data = static_cast<target_t*>(malloc(n_required_bytes));
+    std::memcpy(new_data, data, n_required_bytes);
+   return new DirectTargets(new_data, n_rows);
+}
 
 void DirectTargets::allocateFromSampleMask(
     size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {

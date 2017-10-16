@@ -35,12 +35,12 @@ void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTarget
     // std::cout << "v-targets length : " << targets->getNumInstances() << std::endl;
     assert(dataset->getNumInstances() == targets->getNumInstances());
 
-    std::vector<size_t> indexes { 2, 78, 45, 2, 98, 56 };
-    std::cout << "AAAAAAA" << std::endl;
+    /**
+    size_t n_rows = targets->getNumInstances();
+    std::vector<size_t> indexes = randomSet(50, n_rows);
     dataset->shuffleLastNSamples(indexes);
-    std::cout << "BBBBBBB" << std::endl;
     targets->shuffleLastNSamples(indexes);
-    std::cout << "CCCCCCC" << std::endl;
+    */
 
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,
@@ -49,8 +49,6 @@ void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTarget
         this->densities.get(),
         subset.get()));
     Forest::trees.push_back(new_tree);
-
-    std::cout << "DDDDDDD" << std::endl;
 }
 
 void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
@@ -61,7 +59,7 @@ void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targ
         #pragma omp parallel for num_threads(parameters.n_jobs)
     #endif
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
-        this->fitNewTree(dataset, targets);
+        fitNewTree(dataset, targets);
     }
 }
 

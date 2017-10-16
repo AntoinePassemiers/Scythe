@@ -21,6 +21,13 @@ ScannedDataset1D::ScannedDataset1D(
     data(data),          // Pointer to the raw data
     dtype(dtype) {}      // Raw data type
 
+VirtualDataset* ScannedDataset1D::deepcopy() {
+    size_t n_required_bytes = getNumRows() * getRowStride() * getItemStride();
+    void* new_data = malloc(n_required_bytes);
+    std::memcpy(new_data, data, n_required_bytes);
+    return new ScannedDataset1D(new_data, N, M, kc, dtype);
+}
+
 void ScannedDataset1D::allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     // TODO
@@ -44,6 +51,13 @@ data_t ScannedDataset1D::_iterator_deref() {
 
 ScannedTargets1D::ScannedTargets1D(target_t* data, size_t n_instances, size_t sc) :
     data(data), n_rows(n_instances), s(sc) {}
+
+VirtualTargets* ScannedTargets1D::deepcopy() {
+    size_t n_required_bytes = getNumInstances() * sizeof(target_t);
+    target_t* new_data = static_cast<target_t*>(malloc(n_required_bytes));
+    std::memcpy(new_data, data, n_required_bytes);
+   return new ScannedTargets1D(new_data, n_rows, s);
+}
 
 void ScannedTargets1D::allocateFromSampleMask(
     size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {
@@ -87,7 +101,7 @@ vdataset_p MultiGrainedScanner1D::virtualize(MDDataset dataset) {
 vtargets_p MultiGrainedScanner1D::virtualizeTargets(Labels* targets) {
     ScannedDataset1D* vdataset = dynamic_cast<ScannedDataset1D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
-    size_t n_rows = vdataset->getNumInstances();
+    size_t n_rows = vdataset->getNumRows();
     assert(sc > 0);
     return std::shared_ptr<ScannedTargets1D>(new ScannedTargets1D(targets->data, n_rows, sc));
 }

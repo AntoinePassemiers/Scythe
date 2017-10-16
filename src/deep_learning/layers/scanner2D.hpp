@@ -40,6 +40,7 @@ public:
     ScannedDataset2D(const ScannedDataset2D& other) = default;
     ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;
     ~ScannedDataset2D() override = default;
+    virtual VirtualDataset* deepcopy();
     virtual data_t operator()(size_t i, size_t j);
 
     // Virtual iterator
@@ -68,6 +69,8 @@ class ScannedTargets2D : public VirtualTargets {
 private:
     target_t* data;
     size_t n_rows;
+    size_t sc;
+    size_t sr;
     size_t s;
     size_t _it_x;
     size_t _it_i;
@@ -76,6 +79,7 @@ public:
     ScannedTargets2D(const ScannedTargets2D& other) = default;
     ScannedTargets2D& operator=(const ScannedTargets2D& other) = default;
     ~ScannedTargets2D() override = default;
+    virtual VirtualTargets* deepcopy();
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }

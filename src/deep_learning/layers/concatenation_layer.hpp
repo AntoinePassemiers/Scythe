@@ -25,10 +25,12 @@ private:
     // Iterator cursor
     size_t iterator_cursor;
 public:
+    ConcatenationDataset(proba_t*, size_t, size_t, size_t, int);
     ConcatenationDataset(size_t n_instances, size_t n_virtual_features);
     ConcatenationDataset(const ConcatenationDataset& other) = default;
     ConcatenationDataset& operator=(const ConcatenationDataset& other) = default;
     ~ConcatenationDataset() override = default;
+    virtual VirtualDataset* deepcopy();
     void concatenate(float* new_data, size_t width);
     void reset() { this->stride = 0; }
     virtual data_t operator()(const size_t i, const size_t j);

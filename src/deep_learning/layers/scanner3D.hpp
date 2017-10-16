@@ -33,10 +33,11 @@ private:
     void* data; // Pointer to the raw data
     int dtype;    // Raw data type
 public:
-    ScannedDataset3D(void* data, size_t kc, size_t kr, size_t kd, int dtype);
+    ScannedDataset3D(void* data, size_t N, size_t M, size_t P, size_t Q, size_t kc, size_t kr, size_t kd, int dtype);
     ScannedDataset3D(const ScannedDataset3D& other) = default;
     ScannedDataset3D& operator=(const ScannedDataset3D& other) = default;
     ~ScannedDataset3D() override = default;
+    virtual VirtualDataset* deepcopy();
     virtual data_t operator()(size_t i, size_t j);
 
     // Virtual iterator
@@ -64,12 +65,16 @@ class ScannedTargets3D : public VirtualTargets {
 private:
     target_t* data;
     size_t n_rows;
+    size_t sc;
+    size_t sr;
+    size_t sd;
     size_t s;
 public:
     ScannedTargets3D(target_t* data, size_t n_instances, size_t sc, size_t sr, size_t sd);
     ScannedTargets3D(const ScannedTargets3D& other) = default;
     ScannedTargets3D& operator=(const ScannedTargets3D& other) = default;
     ~ScannedTargets3D() override = default;
+    virtual VirtualTargets* deepcopy();
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }

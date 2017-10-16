@@ -38,6 +38,13 @@ ScannedDataset2D::ScannedDataset2D(
     }
 }
 
+VirtualDataset* ScannedDataset2D::deepcopy() {
+    size_t n_required_bytes = getNumRows() * getRowStride() * getItemStride();
+    void* new_data = malloc(n_required_bytes);
+    std::memcpy(new_data, data, n_required_bytes);
+    return new ScannedDataset2D(new_data, N, M, P, kc, kr, dtype);
+}
+
 void ScannedDataset2D::allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     /**
@@ -146,7 +153,14 @@ data_t ScannedDataset2D::_iterator_deref() {
 }
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :
-    VirtualTargets::VirtualTargets(), data(data), n_rows(n_instances), s(sc * sr) {}
+    VirtualTargets::VirtualTargets(), data(data), n_rows(n_instances), sc(sc), sr(sr), s(sc * sr) {}
+
+VirtualTargets* ScannedTargets2D::deepcopy() {
+    size_t n_required_bytes = getNumInstances() * sizeof(target_t);
+    target_t* new_data = static_cast<target_t*>(malloc(n_required_bytes));
+    std::memcpy(new_data, data, n_required_bytes);
+   return new ScannedTargets2D(new_data, n_rows, sc, sr);
+}
 
 void ScannedTargets2D::allocateFromSampleMask(
     size_t* sample_mask, size_t node_id, size_t n_items, size_t n_instances) {
@@ -230,7 +244,7 @@ vtargets_p MultiGrainedScanner2D::virtualizeTargets(Labels* targets) {
     ScannedDataset2D* vdataset = dynamic_cast<ScannedDataset2D*>((this->vdataset).get());
     size_t sc = vdataset->getSc();
     size_t sr = vdataset->getSr();
-    size_t n_rows = vdataset->getNumInstances();
+    size_t n_rows = vdataset->getNumRows();
     assert(sc > 0);
     assert(sr > 0);
     return std::shared_ptr<ScannedTargets2D>(

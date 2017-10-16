@@ -11,12 +11,23 @@
 
 namespace scythe {
 
+ConcatenationDataset::ConcatenationDataset(
+    proba_t* data, size_t n_instances, size_t n_virtual_cols, size_t stride, int dtype) :
+    data(data), n_instances(n_instances), n_virtual_cols(n_virtual_cols), stride(stride), dtype(dtype) {}
+
 ConcatenationDataset::ConcatenationDataset(size_t n_instances, size_t n_virtual_features) :
     data(new proba_t[n_instances * n_virtual_features]),
     n_instances(n_instances),
     n_virtual_cols(n_virtual_features),
     stride(0),
-    dtype(DTYPE_PROBA) {} // TODO : dtype in case of regresion task
+    dtype(NPY_FLOAT32_NUM) {} // TODO : dtype in case of regresion task
+
+VirtualDataset* ConcatenationDataset::deepcopy() {
+    size_t n_required_bytes = getNumRows() * getRowStride() * getItemStride();
+    void* new_data = malloc(n_required_bytes);
+    std::memcpy(new_data, data, n_required_bytes);
+    return new ConcatenationDataset(static_cast<proba_t*>(new_data), n_instances, n_virtual_cols, stride, dtype);
+}
 
 void ConcatenationDataset::concatenate(float* new_data, size_t width) {
     // TODO: parallel computing

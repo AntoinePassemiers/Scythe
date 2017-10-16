@@ -113,7 +113,11 @@ void DeepForest::fit(MDDataset dataset, Labels* labels) {
         if (!layer->isConcatenable()) {
             vdataset_p current_vdataset = layer->virtualize(dataset);
             vtargets_p current_vtargets = layer->virtualizeTargets(labels);
-            layer->grow(current_vdataset, current_vtargets);
+
+            vdataset_p copied_current_vdataset = std::shared_ptr<VirtualDataset>(current_vdataset->deepcopy());
+            vtargets_p copied_current_vtargets = std::shared_ptr<VirtualTargets>(current_vtargets->deepcopy());
+            layer->grow(copied_current_vdataset, copied_current_vtargets);
+
             for (layer_p child : layer->getChildren()) {
                 queue.push(child);
             }
@@ -135,7 +139,10 @@ void DeepForest::fit(MDDataset dataset, Labels* labels) {
                 transfer(parent, cb, cascade_buffers.front());
             }
         }
-        layer->grow(cascade_buffers.front(), direct_targets);
+
+        vdataset_p copied_front_buffer = std::shared_ptr<VirtualDataset>(cascade_buffers.front()->deepcopy());
+        vtargets_p copied_direct_targets = std::shared_ptr<VirtualTargets>(direct_targets->deepcopy());
+        layer->grow(copied_front_buffer, copied_direct_targets);
         for (layer_p child : layer->getChildren()) {
             queue.push(child);
         }
