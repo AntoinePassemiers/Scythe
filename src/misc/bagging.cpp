@@ -23,11 +23,12 @@ std::vector<size_t> randomSet(size_t n, size_t upper_bound) {
     return id_set;
 }
 
-std::shared_ptr<size_t> createSubsetWithReplacement(size_t n_instances, size_t m) {
+std::shared_ptr<size_t> createSubsetWithReplacement(size_t n_instances, float bagging_fraction) {
     /**
         Warning : one instance cannot be used twice inside a same tree
     */
-    if (m > n_instances) m = n_instances;
+    size_t m = static_cast<size_t>(bagging_fraction * n_instances);
+    if (bagging_fraction >= 1.0) m = n_instances;
     size_t* subset = static_cast<size_t*>(malloc(n_instances * sizeof(size_t)));
     // Bagging is causing segfault because n_instances is computed on the basis of
     // the total number of instances, and not the number of instances in the bag

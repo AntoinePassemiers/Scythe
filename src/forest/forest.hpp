@@ -30,6 +30,7 @@ constexpr int GRADIENT_BOOSTING = 0x28FE91;
 // Forest type
 constexpr int RANDOM_FOREST          = 0;
 constexpr int COMPLETE_RANDOM_FOREST = 1;
+
 constexpr int GB_FOREST              = 2;
 
 struct ForestConfig {
@@ -46,7 +47,7 @@ struct ForestConfig {
     size_t    n_jobs               = 1;
     size_t    n_samples_per_leaf   = 50;
     int       regularization       = REG_L1;
-    size_t    bag_size             = 100;
+    float     bagging_fraction     = 1.0;
     size_t    early_stopping_round = 300;
     int       boosting_method      = GRADIENT_BOOSTING;
     int       max_depth            = INFINITE_DEPTH;

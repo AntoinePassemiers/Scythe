@@ -45,6 +45,10 @@ VirtualDataset* ScannedDataset2D::deepcopy() {
     return new ScannedDataset2D(new_data, N, M, P, kc, kr, dtype);
 }
 
+VirtualDataset* ScannedDataset2D::createView(void* view, size_t n_rows) {
+    return new ScannedDataset2D(view, n_rows, M, P, kc, kr, dtype);
+}
+
 void ScannedDataset2D::allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     /**
@@ -100,13 +104,11 @@ void ScannedDataset2D::allocateFromSampleMask(
     switch (getDataType()) {
         case NPY_UINT8_NUM:
             generic_allocateFromSampleMask<npy_uint8, npy_uint8>(
-                sample_mask, node_id, feature_id, n_items, 
-                n_instances);
+                sample_mask, node_id, feature_id, n_items, n_instances);
             break;
         default:
             generic_allocateFromSampleMask<data_t, fast_data_t>(
-                sample_mask, node_id, feature_id, n_items, 
-                n_instances);
+                sample_mask, node_id, feature_id, n_items, n_instances);
             break;
     }
 
@@ -160,6 +162,10 @@ VirtualTargets* ScannedTargets2D::deepcopy() {
     target_t* new_data = static_cast<target_t*>(malloc(n_required_bytes));
     std::memcpy(new_data, data, n_required_bytes);
    return new ScannedTargets2D(new_data, n_rows, sc, sr);
+}
+
+VirtualTargets* ScannedTargets2D::createView(void* view, size_t new_n_rows) {
+    return new ScannedTargets2D(static_cast<target_t*>(view), new_n_rows, sc, sr);
 }
 
 void ScannedTargets2D::allocateFromSampleMask(

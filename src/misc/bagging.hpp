@@ -29,7 +29,7 @@ size_t randomInstance(size_t);
 
 std::vector<size_t> randomSet(size_t n, size_t upper_bound);
 
-std::shared_ptr<size_t> createSubsetWithReplacement(size_t, size_t);
+std::shared_ptr<size_t> createSubsetWithReplacement(size_t, float);
 
 } // namespace
 

@@ -42,7 +42,7 @@ size_t VirtualDataset::getItemStride() {
     }
 }
 
-void VirtualDataset::shuffleLastNSamples(std::vector<size_t>& indexes) {
+VirtualDataset* VirtualDataset::shuffleAndCreateView(std::vector<size_t>& indexes) {
     size_t n_samples = getNumRows();
     assert(indexes.size() <= n_samples);
     size_t n_bytes_per_sample = getItemStride() * getRowStride();
@@ -57,6 +57,8 @@ void VirtualDataset::shuffleLastNSamples(std::vector<size_t>& indexes) {
         std::memcpy(a, temp, n_bytes_per_sample);
     }
     std::free(temp);
+    void* view = static_cast<void*>(data + (start * n_bytes_per_sample));
+    return createView(view, indexes.size());
 }
 
 DirectDataset::DirectDataset(Dataset dataset) :
@@ -66,6 +68,10 @@ DirectDataset::DirectDataset(void* data, size_t n_instances, size_t n_features) 
     data(data), n_rows(n_instances), n_cols(n_features) {}
 
 VirtualDataset* DirectDataset::deepcopy() {
+    throw WrongVirtualDatasetException();
+}
+
+VirtualDataset* DirectDataset::createView(void* view, size_t n_rows) {
     throw WrongVirtualDatasetException();
 }
 
@@ -134,9 +140,7 @@ data_t DirectDataset::_iterator_deref() {
     return static_cast<data_t*>(data)[iterator_cursor];
 }
 
-
-
-void VirtualTargets::shuffleLastNSamples(std::vector<size_t>& indexes) {
+VirtualTargets* VirtualTargets::shuffleAndCreateView(std::vector<size_t>& indexes) {
     size_t n_samples = getNumInstances();
     assert(indexes.size() <= n_samples);
     target_t temp;
@@ -147,6 +151,8 @@ void VirtualTargets::shuffleLastNSamples(std::vector<size_t>& indexes) {
         data[indexes.at(i - start)] = data[i];
         data[i] = temp;
     }
+    void* view = static_cast<void*>(&data[start]);
+    return createView(view, indexes.size());
 }
 
 DirectTargets::DirectTargets(target_t* data, size_t n_instances) :
@@ -157,6 +163,10 @@ VirtualTargets* DirectTargets::deepcopy() {
     target_t* new_data = static_cast<target_t*>(malloc(n_required_bytes));
     std::memcpy(new_data, data, n_required_bytes);
    return new DirectTargets(new_data, n_rows);
+}
+
+VirtualTargets* DirectTargets::createView(void* view, size_t n_rows) {
+    return new DirectTargets(static_cast<target_t*>(view), n_rows);
 }
 
 void DirectTargets::allocateFromSampleMask(

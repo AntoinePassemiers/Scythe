@@ -21,10 +21,11 @@ def main():
     kc, kr = 22, 22
 
     fconfig = ForestConfiguration()
-    fconfig.n_classes      = 10
-    fconfig.max_n_trees    = 10
-    fconfig.max_n_features = 10
-    fconfig.max_depth      = 8
+    fconfig.n_classes        = 10
+    fconfig.max_n_trees      = 10
+    fconfig.max_n_features   = 20
+    fconfig.max_depth        = 11
+    fconfig.bagging_fraction = 0.4
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
@@ -54,7 +55,7 @@ def main():
 
     # Scythe's deep forest is still relatively slow
     # Better use a subset of the training set for experimenting purposes
-    X_train, y_train = X_train[:100], y_train[:100]
+    X_train, y_train = X_train[:600], y_train[:600]
 
     #X_train = np.asarray(X_train, dtype = np.double)
     #X_test  = np.asarray(X_test, dtype = np.double)

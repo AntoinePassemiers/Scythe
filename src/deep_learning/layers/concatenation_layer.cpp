@@ -29,6 +29,10 @@ VirtualDataset* ConcatenationDataset::deepcopy() {
     return new ConcatenationDataset(static_cast<proba_t*>(new_data), n_instances, n_virtual_cols, stride, dtype);
 }
 
+VirtualDataset* ConcatenationDataset::createView(void* view, size_t n_rows) {
+    return new ConcatenationDataset(static_cast<proba_t*>(view), n_rows, n_virtual_cols, stride, dtype);
+}
+
 void ConcatenationDataset::concatenate(float* new_data, size_t width) {
     // TODO: parallel computing
     std::cout << "Concatenation : " << n_instances << ", ";

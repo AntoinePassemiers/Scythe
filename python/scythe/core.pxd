@@ -66,11 +66,11 @@ cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
         size_t    n_jobs               
         size_t    n_samples_per_leaf   
         int       regularization       
-        size_t    bag_size             
+        float     bagging_fraction             
         size_t    early_stopping_round 
         int       boosting_method      
         int       max_depth            
-        float     l1_lambda            
+        float     l1_lambda
         float     l2_lambda            
         float     seed                 
         int       verbose              

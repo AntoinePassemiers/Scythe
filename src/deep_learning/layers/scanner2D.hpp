@@ -41,6 +41,7 @@ public:
     ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;
     ~ScannedDataset2D() override = default;
     virtual VirtualDataset* deepcopy();
+    virtual VirtualDataset* createView(void* view, size_t n_rows);
     virtual data_t operator()(size_t i, size_t j);
 
     // Virtual iterator
@@ -80,6 +81,7 @@ public:
     ScannedTargets2D& operator=(const ScannedTargets2D& other) = default;
     ~ScannedTargets2D() override = default;
     virtual VirtualTargets* deepcopy();
+    virtual VirtualTargets* createView(void* view, size_t n_rows);
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }

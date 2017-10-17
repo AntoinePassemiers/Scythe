@@ -34,6 +34,10 @@ VirtualDataset* ScannedDataset3D::deepcopy() {
     return new ScannedDataset3D(new_data, N, M, P, Q, kc, kr, kd, dtype);
 }
 
+VirtualDataset* ScannedDataset3D::createView(void* view, size_t n_rows) {
+    return new ScannedDataset3D(view, n_rows, M, P, Q, kc, kr, kd, dtype);
+}
+
 void ScannedDataset3D::allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, size_t n_items, size_t n_instances) {
     // TODO
@@ -63,6 +67,10 @@ VirtualTargets* ScannedTargets3D::deepcopy() {
     target_t* new_data = static_cast<target_t*>(malloc(n_required_bytes));
     std::memcpy(new_data, data, n_required_bytes);
    return new ScannedTargets3D(new_data, n_rows, sc, sr, sd);
+}
+
+VirtualTargets* ScannedTargets3D::createView(void* view, size_t new_n_rows) {
+    return new ScannedTargets3D(static_cast<target_t*>(view), new_n_rows, sc, sr, sd);
 }
 
 void ScannedTargets3D::allocateFromSampleMask(

@@ -29,7 +29,7 @@ ClassificationRF::ClassificationRF
 
 void ClassificationRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
     std::shared_ptr<size_t> subset = createSubsetWithReplacement(
-        dataset->getNumInstances(), config.bag_size);
+        dataset->getNumInstances(), config.bagging_fraction);
     assert(dataset->getNumInstances() == targets->getNumInstances());
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
         dataset,

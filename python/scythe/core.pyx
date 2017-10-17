@@ -119,7 +119,7 @@ cdef class ForestConfiguration:
         self.config.n_jobs = 1
         self.config.n_samples_per_leaf = 1
         self.config.regularization = REG_L1
-        self.config.bag_size = <size_t>1e+15
+        self.config.bagging_fraction = 1.0
         self.config.early_stopping_round = 300
         self.config.boosting_method = GRADIENT_BOOSTING
         self.config.max_depth = <size_t>1e+15
@@ -168,9 +168,9 @@ cdef class ForestConfiguration:
     property regularization:
         def __get__(self): return self.config.regularization
         def __set__(self, value): self.config.regularization = value
-    property bag_size:
-        def __get__(self): return self.config.bag_size
-        def __set__(self, value): self.config.bag_size = value
+    property bagging_fraction:
+        def __get__(self): return self.config.bagging_fraction
+        def __set__(self, value): self.config.bagging_fraction = value
     property early_stopping_round:
         def __get__(self): return self.config.early_stopping_round
         def __set__(self, value): self.config.early_stopping_round = value

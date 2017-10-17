@@ -31,6 +31,7 @@ public:
     ConcatenationDataset& operator=(const ConcatenationDataset& other) = default;
     ~ConcatenationDataset() override = default;
     virtual VirtualDataset* deepcopy();
+    virtual VirtualDataset* createView(void* view, size_t n_rows);
     void concatenate(float* new_data, size_t width);
     void reset() { this->stride = 0; }
     virtual data_t operator()(const size_t i, const size_t j);

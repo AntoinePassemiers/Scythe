@@ -84,8 +84,9 @@ public:
     VirtualDataset& operator=(const VirtualDataset&) = default;
     virtual ~VirtualDataset() = default;
     virtual VirtualDataset* deepcopy() = 0;
+    virtual VirtualDataset* createView(void* view, size_t n_rows) = 0;
     virtual data_t operator()(const size_t i, const size_t j) = 0;
-    void shuffleLastNSamples(std::vector<size_t>& indexes);
+    VirtualDataset* shuffleAndCreateView(std::vector<size_t>& indexes);
 
     // Virtual iterator
     virtual void   _iterator_begin(const size_t j) = 0;
@@ -123,6 +124,7 @@ public:
     DirectDataset& operator=(const DirectDataset& other) = default;
     ~DirectDataset() override = default;
     virtual VirtualDataset* deepcopy();
+    virtual VirtualDataset* createView(void* view, size_t n_rows);
     virtual data_t operator()(const size_t i, const size_t j);
 
     // Virtual iterator
@@ -153,10 +155,11 @@ public:
     VirtualTargets& operator=(const VirtualTargets&) = default;
     virtual ~VirtualTargets() = default;
     virtual VirtualTargets* deepcopy() = 0;
+    virtual VirtualTargets* createView(void* view, size_t n_rows) = 0;
     virtual target_t operator[](const size_t i) = 0;
     virtual size_t getNumInstances() = 0;
     virtual target_t* getValues() = 0;
-    void shuffleLastNSamples(std::vector<size_t>& indexes);
+    VirtualTargets* shuffleAndCreateView(std::vector<size_t>& indexes);
 
     // Virtual iterator
     virtual void   _iterator_begin() = 0;
@@ -181,6 +184,7 @@ public:
     DirectTargets& operator=(const DirectTargets& other) = default;
     ~DirectTargets() override = default;
     virtual VirtualTargets* deepcopy();
+    virtual VirtualTargets* createView(void* view, size_t n_rows);
     virtual target_t operator[](const size_t i);
     virtual size_t getNumInstances() { return n_rows; }
     virtual target_t* getValues() { return data; }
