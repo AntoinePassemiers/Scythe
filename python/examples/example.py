@@ -2,6 +2,10 @@
 # example.py : Scythe example of use on MNIST dataset
 # author : Antoine Passemiers
 
+"""
+Accuracy on MNIST dataset: 94,39 %
+"""
+
 import os, sys
 
 from scythe.core import *
@@ -22,10 +26,10 @@ def main():
 
     fconfig = ForestConfiguration()
     fconfig.n_classes        = 10
-    fconfig.max_n_trees      = 10
+    fconfig.max_n_trees      = 50
     fconfig.max_n_features   = 20
-    fconfig.max_depth        = 11
-    fconfig.bagging_fraction = 0.4
+    fconfig.max_depth        = 12
+    fconfig.bagging_fraction = 0.02
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
@@ -52,13 +56,6 @@ def main():
     print("Load MNIST datasets")
     X_train, y_train = loadMNISTTrainingSet(location = mnist_folder)
     X_test, labels = loadMNISTTestSet(location = mnist_folder)
-
-    # Scythe's deep forest is still relatively slow
-    # Better use a subset of the training set for experimenting purposes
-    X_train, y_train = X_train[:600], y_train[:600]
-
-    #X_train = np.asarray(X_train, dtype = np.double)
-    #X_test  = np.asarray(X_test, dtype = np.double)
 
     print("Fit gcForest")
     graph.fit(X_train, y_train)
