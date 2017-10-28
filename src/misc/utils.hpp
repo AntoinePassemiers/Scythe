@@ -6,7 +6,7 @@
     @version 1.0 24/06/2017
 */
 
-#include <assert.h>
+#include <cassert>
 #include <cstdint>
 
 #include "numpy/npy_common.h"

@@ -9,13 +9,6 @@
 #ifndef METRICS_HPP_
 #define METRICS_HPP_
 
-#include <iostream>
-#include <memory>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <vector>
-
 #include "../tree/cart.hpp"
 
 /*

@@ -9,16 +9,6 @@
 #ifndef PRUNING_HPP_
 #define PRUNING_HPP_
 
-#include <cassert>
-#include <math.h>
-#include <numeric>
-#include <queue>
-#include <cstddef>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits>
-
 #include "../tree/cart.hpp"
 
 

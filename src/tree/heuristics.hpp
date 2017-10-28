@@ -9,16 +9,6 @@
 #ifndef HEURISTICS_HPP_
 #define HEURISTICS_HPP_
 
-#include <cassert>
-#include <math.h>
-#include <numeric>
-#include <queue>
-#include <cstddef>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits>
-
 #include "../densities/density.hpp"
 
 

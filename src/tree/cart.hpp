@@ -9,17 +9,8 @@
 #ifndef CART_HPP_
 #define CART_HPP_
 
-#include <cassert>
-#include <math.h>
-#include <numeric>
 #include <queue>
 #include <list>
-#include <cstddef>
-#include <cstdint>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits>
 
 #include "opt.hpp"
 #include "../misc/sets.hpp"

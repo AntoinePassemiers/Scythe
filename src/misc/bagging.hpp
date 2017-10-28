@@ -9,15 +9,11 @@
 #ifndef BAGGING_HPP_
 #define BAGGING_HPP_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
+#include <cstdio>
+#include <cstdlib>
 #include <memory>
 #include <limits>
-#include <cassert>
 #include <vector>
-
 
 namespace scythe {
 

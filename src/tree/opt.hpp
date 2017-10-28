@@ -9,7 +9,7 @@
 #ifndef OPT_HPP
 #define OPT_HPP
 
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace scythe {
 

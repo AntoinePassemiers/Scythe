@@ -9,8 +9,8 @@
 #ifndef SCYTHE_HPP_
 #define SCYTHE_HPP_
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 

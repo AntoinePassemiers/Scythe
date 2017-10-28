@@ -9,15 +9,9 @@
 #ifndef SETS_HPP_
 #define SETS_HPP_
 
-#include <queue>
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
-#include <string>
 #include <memory>
-#include <limits>
-#include <cassert>
-#include <string.h>
+#include <vector>
 
 #include "exceptions.hpp"
 #include "utils.hpp"

@@ -9,15 +9,7 @@
 #ifndef DENSITY_HPP_
 #define DENSITY_HPP_
 
-#include <cassert>
-#include <math.h>
 #include <numeric>
-#include <queue>
-#include <cstddef>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits>
 // #include <algorithm.h>
 
 #include "../misc/sets.hpp"

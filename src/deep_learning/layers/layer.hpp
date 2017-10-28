@@ -9,16 +9,6 @@
 #ifndef LAYER_HPP_
 #define LAYER_HPP_
 
-#include <queue>
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <memory>
-#include <limits>
-#include <cassert>
-#include <string.h>
-
 #include "../../forest/forest.hpp"
 #include "../../forest/classification_complete_rf.hpp"
 #include "../../forest/classification_rf.hpp"
