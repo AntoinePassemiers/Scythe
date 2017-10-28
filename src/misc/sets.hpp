@@ -12,6 +12,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <cstring>
 
 #include "exceptions.hpp"
 #include "utils.hpp"

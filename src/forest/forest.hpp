@@ -9,6 +9,8 @@
 #ifndef FOREST_HPP_
 #define FOREST_HPP_
 
+#include <limits>
+
 #include "../metrics/metrics.hpp"
 #include "../tree/cart.hpp"
 #include "../tree/pruning.hpp"
@@ -69,7 +71,7 @@ protected:
     Tree base_tree; // TODO : keep it ?
     std::vector<std::shared_ptr<Tree>> trees;
 
-    ptrdiff_t prediction_state;
+    std::ptrdiff_t prediction_state;
     TreeConfig base_tree_config;
     std::shared_ptr<Density> densities;
 public:

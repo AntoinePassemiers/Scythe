@@ -11,6 +11,9 @@
 
 #include <queue>
 #include <list>
+#include <limits>
+#include <cmath>
+#include <cstring>
 
 #include "opt.hpp"
 #include "../misc/sets.hpp"
@@ -111,7 +114,7 @@ struct Tree {
     size_t        n_classes;
     size_t        n_features;
     TreeConfig*   config;
-    ptrdiff_t     level;
+    std::ptrdiff_t     level;
     SplitManager* split_manager;
 
     explicit Tree();
