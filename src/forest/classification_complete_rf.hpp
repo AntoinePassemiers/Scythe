@@ -9,6 +9,8 @@
 #ifndef CLASSIFICATION_COMPLETE_RF_HPP_
 #define CLASSIFICATION_COMPLETE_RF_HPP_
 
+#include <iostream>
+
 #include "../misc/sets.hpp"
 #include "forest.hpp"
 #include "../metrics/classification_metrics.hpp"

@@ -44,11 +44,11 @@ Fitting a random forest:
 fconfig = ForestConfiguration()
 fconfig.n_classes = 2
 fconfig.max_n_trees = 500
-fconfig.bag_size  = 10000
+fconfig.bagging_fraction = 0.8
 fconfig.max_depth = 50
 fconfig.max_n_features = 20
 
-forest = Forest(fconfig, "classification", "random forest")
+forest = Forest(fconfig, "classification", "rf")
 forest.fit(X_train, y_train)
 probas = forest.predict(X_test)
 ```

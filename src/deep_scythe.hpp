@@ -12,9 +12,7 @@
 #include "deep_learning/deep_forest.hpp"
 #include "deep_learning/layers/layer.hpp"
 #include "deep_learning/layers/concatenation_layer.hpp"
-#include "deep_learning/layers/scanner1D.hpp"
 #include "deep_learning/layers/scanner2D.hpp"
-#include "deep_learning/layers/scanner3D.hpp"
 
 
 struct CppClassesInterface {
@@ -36,11 +34,7 @@ extern "C" {
 
     size_t c_add_cascade_layer(size_t forest_id, scythe::LayerConfig lconfig);
 
-    size_t c_add_scanner_1d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc);
-
     size_t c_add_scanner_2d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr);
-
-    size_t c_add_scanner_3d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr, size_t kd);
 
     void c_connect_nodes(size_t forest_id, size_t parent_id, size_t child_id);
 

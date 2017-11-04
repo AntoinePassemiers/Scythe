@@ -37,12 +37,12 @@ def main():
     y_test = y[n_samples:]
 
     fconfig = ForestConfiguration()
-    fconfig.n_classes      = n_classes
-    fconfig.max_n_trees    = n_estimators
-    fconfig.bag_size       = 10000
-    fconfig.max_depth      = max_depth - 8
-    fconfig.max_n_features = max_n_features
-    fconfig.min_threshold  = min_threshold
+    fconfig.n_classes        = n_classes
+    fconfig.max_n_trees      = n_estimators
+    fconfig.bagging_fraction = 1.0
+    fconfig.max_depth        = max_depth - 8
+    fconfig.max_n_features   = max_n_features
+    fconfig.min_threshold    = min_threshold
 
     forest = Forest(fconfig, "classification", "rf")
     t0 = time.time()

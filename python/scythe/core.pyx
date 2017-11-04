@@ -17,10 +17,11 @@ from libcpp.limits cimport numeric_limits
 
 from scythe.utils import *
 
+
 cdef Dataset to_dataset(cnp.ndarray X):
     cdef Dataset dataset
-    dataset.n_rows = X.shape[1]
-    dataset.n_cols = X.shape[0]
+    dataset.n_rows = X.shape[0]
+    dataset.n_cols = X.shape[1]
     dataset.data = <void*>X.data
     dataset.dtype = np.dtype(X.dtype).num
     return dataset
@@ -209,7 +210,7 @@ cdef class Tree:
         cy_config.task = TASKS[task]
         self.config = cy_config.get_c_config()
     def fit(self, X, y):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
         cdef Dataset dataset = to_dataset(cX)
         cdef Labels labels = to_labels(cy)
@@ -221,7 +222,7 @@ cdef class Tree:
                 &dataset, &labels, &self.config)
         self.n_features = cX.shape[0]
     def predict(self, X):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_rows = len(X)
         assert(self.n_features == cX.shape[0])
@@ -253,7 +254,7 @@ cdef class Forest:
     def set_predictor_p(self, ptr):
         self.predictor_p = <void*>ptr
     def fit(self, X, y):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
         cdef Dataset dataset = to_dataset(cX)
         cdef Labels labels = to_labels(cy)
@@ -264,7 +265,7 @@ cdef class Forest:
                 &dataset, &labels, &self.config)
         self.n_features = cX.shape[0]
     def predict(self, X):
-        cdef cnp.ndarray cX = np.ascontiguousarray(X.T, dtype = data_np)
+        cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_classes = self.config.n_classes
         n_rows = len(X)

@@ -105,12 +105,12 @@ void DirectDataset::allocateFromSampleMask(
     }
 
     uint k = 0;
-    iterator_cursor = feature_id * this->n_rows;
+    iterator_cursor = feature_id;
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
             t_contiguous_data[k++] = static_cast<fast_data_t>(static_cast<data_t*>(data)[iterator_cursor]);
         }
-        iterator_cursor++;
+        iterator_cursor += n_cols;
     }
     this->contiguous_data = static_cast<void*>(t_contiguous_data);
     assert(k == n_items);
@@ -125,15 +125,15 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
         @param j
             Column id
     */
-    return static_cast<data_t*>(this->data)[j * this->n_rows + i];
+    return static_cast<data_t*>(this->data)[i * this->n_cols + j];
 }
 
 void DirectDataset::_iterator_begin(const size_t j) {
-    iterator_cursor = j * this->n_rows;
+    iterator_cursor = j;
 }
 
 void DirectDataset::_iterator_inc() {
-    iterator_cursor++;
+    iterator_cursor += n_cols;
 }
 
 data_t DirectDataset::_iterator_deref() {

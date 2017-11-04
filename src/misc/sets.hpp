@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 #include <cstring>
+#include <string>
 
 #include "exceptions.hpp"
 #include "utils.hpp"

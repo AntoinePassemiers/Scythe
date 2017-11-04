@@ -70,19 +70,6 @@ class CascadeLayer(Layer):
         return self.layer_id
 
 
-class MultiGrainedScanner1D(Layer):
-    def __init__(self, lconfig, kernel_shape, **kwargs):
-        Layer.__init__(self, **kwargs)
-        assert(isinstance(lconfig, LayerConfiguration))
-        assert(isinstance(kernel_shape, tuple))
-        assert(len(kernel_shape) == 1)
-        self.kernel_shape = kernel_shape
-        self.lconfig = lconfig
-    def addToGraph(self, graph_id):
-        self.layer_id = c_add_scanner_1d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0])
-        return self.layer_id
-
-
 class MultiGrainedScanner2D(Layer):
     def __init__(self, lconfig, kernel_shape, **kwargs):
         Layer.__init__(self, **kwargs)
@@ -93,19 +80,6 @@ class MultiGrainedScanner2D(Layer):
         self.lconfig = lconfig
     def addToGraph(self, graph_id):
         self.layer_id = c_add_scanner_2d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0], self.kernel_shape[1])
-        return self.layer_id
-
-
-class MultiGrainedScanner3D(Layer):
-    def __init__(self, lconfig, kernel_shape, **kwargs):
-        Layer.__init__(self, **kwargs)
-        assert(isinstance(lconfig, LayerConfiguration))
-        assert(isinstance(kernel_shape, tuple))
-        assert(len(kernel_shape) == 3)
-        self.kernel_shape = kernel_shape
-        self.lconfig = lconfig
-    def addToGraph(self, graph_id):
-        self.layer_id = c_add_scanner_3d(graph_id, self.lconfig.get_c_config().fconfig, self.kernel_shape[0], self.kernel_shape[1], self.kernel_shape[2])
         return self.layer_id
 
 

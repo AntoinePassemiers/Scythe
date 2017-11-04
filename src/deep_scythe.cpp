@@ -42,24 +42,10 @@ extern "C" {
         return forest->add(layer);
     }
 
-    size_t c_add_scanner_1d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc) {
-        scythe::DeepForest* forest = cpp_classes_interface.get(forest_id);
-        scythe::layer_p layer = std::shared_ptr<scythe::MultiGrainedScanner1D>(
-            new scythe::MultiGrainedScanner1D(lconfig, kc));
-        return forest->add(layer);
-    }
-
     size_t c_add_scanner_2d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr) {
         scythe::DeepForest* forest = cpp_classes_interface.get(forest_id);
         scythe::layer_p layer = std::shared_ptr<scythe::MultiGrainedScanner2D>(
             new scythe::MultiGrainedScanner2D(lconfig, kc, kr));
-        return forest->add(layer);
-    }
-
-    size_t c_add_scanner_3d(size_t forest_id, scythe::LayerConfig lconfig, size_t kc, size_t kr, size_t kd) {
-        scythe::DeepForest* forest = cpp_classes_interface.get(forest_id);
-        scythe::layer_p layer = std::shared_ptr<scythe::MultiGrainedScanner3D>(
-            new scythe::MultiGrainedScanner3D(lconfig, kc, kr, kd));
         return forest->add(layer);
     }
 
