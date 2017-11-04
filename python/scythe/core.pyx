@@ -220,12 +220,12 @@ cdef class Tree:
         else:
             self.predictor_p = fit_classification_tree(
                 &dataset, &labels, &self.config)
-        self.n_features = cX.shape[0]
+        self.n_features = cX.shape[1]
     def predict(self, X):
         cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_rows = len(X)
-        assert(self.n_features == cX.shape[0])
+        assert(self.n_features == cX.shape[1])
         if self.config.task == REGRESSION_TASK:
             preds = ptr_to_reg_predictions(
                 tree_predict(&dataset, self.predictor_p, &self.config), n_rows)
@@ -263,13 +263,13 @@ cdef class Forest:
         else:
             self.predictor_p = fit_classification_forest(
                 &dataset, &labels, &self.config)
-        self.n_features = cX.shape[0]
+        self.n_features = cX.shape[1]
     def predict(self, X):
         cdef cnp.ndarray cX = np.ascontiguousarray(X, dtype = data_np)
         cdef Dataset dataset = to_dataset(cX)
         n_classes = self.config.n_classes
         n_rows = len(X)
-        assert(self.n_features == cX.shape[0])
+        assert(self.n_features == cX.shape[1])
         if self.config.task == REGRESSION_TASK:
             raise NotImplementedError()
         else:

@@ -72,7 +72,7 @@ VirtualDataset* DirectDataset::deepcopy() {
 }
 
 VirtualDataset* DirectDataset::createView(void* view, size_t n_rows) {
-    throw WrongVirtualDatasetException();
+    return new DirectDataset(view, n_rows, n_cols);
 }
 
 void DirectDataset::allocateFromSampleMask(

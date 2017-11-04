@@ -134,8 +134,8 @@ public:
     virtual size_t getNumInstances() { return n_rows; }
     virtual size_t getNumFeatures() { return n_cols; }
     virtual size_t getNumVirtualInstancesPerInstance() { return 1; }
-    virtual size_t getRowStride() { throw WrongVirtualDatasetException(); }
-    virtual size_t getNumRows() { throw WrongVirtualDatasetException(); }
+    virtual size_t getRowStride() { return n_cols; }
+    virtual size_t getNumRows() { return n_rows; }
     virtual int    getDataType() { return dtype; }
     virtual void*  getData() { return data; }
 };
