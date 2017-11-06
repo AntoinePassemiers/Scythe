@@ -41,6 +41,9 @@ public:
     virtual void _iterator_begin(const size_t j);
     virtual void _iterator_inc();
     virtual data_t _iterator_deref();
+    inline  void inline_iterator_begin(const size_t j);
+    inline  void inline_iterator_inc();
+    inline  data_t inline_iterator_deref();
 
     // Getters
     virtual size_t getNumInstances() { return n_instances; }
@@ -51,6 +54,18 @@ public:
     virtual int    getDataType() { return dtype; }
     virtual void*  getData() { return static_cast<void*>(data); }
 };
+
+inline void ConcatenationDataset::inline_iterator_begin(const size_t j) {
+    iterator_cursor = j;
+}
+
+inline void ConcatenationDataset::inline_iterator_inc() {
+    iterator_cursor += n_virtual_cols;
+}
+
+inline data_t ConcatenationDataset::inline_iterator_deref() {
+    return data[iterator_cursor];
+}
 
 
 class CascadeLayer : public Layer {

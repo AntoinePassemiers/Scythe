@@ -79,12 +79,12 @@ void ConcatenationDataset::allocateFromSampleMask(
     }
 
     uint k = 0;
-    iterator_cursor = feature_id;
+    inline_iterator_begin(feature_id);
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            t_contiguous_data[k++] = static_cast<fast_data_t>(data[iterator_cursor]);
+            t_contiguous_data[k++] = static_cast<fast_data_t>(inline_iterator_deref());
         }
-        iterator_cursor += n_virtual_cols;
+        inline_iterator_inc();
     }
     contiguous_data = static_cast<void*>(t_contiguous_data);
     assert(k == n_items);
@@ -95,15 +95,15 @@ data_t ConcatenationDataset::operator()(const size_t i, const size_t j) {
 }
 
 void ConcatenationDataset::_iterator_begin(const size_t j) {
-    iterator_cursor = j;
+    inline_iterator_begin(j);
 }
 
 void ConcatenationDataset::_iterator_inc() {
-    iterator_cursor += n_virtual_cols;
+    inline_iterator_inc();
 }
 
 data_t ConcatenationDataset::_iterator_deref() {
-    return data[iterator_cursor];
+    return inline_iterator_deref();
 }
 
 CascadeLayer::CascadeLayer(LayerConfig lconfig) : 

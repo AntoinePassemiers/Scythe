@@ -105,12 +105,12 @@ void DirectDataset::allocateFromSampleMask(
     }
 
     uint k = 0;
-    iterator_cursor = feature_id;
+    inline_iterator_begin(feature_id);
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            t_contiguous_data[k++] = static_cast<fast_data_t>(static_cast<data_t*>(data)[iterator_cursor]);
+            t_contiguous_data[k++] = static_cast<fast_data_t>(inline_iterator_deref());
         }
-        iterator_cursor += n_cols;
+        inline_iterator_inc();
     }
     this->contiguous_data = static_cast<void*>(t_contiguous_data);
     assert(k == n_items);
@@ -129,15 +129,15 @@ data_t DirectDataset::operator()(size_t i, size_t j) {
 }
 
 void DirectDataset::_iterator_begin(const size_t j) {
-    iterator_cursor = j;
+    inline_iterator_begin(j);
 }
 
 void DirectDataset::_iterator_inc() {
-    iterator_cursor += n_cols;
+    inline_iterator_inc();
 }
 
 data_t DirectDataset::_iterator_deref() {
-    return static_cast<data_t*>(data)[iterator_cursor];
+    return inline_iterator_deref();
 }
 
 VirtualTargets* VirtualTargets::shuffleAndCreateView(std::vector<size_t>& indexes) {

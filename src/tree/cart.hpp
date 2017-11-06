@@ -181,21 +181,16 @@ inline float pow2(float probability) {
 }
 
 template<typename T>
-void count_instances(T* RESTRICT contiguous_data, label_t* RESTRICT contiguous_labels, size_t* counter_ptrs[2], size_t n_instances_in_node, double split_value) {
+void count_instances(T* RESTRICT contiguous_data, label_t* RESTRICT contiguous_labels, 
+    size_t* counter_ptrs[2], size_t n_instances_in_node, double split_value, double nan_value) {
     #ifdef _OMP
         #pragma omp simd aligned(contiguous_data : 32)
     #endif
     // Canonical loop form (signed variable, no data dependency, no virtual call...)
     for (signed int j = 0; j < n_instances_in_node; j++) {
-        /**
-        if (contiguous_data[j] >= split_value) {
-            counters_right[contiguous_labels[j]]++;
+        if (contiguous_data[j] != nan_value) {
+            counter_ptrs[(contiguous_data[j] >= static_cast<T>(split_value))][contiguous_labels[j]]++;
         }
-        else {
-            counters_left[contiguous_labels[j]]++;
-        }
-        */
-        counter_ptrs[(contiguous_data[j] >= static_cast<T>(split_value))][contiguous_labels[j]]++;
     }
 }
 

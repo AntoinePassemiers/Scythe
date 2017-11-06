@@ -171,7 +171,6 @@ double evaluatePartitions(
     size_t* counters_right = density->counters_right;
     std::fill(counters_left, counters_left + splitter->n_classes, 0);
     std::fill(counters_right, counters_right + splitter->n_classes, 0);
-    // std::fill(density->counters_nan, density->counters_nan + splitter->n_classes, 0);
     fast_data_t split_value = static_cast<fast_data_t>(density->values[k]);
     
     label_t* RESTRICT contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
@@ -181,20 +180,18 @@ double evaluatePartitions(
     switch (data->getDataType()) {
         case NPY_UINT8_NUM:
             count_instances(static_cast<uint8_t*>(data->retrieveContiguousData()),
-                contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value);
+                contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value, splitter->nan_value);
             break;
         default:
             count_instances(static_cast<fast_data_t*>(data->retrieveContiguousData()), 
-                contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value);
+                contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value, splitter->nan_value);
             break;
     }    
       
     return getFeatureCost(counters_left, counters_right, splitter->n_classes);
 }
 
-double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
-                                 Splitter* splitter, size_t k) {
-
+double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density, Splitter* splitter, size_t k) {
     size_t i = splitter->feature_id;
     data_t data_point, nan_value = splitter->nan_value;
     double y;
@@ -371,6 +368,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
             sum_counts(next_density->counters_left, config->n_classes),
             sum_counts(next_density->counters_right, config->n_classes)
         };
+        float left_rate = static_cast<float>(split_totals[0]) / static_cast<float>(split_totals[0] + split_totals[1]);
         if ((tree->n_nodes < config->max_nodes) && (!std::isinf(lowest_e_cost)) && (information_gain > 0.0) &&
             (current_node_space.current_depth < config->max_height) &&
             (((split_totals[0] && split_totals[1])
@@ -399,9 +397,15 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
             #endif
             for (uint j = 0; j < n_instances; j++) {
                 if (belongs_to[j] == static_cast<size_t>(current_node->id)) {
-                    // Left child  : belongs_to[j] = tree->n_nodes
-                    // Right child : belongs_to[j] = tree->n_nodes + 1
-                    belongs_to[j] = tree->n_nodes + (dataset->_iterator_deref() >= split_value);
+                    if (dataset->_iterator_deref() != best_splitter.nan_value) {
+                        // Left child  : belongs_to[j] = tree->n_nodes
+                        // Right child : belongs_to[j] = tree->n_nodes + 1
+                        belongs_to[j] = tree->n_nodes + (dataset->_iterator_deref() >= split_value);
+                    }
+                    else {
+                        float random_value = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+                        belongs_to[j] = tree->n_nodes + (random_value < left_rate);
+                    }
                 }
                 dataset->_iterator_inc();
             }

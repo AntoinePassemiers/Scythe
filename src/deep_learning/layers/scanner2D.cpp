@@ -111,8 +111,6 @@ void ScannedDataset2D::allocateFromSampleMask(
                 sample_mask, node_id, feature_id, n_items, n_instances);
             break;
     }
-
-
 }
 
 data_t ScannedDataset2D::operator()(size_t i, size_t j) {
@@ -128,30 +126,15 @@ data_t ScannedDataset2D::operator()(size_t i, size_t j) {
 }
 
 void ScannedDataset2D::_iterator_begin(const size_t j) {
-    _it_x = P * (j % kc) + (j / kr);
-    _it_i = 0;
-    _it_q = 0;
+    inline_iterator_begin(j);
 }
 
 void ScannedDataset2D::_iterator_inc() {
-    _it_i++;
-    if (_it_i == sc) {
-        _it_q += M;
-        _it_i = 0;
-        if (_it_q == sr * M) {
-            _it_q = 0;
-            _it_x += (M * P);
-        }
-    }
+    inline_iterator_inc();
 }
 
 data_t ScannedDataset2D::_iterator_deref() {
-    switch (getDataType()) {
-        case NPY_UINT8_NUM:
-            return static_cast<uint8_t*>(data)[_it_x + _it_i + _it_q];
-        default:
-            return static_cast<data_t*>(data)[_it_x + _it_i + _it_q];
-    }
+    return inline_iterator_deref();
 }
 
 ScannedTargets2D::ScannedTargets2D(target_t* data, size_t n_instances, size_t sc, size_t sr) :

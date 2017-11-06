@@ -127,6 +127,9 @@ public:
     virtual void   _iterator_begin(const size_t j);
     virtual void   _iterator_inc();
     virtual data_t _iterator_deref();
+    inline void inline_iterator_begin(const size_t j);
+    inline void inline_iterator_inc();
+    inline data_t inline_iterator_deref();
 
     virtual void allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
 
@@ -139,6 +142,18 @@ public:
     virtual int    getDataType() { return dtype; }
     virtual void*  getData() { return data; }
 };
+
+inline void DirectDataset::inline_iterator_begin(const size_t j) {
+    iterator_cursor = j;
+}
+
+inline void DirectDataset::inline_iterator_inc() {
+    iterator_cursor += n_cols;
+}
+
+inline data_t DirectDataset::inline_iterator_deref() {
+    return static_cast<data_t*>(data)[iterator_cursor];
+}
 
 
 class VirtualTargets {

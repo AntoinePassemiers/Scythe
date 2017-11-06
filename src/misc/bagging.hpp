@@ -20,7 +20,6 @@ namespace scythe {
 constexpr size_t USED_IN_BAG = 0;
 constexpr size_t OUT_OF_BAG  = std::numeric_limits<size_t>::max();
 
-
 size_t randomInstance(size_t);
 
 std::vector<size_t> randomSet(size_t n, size_t upper_bound);

@@ -48,6 +48,9 @@ public:
     virtual void _iterator_begin(const size_t j);
     virtual void _iterator_inc();
     virtual data_t _iterator_deref();
+    inline void inline_iterator_begin(const size_t j);
+    inline void inline_iterator_inc();
+    inline data_t inline_iterator_deref();
 
     template<typename T, typename fast_T>
     void generic_allocateFromSampleMask(size_t* const mask, size_t, size_t, size_t, size_t);
@@ -110,6 +113,33 @@ public:
 };
 
 
+inline void ScannedDataset2D::inline_iterator_begin(const size_t j) {
+    _it_x = P * (j % kc) + (j / kr);
+    _it_i = 0;
+    _it_q = 0;
+}
+
+inline void ScannedDataset2D::inline_iterator_inc() {
+    _it_i++;
+    if (_it_i == sc) {
+        _it_q += M;
+        _it_i = 0;
+        if (_it_q == sr * M) {
+            _it_q = 0;
+            _it_x += (M * P);
+        }
+    }
+}
+
+inline data_t ScannedDataset2D::inline_iterator_deref() {
+    switch (getDataType()) {
+        case NPY_UINT8_NUM:
+            return static_cast<uint8_t*>(data)[_it_x + _it_i + _it_q];
+        default:
+            return static_cast<data_t*>(data)[_it_x + _it_i + _it_q];
+    }
+}
+
 template<typename T, typename fast_T>
 void ScannedDataset2D::generic_allocateFromSampleMask(
     size_t* const sample_mask, size_t node_id, size_t feature_id, 
@@ -126,22 +156,12 @@ void ScannedDataset2D::generic_allocateFromSampleMask(
     }
 
     uint k = 0;
-    _it_x = P * (feature_id % kc) + (feature_id / kr);
-    _it_i = 0;
-    _it_q = 0;
+    inline_iterator_begin(feature_id);
     for (uint i = 0; i < n_instances; i++) {
         if (sample_mask[i] == node_id) {
-            t_contiguous_data[k++] = static_cast<fast_T>(t_data[_it_x + _it_i + _it_q]);
+            t_contiguous_data[k++] = static_cast<fast_T>(inline_iterator_deref());
         }
-        _it_i++;
-        if (_it_i == sc) {
-            _it_q += M;
-            _it_i = 0;
-            if (_it_q == sr * M) {
-                _it_q = 0;
-                _it_x += (M * P);
-            }
-        }
+        inline_iterator_inc();
     }
     contiguous_data = static_cast<void*>(t_contiguous_data);
     assert(k == n_items);
