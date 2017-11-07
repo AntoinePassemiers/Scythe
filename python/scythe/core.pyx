@@ -130,6 +130,8 @@ cdef class ForestConfiguration:
         self.config.verbose = True
         self.config.nan_value = numeric_limits[data_t].quiet_NaN()
         self.config.min_threshold = 1e-06
+        self.config.ordered_queue = False
+        self.config.partitioning = 100
 
     cpdef ForestConfig get_c_config(self):
         return self.config
@@ -199,6 +201,12 @@ cdef class ForestConfiguration:
     property min_threshold:
         def __get__(self): return self.config.min_threshold
         def __set__(self, value): self.config.min_threshold = value
+    property ordered_queue:
+        def __get__(self): return self.config.ordered_queue
+        def __set__(self, value): self.config.ordered_queue = value
+    property partitioning:
+        def __get__(self): return self.config.partitioning
+        def __set__(self, value): self.config.partitioning = value
 
 
 cdef class Tree:

@@ -134,15 +134,12 @@ extern "C" {
             @return Pointer to the new forest
         */
         Forest* forest;
-        if (config->type == RANDOM_FOREST) {
+        if ((config->type == RANDOM_FOREST) || (config->type == COMPLETE_RANDOM_FOREST)) {
             forest = new ClassificationRF(config, dataset->n_rows, dataset->n_cols);
         }
         else if (config->type == GB_FOREST) {
             // forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
             std::cout << "Error: gradient boosting is not supported" << std::endl;
-        }
-        else if (config->type == COMPLETE_RANDOM_FOREST) {
-            forest = new ClassificationCompleteRF(config, dataset->n_rows, dataset->n_cols);
         }
         else {
             std::cout << "Error: this type of forest does not exist" << std::endl;
@@ -157,14 +154,11 @@ extern "C" {
         Dataset* dataset, void* forest_p, ForestConfig* config) {
         float* probabilites;
         ClassificationForest* forest;
-        if (config->type == RANDOM_FOREST) {
+        if ((config->type == RANDOM_FOREST) || (config->type == COMPLETE_RANDOM_FOREST)) {
             forest = static_cast<ClassificationRF*>(forest_p);
         }
         else if (config->type == GB_FOREST) {
             std::cout << "Error: GB predict function is not implemented" << std::endl;
-        }
-        else {
-            forest = static_cast<ClassificationCompleteRF*>(forest_p);
         }
         DirectDataset* vdataset = new DirectDataset(*dataset);
         probabilites = forest->classify(vdataset);

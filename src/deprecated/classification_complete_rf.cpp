@@ -28,14 +28,7 @@ ClassificationCompleteRF::ClassificationCompleteRF
 }
 
 void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
-    std::shared_ptr<size_t> subset = createSubsetWithReplacement(
-        dataset->getNumInstances(), config.bagging_fraction);
-    // std::cout << "v-dataset shape : " << dataset->getNumInstances() << ", ";
-    // std::cout << dataset->getNumFeatures() << std::endl;
-    // std::cout << "v-targets length : " << targets->getNumInstances() << std::endl;
     assert(dataset->getNumInstances() == targets->getNumInstances());
-
-    
     size_t n_rows = targets->getNumInstances();
     size_t bag_size = config.bagging_fraction * n_rows;
     std::vector<size_t> indexes = randomSet(bag_size, n_rows);
@@ -49,8 +42,8 @@ void ClassificationCompleteRF::fitNewTree(VirtualDataset* dataset, VirtualTarget
         this->densities.get()));
     Forest::trees.push_back(new_tree);
 
-    // delete dataset_view;
-    // delete targets_view;
+    delete dataset_view;
+    delete targets_view;
 }
 
 void ClassificationCompleteRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {

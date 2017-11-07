@@ -29,7 +29,6 @@ cpp_src_files = [
         "core.cpp",
         [
             "densities/continuous.cpp",
-            "forest/classification_complete_rf.cpp",
             "forest/classification_rf.cpp",
             "forest/forest.cpp",
             "misc/bagging.cpp",
@@ -45,7 +44,6 @@ cpp_src_files = [
         "layers.cpp",
         [
             "densities/continuous.cpp",
-            "forest/classification_complete_rf.cpp",
             "forest/classification_rf.cpp",
             "forest/forest.cpp",
             "misc/bagging.cpp",

@@ -59,6 +59,8 @@ struct ForestConfig {
     int       verbose              = true;
     data_t    nan_value            = std::numeric_limits<data_t>::quiet_NaN();
     double    min_threshold        = 1e-06;
+    bool      ordered_queue        = false;
+    int       partitioning         = 100;
 };
 
 class Forest {
@@ -93,7 +95,8 @@ public:
             base_tree_config.max_height = config->max_depth;
             base_tree_config.max_nodes = config->max_n_nodes;
             base_tree_config.max_n_features = config->max_n_features;
-            base_tree_config.partitioning = PERCENTILE_PARTITIONING;
+            base_tree_config.partitioning = config->partitioning;
+            base_tree_config.ordered_queue = config->ordered_queue;
     }
     virtual ~Forest() = default;
     virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;

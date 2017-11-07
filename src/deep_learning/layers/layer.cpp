@@ -27,7 +27,7 @@ void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
     Forest* forest;
     assert(vdataset->getNumInstances() == vtargets->getNumInstances());
     for (unsigned int i = 0; i < lconfig.n_forests; i++) {
-        if (lconfig.forest_type == RANDOM_FOREST) {
+        if ((lconfig.forest_type == RANDOM_FOREST) || (lconfig.forest_type == COMPLETE_RANDOM_FOREST)) {
             forest = new ClassificationRF(
                 &lconfig.fconfig, 
                 vdataset->getNumInstances(), 
@@ -36,12 +36,6 @@ void Layer::grow(vdataset_p vdataset, vtargets_p vtargets) {
         else if (lconfig.forest_type == GB_FOREST) {
             // forest = new ClassificationGB(config, dataset->n_rows, dataset->n_cols);
             std::cout << "Error: gradient boosting is not supported" << std::endl;
-        }
-        else if (lconfig.forest_type == COMPLETE_RANDOM_FOREST) {
-            forest = new ClassificationCompleteRF(
-                &lconfig.fconfig, 
-                vdataset->getNumInstances(),
-                vdataset->getNumFeatures());
         }
         else {
             std::cout << "Error: this type of forest does not exist" << std::endl;

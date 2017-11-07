@@ -23,7 +23,7 @@ Density* computeDensities(VirtualDataset* data, size_t n_classes, data_t nan_val
     #endif
     for (uint f = 0; f < n_features; f++) {
 
-        size_t nsad = 100; // TODO
+        size_t nsad = partitioning;
 
         densities[f].values = new data_t[nsad];
         densities[f].n_values = nsad;

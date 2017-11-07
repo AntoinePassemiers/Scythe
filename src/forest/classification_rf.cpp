@@ -15,7 +15,7 @@ ClassificationRF::ClassificationRF
         (ForestConfig* config, size_t n_instances, size_t n_features) :
         ClassificationForest::ClassificationForest(config, n_instances, n_features) {
     Forest::base_tree_config.task = CLASSIFICATION_TASK;
-    Forest::base_tree_config.is_complete_random = false;
+    Forest::base_tree_config.is_complete_random = (config->type == COMPLETE_RANDOM_FOREST);   
     if ((Forest::base_tree_config.max_n_features > n_features) ||
         (Forest::base_tree_config.max_n_features == 0)) {
         Forest::base_tree_config.max_n_features = n_features;
@@ -28,15 +28,22 @@ ClassificationRF::ClassificationRF
 }
 
 void ClassificationRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targets) {
-    std::shared_ptr<size_t> subset = createSubsetWithReplacement(
-        dataset->getNumInstances(), config.bagging_fraction);
     assert(dataset->getNumInstances() == targets->getNumInstances());
+    size_t n_rows = targets->getNumInstances();
+    size_t bag_size = config.bagging_fraction * n_rows;
+    std::vector<size_t> indexes = randomSet(bag_size, n_rows);
+    VirtualDataset* dataset_view = dataset->shuffleAndCreateView(indexes);
+    VirtualTargets* targets_view = targets->shuffleAndCreateView(indexes);
+
     std::shared_ptr<Tree> new_tree = std::shared_ptr<Tree>(CART(
-        dataset,
-        targets, 
+        dataset_view,
+        targets_view, 
         &(Forest::base_tree_config),
         this->densities.get()));
     Forest::trees.push_back(new_tree);
+
+    delete dataset_view;
+    delete targets_view;
 }
 
 void ClassificationRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {

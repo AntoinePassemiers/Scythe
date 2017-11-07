@@ -75,7 +75,9 @@ cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
         float     seed                 
         int       verbose              
         data_t    nan_value            
-        double    min_threshold        
+        double    min_threshold
+        bool      ordered_queue
+        int       partitioning
 
 cdef extern from "../../src/scythe.hpp":
     struct double_vec_t:
