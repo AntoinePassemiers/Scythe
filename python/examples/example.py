@@ -9,7 +9,6 @@ Accuracy on MNIST dataset: 94,39 %
 import os, sys
 
 from scythe.core import *
-from scythe.layers import *
 from scythe.MNIST import *
 
 import matplotlib.pyplot as plt
@@ -29,7 +28,7 @@ def main():
     fconfig.max_n_trees      = 50
     fconfig.max_n_features   = 20
     fconfig.max_depth        = 12
-    fconfig.bagging_fraction = 0.02
+    fconfig.bagging_fraction = 0.1
     lconfig = LayerConfiguration(fconfig, n_forests_per_layer, COMPLETE_RANDOM_FOREST)
 
     print("Create gcForest")
@@ -56,6 +55,7 @@ def main():
     print("Load MNIST datasets")
     X_train, y_train = loadMNISTTrainingSet(location = mnist_folder)
     X_test, labels = loadMNISTTestSet(location = mnist_folder)
+    X_train, y_train = X_train[:500], y_train[:500]
 
     print("Fit gcForest")
     graph.fit(X_train, y_train)
@@ -65,14 +65,6 @@ def main():
     predictions = probas.argmax(axis = 1)
     ga = np.sum(predictions == labels)
     print("Correct predictions : %i / %i" % (ga, len(labels)))
-
-    f = scanner.getForests()
-    feature_importances = f[0].getFeatureImportances()
-    feature_importances = feature_importances.reshape(kc, kr)
-
-    plt.imshow(feature_importances)
-    plt.title("Feature importances (receptive field)")
-    plt.show()
 
 if __name__ == "__main__":
     main()

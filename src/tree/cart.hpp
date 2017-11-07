@@ -26,6 +26,7 @@ namespace scythe {
 
 constexpr size_t MAX_N_CLASSES = 100;
 
+constexpr float* NO_CLASS_WEIGHT = nullptr;
 constexpr int NO_FEATURE = -1;
 constexpr int NO_INSTANCE = 0;
 constexpr int NO_SPLIT_VALUE = std::numeric_limits<int>::max();
@@ -82,6 +83,7 @@ struct TreeConfig {
     data_t nan_value;
     bool   is_complete_random;
     bool   ordered_queue;
+    float* class_weights;
 };
 
 struct Splitter {
@@ -103,6 +105,7 @@ struct Splitter {
     NodeSpace       node_space;
     bool            is_complete_random;
     SplitManager*   split_manager;
+    float*          class_weights;
 
     explicit Splitter(NodeSpace nodespace, TreeConfig* config, size_t n_instances,
         size_t n_features, size_t* belongs_to, VirtualTargets* targets, SplitManager* split_manager);
@@ -128,9 +131,9 @@ NodeSpace newNodeSpace(Node* owner, size_t n_features, Density* densities);
 
 NodeSpace copyNodeSpace(const NodeSpace& node_space, size_t n_features);
 
-double getFeatureCost(size_t* const, size_t* const, size_t n_classes);
+double getFeatureCost(size_t* const, size_t* const, size_t n_classes, float* class_weights);
 
-double informationGain(size_t*, size_t*, size_t*, size_t);
+double informationGain(size_t*, size_t*, size_t*, size_t, float*);
 
 void initRoot(Node* root, VirtualTargets* const targets, size_t n_instances, size_t n_classes);
 

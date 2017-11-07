@@ -61,6 +61,7 @@ struct ForestConfig {
     double    min_threshold        = 1e-06;
     bool      ordered_queue        = false;
     int       partitioning         = 100;
+    float*    class_weights        = NO_CLASS_WEIGHT;
 };
 
 class Forest {

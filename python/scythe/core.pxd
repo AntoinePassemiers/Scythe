@@ -8,6 +8,7 @@ import numpy as np
 cimport numpy as cnp
 cnp.import_array()
 
+
 ctypedef double data_t
 
 ctypedef cnp.double_t cy_target_np
@@ -50,6 +51,7 @@ cdef extern from "../../src/tree/cart.hpp" namespace "scythe":
         data_t nan_value
         bool   is_complete_random
         bool   ordered_queue
+        float* class_weights
 
 cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
     struct ForestConfig:
@@ -78,6 +80,7 @@ cdef extern from "../../src/forest/forest.hpp" namespace "scythe":
         double    min_threshold
         bool      ordered_queue
         int       partitioning
+        float*    class_weights
 
 cdef extern from "../../src/scythe.hpp":
     struct double_vec_t:
@@ -108,3 +111,21 @@ cdef MDDataset to_md_dataset(cnp.ndarray X)
 cdef Labels to_labels(cnp.ndarray y)
 cdef cnp.ndarray ptr_to_cls_predictions(float* predictions, size_t n_rows, size_t n_classes)
 cdef cnp.ndarray ptr_to_reg_predictions(data_t* predictions, size_t n_rows)
+
+
+""" Deep Scythe API """
+
+cdef extern from "../../src/deep_learning/layers/layer.hpp" namespace "scythe":
+    struct LayerConfig:
+        ForestConfig fconfig
+        size_t       n_forests
+        int          forest_type
+
+cdef extern from "../../src/deep_scythe.hpp":
+    size_t c_create_deep_forest(int task)
+    void c_fit_deep_forest(MDDataset dataset, Labels* labels, size_t forest_id)
+    float* c_deep_forest_classify(MDDataset dataset, size_t forest_id)
+    size_t c_add_cascade_layer(size_t forest_id, LayerConfig lconfig)
+    size_t c_add_scanner_2d(size_t forest_id, LayerConfig lconfig, size_t kc, size_t kr)
+    void c_connect_nodes(size_t forest_id, size_t parent_id, size_t child_id)
+    void* c_get_forest(size_t deep_forest_id, size_t layer_id, size_t forest_id)

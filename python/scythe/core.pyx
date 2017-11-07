@@ -65,8 +65,9 @@ cdef class TreeConfiguration:
         self.config.nan_value = <data_t>np.nan
         self.config.is_complete_random = False
         self.config.ordered_queue = False
+        self.config.class_weights = NULL
 
-    cpdef TreeConfig get_c_config(self):
+    cdef TreeConfig get_c_config(self):
         return self.config
 
     property task:
@@ -102,6 +103,13 @@ cdef class TreeConfiguration:
     property ordered_queue:
         def __get__(self): return self.config.ordered_queue
         def __set__(self, value): self.config.ordered_queue = value
+    property class_weights:
+        def __get__(self):
+            return np.asarray(<float[:self.config.n_classes:1]>self.config.class_weights)
+        def __set__(self, cnp.ndarray value):
+            assert(value.dtype == np.float)
+            self.config.n_classes = len(value)
+            self.config.class_weights = <float*>value.data
 
 
 cdef class ForestConfiguration:
@@ -133,9 +141,9 @@ cdef class ForestConfiguration:
         self.config.ordered_queue = False
         self.config.partitioning = 100
 
-    cpdef ForestConfig get_c_config(self):
+    cdef ForestConfig get_c_config(self):
         return self.config
-    cpdef void set_c_config(self, ForestConfig fconfig):
+    cdef void set_c_config(self, ForestConfig fconfig):
         self.config = fconfig
 
     property type:
@@ -214,7 +222,7 @@ cdef class Tree:
     cdef void* predictor_p
     cdef size_t n_features
 
-    def __init__(self, cy_config, task):
+    def __init__(self, TreeConfiguration cy_config, task):
         cy_config.task = TASKS[task]
         self.config = cy_config.get_c_config()
     def fit(self, X, y):
@@ -255,7 +263,7 @@ cdef class Forest:
     cdef void* predictor_p
     cdef size_t n_features
 
-    def __init__(self, cy_config, task, forest_type):
+    def __init__(self, ForestConfiguration cy_config, task, forest_type):
         cy_config.task = TASKS[task]
         cy_config.type = FOREST_TYPES[forest_type.lower()]
         self.config = cy_config.get_c_config()
@@ -313,3 +321,123 @@ def py_api_test():
     # cdef TreeConfig* config_p = <TreeConfig*>malloc(sizeof(TreeConfig))
     # fit_classification_tree(dataset_p, labels_p, config_p)
     api_test(dataset_p)
+
+
+cdef class LayerConfiguration:
+    cdef LayerConfig config
+
+    def __init__(self, ForestConfiguration cy_config, n_forests, forest_type):
+        self.config.fconfig = cy_config.get_c_config()
+        self.config.n_forests = n_forests
+        self.config.forest_type = forest_type
+
+    cdef LayerConfig get_c_config(self):
+        return self.config
+
+    property n_forests:
+        def __get__(self): return self.config.n_forests
+    # property fconfig:
+    #     def __get__(self): return self.config.fconfig
+
+
+NO_ID = -1
+
+cdef class Layer(object):
+    cdef int layer_id
+    cdef int owner_id
+
+    def __init__(self, **kwargs):
+        self.layer_id = NO_ID
+        self.owner_id = NO_ID
+    def getForests(self):
+        assert(self.layer_id is not None)
+        cdef void* forest_ptr
+        forests = list()
+        for i in range(self.lconfig.n_forests):
+            
+            forest_ptr = c_get_forest(self.owner_id, self.layer_id, i)
+            forest_configuration = ForestConfiguration()
+            # forest_configuration.set_c_config(self.lconfig.fconfig) # TODO
+            current_forest = Forest(forest_configuration, "classification", "rf")
+            current_forest.set_predictor_p(<object>forest_ptr)
+            forests.append(current_forest)
+        return forests
+
+    def addToGraph(self, graph_id):
+        raise NotImplementedError()
+
+    property layer_id:
+        def __get__(self): return self.layer_id
+        def __set__(self, value): self.layer_id = value
+    property owner_id:
+        def __get__(self): return self.owner_id
+        def __set__(self, value): self.owner_id = value
+
+
+cdef class DirectLayer(Layer):
+    cdef LayerConfiguration lconfig
+
+    def __init__(self, LayerConfiguration lconfig, **kwargs):
+        Layer.__init__(self, **kwargs)
+        assert(isinstance(lconfig, LayerConfiguration))
+        self.lconfig = lconfig
+    def addToGraph(self, graph_id):
+        raise NotImplementedError()
+
+
+cdef class CascadeLayer(Layer):
+    cdef LayerConfiguration lconfig
+
+    def __init__(self, LayerConfiguration lconfig, **kwargs):
+        Layer.__init__(self, **kwargs)
+        assert(isinstance(lconfig, LayerConfiguration))
+        self.lconfig = lconfig
+    def addToGraph(self, graph_id):
+        self.layer_id = c_add_cascade_layer(graph_id, self.lconfig.get_c_config())
+        return self.layer_id
+
+
+cdef class MultiGrainedScanner2D(Layer):
+    cdef LayerConfiguration lconfig
+    cdef object kernel_shape
+
+    def __init__(self, LayerConfiguration lconfig, kernel_shape, **kwargs):
+        Layer.__init__(self, **kwargs)
+        assert(isinstance(lconfig, LayerConfiguration))
+        assert(isinstance(kernel_shape, tuple))
+        assert(len(kernel_shape) == 2)
+        self.kernel_shape = kernel_shape
+        self.lconfig = lconfig
+    def addToGraph(self, graph_id):
+        self.layer_id = c_add_scanner_2d(graph_id, self.lconfig.get_c_config(), self.kernel_shape[0], self.kernel_shape[1])
+        return self.layer_id
+
+
+class DeepForest:
+    def __init__(self, n_classes = 2, task = "classification"):
+        self.n_classes = n_classes
+        self.task = task
+        self.deep_forest_id = c_create_deep_forest(TASKS[task])
+        self.layers = list()
+    def add(self, layer):
+        layer_id = layer.addToGraph(self.deep_forest_id)
+        layer.owner_id = self.deep_forest_id
+        self.layers.append(layer)
+        return layer_id
+    def connect(self, parent_id, child_id):
+        c_connect_nodes(self.deep_forest_id, parent_id, child_id)
+    def fit(self, X, y):
+        cdef cnp.ndarray cX = np.ascontiguousarray(X)
+        cdef cnp.ndarray cy = np.ascontiguousarray(y, dtype = target_np)
+        cdef MDDataset dataset = to_md_dataset(cX)
+        cdef Labels labels = to_labels(cy)
+        c_fit_deep_forest(dataset, &labels, self.deep_forest_id)
+
+    def classify(self, X):
+        cdef cnp.ndarray cX = np.ascontiguousarray(X)
+        cdef MDDataset dataset = to_md_dataset(cX)
+        n_instances, n_classes = len(X), self.n_classes
+        preds = ptr_to_cls_predictions(
+            c_deep_forest_classify(dataset, self.deep_forest_id),
+            n_instances, n_classes)
+        return preds

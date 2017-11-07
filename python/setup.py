@@ -20,7 +20,6 @@ except ImportError:
 source_folder = "scythe"
 source_files = [
     "core.pyx",
-    "layers.pyx",
     "tools/encoders.pyx"
 ]
 

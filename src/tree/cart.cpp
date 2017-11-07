@@ -107,7 +107,8 @@ Splitter::Splitter(NodeSpace node_space, TreeConfig* config, size_t n_instances,
     best_split_id(0),
     node_space(node_space),
     is_complete_random(config->is_complete_random),
-    split_manager(split_manager) {}
+    split_manager(split_manager),
+    class_weights(config->class_weights) {}
 
 
 void ordered_push(std::list<NodeSpace>& queue, NodeSpace nodespace, bool ordered) {
@@ -128,7 +129,7 @@ void ordered_push(std::list<NodeSpace>& queue, NodeSpace nodespace, bool ordered
 }
 
 double getFeatureCost(size_t* RESTRICT const counters_left, 
-    size_t* RESTRICT const counters_right, size_t n_classes) {
+    size_t* RESTRICT const counters_right, size_t n_classes, float* class_weights) {
 
     size_t n_left = sum_counts(counters_left, n_classes);
     size_t n_right = sum_counts(counters_right, n_classes);
@@ -150,9 +151,9 @@ double getFeatureCost(size_t* RESTRICT const counters_left,
 }
 
 double informationGain(
-    size_t* counters, size_t* counters_left, size_t* counters_right, size_t n_classes) {
+    size_t* counters, size_t* counters_left, size_t* counters_right, size_t n_classes, float* class_weights) {
 
-    double gini = getFeatureCost(counters_left, counters_right, n_classes);
+    double gini = getFeatureCost(counters_left, counters_right, n_classes, class_weights);
     size_t n_total = sum_counts(counters, n_classes);
     double cost = 0.0;
     for (uint i = 0; i < n_classes; i++) {
@@ -164,8 +165,7 @@ double informationGain(
     return gain;
 }
 
-double evaluatePartitions(
-    VirtualDataset* RESTRICT data, const Density* RESTRICT density, 
+double evaluatePartitions(VirtualDataset* RESTRICT data, const Density* RESTRICT density, 
     const Splitter* RESTRICT splitter, size_t k) {
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;
@@ -188,7 +188,7 @@ double evaluatePartitions(
             break;
     }    
       
-    return getFeatureCost(counters_left, counters_right, splitter->n_classes);
+    return getFeatureCost(counters_left, counters_right, splitter->n_classes, splitter->class_weights);
 }
 
 double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density, Splitter* splitter, size_t k) {
@@ -359,7 +359,7 @@ Tree* CART(VirtualDataset* dataset, VirtualTargets* targets, TreeConfig* config,
         splitter.feature_id = best_feature;
         next_density = &densities[best_feature];
         double information_gain = informationGain(current_node->counters, next_density->counters_left,
-            next_density->counters_right, config->n_classes);
+            next_density->counters_right, config->n_classes, config->class_weights);
         split_manager->updateCurrentBestSplit(
             best_feature, splitter.best_split_id, lowest_e_cost, information_gain,
             static_cast<double>(best_splitter.n_instances_in_node) / static_cast<double>(best_splitter.n_instances));

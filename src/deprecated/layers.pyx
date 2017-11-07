@@ -15,18 +15,19 @@ from scythe.utils import *
 cdef class LayerConfiguration:
     cdef LayerConfig config
 
-    def __init__(self, cy_config, n_forests, forest_type):
+    def __init__(self, ForestConfiguration cy_config, n_forests, forest_type):
         self.config.fconfig = cy_config.get_c_config()
         self.config.n_forests = n_forests
         self.config.forest_type = forest_type
 
-    cpdef LayerConfig get_c_config(self):
+    cdef LayerConfig get_c_config(self):
         return self.config
 
     property n_forests:
         def __get__(self): return self.config.n_forests
     property fconfig:
         def __get__(self): return self.config.fconfig
+
 
 class Layer(object):
     def __init__(self, **kwargs):
@@ -52,7 +53,7 @@ class Layer(object):
 
 
 class DirectLayer(Layer):
-    def __init__(self, lconfig, **kwargs):
+    def __init__(self, LayerConfiguration lconfig, **kwargs):
         Layer.__init__(self, **kwargs)
         assert(isinstance(lconfig, LayerConfiguration))
         self.lconfig = lconfig
@@ -61,7 +62,7 @@ class DirectLayer(Layer):
 
 
 class CascadeLayer(Layer):
-    def __init__(self, lconfig, **kwargs):
+    def __init__(self, LayerConfiguration lconfig, **kwargs):
         Layer.__init__(self, **kwargs)
         assert(isinstance(lconfig, LayerConfiguration))
         self.lconfig = lconfig
@@ -71,7 +72,7 @@ class CascadeLayer(Layer):
 
 
 class MultiGrainedScanner2D(Layer):
-    def __init__(self, lconfig, kernel_shape, **kwargs):
+    def __init__(self, LayerConfiguration lconfig, kernel_shape, **kwargs):
         Layer.__init__(self, **kwargs)
         assert(isinstance(lconfig, LayerConfiguration))
         assert(isinstance(kernel_shape, tuple))

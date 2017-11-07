@@ -37,28 +37,13 @@ cpp_src_files = [
             "tree/heuristics.cpp",
             "tree/pruning.cpp",
             "scythe.cpp",
-        ],
-        "core"
-    ),
-    (
-        "layers.cpp",
-        [
-            "densities/continuous.cpp",
-            "forest/classification_rf.cpp",
-            "forest/forest.cpp",
-            "misc/bagging.cpp",
-            "misc/sets.cpp",
-            "tree/cart.cpp",
-            "tree/heuristics.cpp",
-            "tree/pruning.cpp",
-            "scythe.cpp",
             "deep_learning/layers/layer.cpp",
             "deep_learning/layers/concatenation_layer.cpp",
             "deep_learning/layers/scanner2D.cpp",
             "deep_learning/deep_forest.cpp",
-            "deep_scythe.cpp",
+            "deep_scythe.cpp"
         ],
-        "layers"
+        "core"
     ),
 ]
 
