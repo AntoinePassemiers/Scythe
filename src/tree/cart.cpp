@@ -3,7 +3,7 @@
     Grow classification trees and regression trees
 
     @author Antoine Passemiers
-    @version 1.3 12/04/2017
+    @version 1.4 27/11/2017
 */
 
 #include "cart.hpp"
@@ -166,12 +166,12 @@ double informationGain(
 }
 
 double evaluatePartitions(VirtualDataset* RESTRICT data, const Density* RESTRICT density, 
-    const Splitter* RESTRICT splitter, size_t k) {
+    const Splitter* RESTRICT splitter, double split_value_double) {
     size_t* counters_left = density->counters_left;
     size_t* counters_right = density->counters_right;
     std::fill(counters_left, counters_left + splitter->n_classes, 0);
     std::fill(counters_right, counters_right + splitter->n_classes, 0);
-    fast_data_t split_value = static_cast<fast_data_t>(density->values[k]);
+    fast_data_t split_value = static_cast<fast_data_t>(split_value_double);
     
     label_t* RESTRICT contiguous_labels = (*(splitter->targets)).retrieveContiguousData();
 
@@ -186,8 +186,7 @@ double evaluatePartitions(VirtualDataset* RESTRICT data, const Density* RESTRICT
             count_instances(static_cast<fast_data_t*>(data->retrieveContiguousData()), 
                 contiguous_labels, counter_ptrs, splitter->n_instances_in_node, split_value, splitter->nan_value);
             break;
-    }    
-      
+    }
     return getFeatureCost(counters_left, counters_right, splitter->n_classes, splitter->class_weights);
 }
 
@@ -279,8 +278,8 @@ double evaluateByThreshold(Splitter* splitter, Density* density, VirtualDataset*
         if (splitter->split_manager->shouldEvaluate(splitter->feature_id, k)) {
             double cost;
             if (splitter->task == CLASSIFICATION_TASK) {
-                cost = evaluatePartitions(data, density, splitter, k);
                 density->split_value = density->values[k];
+                cost = evaluatePartitions(data, density, splitter, density->split_value);
             }
             else {
                 cost = evaluatePartitionsWithRegression(data, density, splitter, k);

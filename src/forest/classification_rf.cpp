@@ -51,14 +51,12 @@ void ClassificationRF::fitNewTree(VirtualDataset* dataset, VirtualTargets* targe
 }
 
 void ClassificationRF::fit(VirtualDataset* dataset, VirtualTargets* targets) {
-    // Compute density functions of all features
-    Forest::preprocessDensities(dataset);
-
     // Fitting each individual tree
     #ifdef _OMP
         #pragma omp parallel for num_threads(parameters.n_jobs)
     #endif
     for (uint n_trees = 0; n_trees < Forest::config.n_iter; n_trees++) {
+        Forest::preprocessDensities(dataset);
         this->fitNewTree(dataset, targets);
     }
 }

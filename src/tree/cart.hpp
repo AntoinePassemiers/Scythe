@@ -148,7 +148,7 @@ data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
                 Tree* const tree, TreeConfig* config);
 
 double evaluatePartitions(const VirtualDataset* RESTRICT data, const Density* RESTRICT density, 
-    const Splitter* RESTRICT splitter, size_t k);
+    const Splitter* RESTRICT splitter, double split_value_double);
 
 double evaluatePartitionsWithRegression(VirtualDataset* data, Density* density,
                                  Splitter* splitter, size_t k);

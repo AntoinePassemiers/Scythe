@@ -18,7 +18,7 @@ def main():
 
     max_n_features = 20
     max_depth = 20
-    n_estimators = 10
+    n_estimators = 100
     min_threshold = 1e-07
 
     X, y = make_classification(
@@ -47,15 +47,15 @@ def main():
     node_counts = list()
     for i, tree in enumerate(forest.estimators_):
         node_counts.append(tree.tree_.node_count)
-    sklearn_mnode_count = sum(node_counts)
+    sklearn_mnode_count = sum(node_counts) / len(forest.estimators_)
     sklearn_acc = (predictions == y_test).sum() / float(n_samples)
 
 
     fconfig = ForestConfiguration()
     fconfig.n_classes        = n_classes
     fconfig.max_n_trees      = n_estimators
-    fconfig.bagging_fraction = 0.4
-    fconfig.max_depth        = max_depth - 8
+    fconfig.bagging_fraction = 0.2
+    fconfig.max_depth        = max_depth
     fconfig.max_n_features   = max_n_features
     fconfig.min_threshold    = min_threshold
     fconfig.partitioning     = 50
