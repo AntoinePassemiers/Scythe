@@ -13,18 +13,19 @@ namespace scythe {
 Parameters parameters;
 
 ScannedDataset2D::ScannedDataset2D(
-    void* data, size_t N, size_t M, size_t P, size_t kc, size_t kr, int dtype) : 
-    N(N),                // Number of instances
-    M(M),                // Instance height
-    P(P),                // Instance width
-    kc(kc),              // Kernel width
-    kr(kr),              // Kernel height
-    sc(P - kc + 1),      // Number of kernel positions per column
-    sr(M - kr + 1),      // Number of kernel positions per row
-    Nprime(N * sr * sc), // Number of instances after scanning
-    Mprime(kc * kr),     // Number of features after scanning
-    data(data),          // Pointer to the raw data
-    dtype(dtype) {       // Raw data type
+    void* data, size_t N, size_t M, size_t P, size_t nc, size_t kc, size_t kr, int dtype) : 
+    N(N),                 // Number of instances
+    M(M),                 // Instance height
+    P(P),                 // Instance width
+    nc(nc),               // Number of channels
+    kc(kc),               // Kernel width
+    kr(kr),               // Kernel height
+    sc(P - kc + 1),       // Number of kernel positions per column
+    sr(M - kr + 1),       // Number of kernel positions per row
+    Nprime(N * sr * sc),  // Number of instances after scanning
+    Mprime(kc * kr * nc), // Number of features after scanning
+    data(data),           // Pointer to the raw data
+    dtype(dtype) {        // Raw data type
     if (parameters.print_layer_info) {
         #ifdef _OMP
             #pragma omp critical(scanned_dataset_2d_display_info)
@@ -42,11 +43,11 @@ VirtualDataset* ScannedDataset2D::deepcopy() {
     size_t n_required_bytes = getNumRows() * getRowStride() * getItemStride();
     void* new_data = malloc(n_required_bytes);
     std::memcpy(new_data, data, n_required_bytes);
-    return new ScannedDataset2D(new_data, N, M, P, kc, kr, dtype);
+    return new ScannedDataset2D(new_data, N, M, P, nc, kc, kr, dtype);
 }
 
 VirtualDataset* ScannedDataset2D::createView(void* view, size_t n_rows) {
-    return new ScannedDataset2D(view, n_rows, M, P, kc, kr, dtype);
+    return new ScannedDataset2D(view, n_rows, M, P, nc, kc, kr, dtype);
 }
 
 void ScannedDataset2D::allocateFromSampleMask(
@@ -69,38 +70,6 @@ void ScannedDataset2D::allocateFromSampleMask(
         @param n_instances
             Number of data samples in the whole dataset
     */
-    /**
-    fast_data_t* t_contiguous_data = static_cast<fast_data_t*>(contiguous_data);
-    if (n_items != this->n_contiguous_items) { // TODO
-        if (contiguous_data != nullptr) {
-            delete[] contiguous_data;
-        }
-        t_contiguous_data = new fast_data_t[n_items];
-        this->n_contiguous_items = n_items;
-    }
-
-    uint k = 0;
-    _it_x = P * (feature_id % kc) + (feature_id / kr);
-    _it_i = 0;
-    _it_q = 0;
-    for (uint i = 0; i < n_instances; i++) {
-        if (sample_mask[i] == node_id) {
-            t_contiguous_data[k++] = static_cast<fast_data_t>(static_cast<data_t*>(data)[_it_x + _it_i + _it_q]);
-        }
-        _it_i++;
-        if (_it_i == sc) {
-            _it_q += M;
-            _it_i = 0;
-            if (_it_q == sr * M) {
-                _it_q = 0;
-                _it_x += (M * P);
-            }
-        }
-    }
-    contiguous_data = static_cast<void*>(t_contiguous_data);
-    assert(k == n_items);
-    */
-
     switch (getDataType()) {
         case NPY_UINT8_NUM:
             generic_allocateFromSampleMask<npy_uint8, npy_uint8>(
@@ -114,7 +83,7 @@ void ScannedDataset2D::allocateFromSampleMask(
 }
 
 data_t ScannedDataset2D::operator()(size_t i, size_t j) {
-    size_t n = i / (sr * sc);
+    size_t n = i / (sr * sc * nc);
     size_t m = (i % sc) + (j % kc);
     size_t p = ((i % (sr * sc)) / sr) + (j / kr);
     switch (getDataType()) {
@@ -213,16 +182,18 @@ MultiGrainedScanner2D::MultiGrainedScanner2D(
     LayerConfig lconfig, size_t kc, size_t kr) : Layer(lconfig), kc(kc), kr(kr) {}
 
 vdataset_p MultiGrainedScanner2D::virtualize(MDDataset dataset) {
-    assert(dataset.n_dims == 3);
+    assert(dataset.n_dims == 4);
     assert(dataset.dims[0] > 0);
     assert(dataset.dims[1] > 0);
     assert(dataset.dims[2] > 0);
+    assert(dataset.dims[3] > 0);
     Layer::vdataset = std::shared_ptr<ScannedDataset2D>(
         new ScannedDataset2D(
             static_cast<data_t*>(dataset.data), // TODO : type erasure
             dataset.dims[0],
             dataset.dims[1],
             dataset.dims[2],
+            dataset.dims[3],
             this->kc,
             this->kr,
             dataset.dtype));

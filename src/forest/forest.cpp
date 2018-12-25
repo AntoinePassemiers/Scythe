@@ -36,4 +36,21 @@ void Forest::preprocessDensities(VirtualDataset* dataset) {
     }
 }
 
+void Forest::save(std::ofstream& file) {
+    file << trees.size() << " ";
+    file << n_instances << " ";
+    file << n_features << std::endl;
+    for (std::shared_ptr<Tree> tree : trees) {
+        saveTree(tree.get(), file);
+    }
 }
+
+void Forest::load(std::ifstream& file) {
+    size_t n_trees;
+    file >> n_trees >> n_instances >> n_features;
+    for (size_t i = 0; i < n_trees; i++) {
+        trees.push_back(std::shared_ptr<Tree>(loadTree(file, &base_tree_config)));
+    }
+}
+
+} // namespace

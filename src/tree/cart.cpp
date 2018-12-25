@@ -496,4 +496,87 @@ data_t* predict(VirtualDataset* data, size_t n_instances, size_t n_features,
     return predictions;
 }
 
+void saveTree(Tree* tree, std::ofstream& file) {
+    if (file.is_open()) {
+        file << tree->n_nodes << " ";
+        file << tree->n_classes << " ";
+        file << tree->n_features << std::endl;
+        std::queue<Node*> queue;
+        queue.push(tree->root);
+        while (!queue.empty()) {
+            std::cout << "aaaaaa" << std::endl;
+            int left_child_id, right_child_id;
+            Node* node = queue.front(); queue.pop();
+            if (node->left_child != nullptr) {
+                std::cout << "xxxxxx" << std::endl;
+                queue.push(node->left_child);
+                left_child_id = node->left_child->id;
+                std::cout << "nnnnnn" << std::endl;
+            } else {
+                left_child_id = -1;
+            }
+            std::cout << "ssssss" << std::endl;
+            if (node->right_child != nullptr) {
+                std::cout << "hhhhhh" << std::endl;
+                queue.push(node->right_child);
+                right_child_id = node->right_child->id;
+                std::cout << "kkkkkkk" << std::endl;
+            } else {
+                right_child_id = -1;
+            }
+            std::cout << "qqqqqq" << std::endl;
+            file << node->id << " ";
+            std::cout << "mmmmmm" << std::endl;
+            file << node->feature_id << " ";
+            std::cout << "bbbbbb" << std::endl;
+            file << node->n_instances << " ";
+            file << node->split_value << " ";
+            file << left_child_id << " ";
+            file << right_child_id << " ";
+            std::cout << "pppppp" << std::endl;
+
+            if (tree->config->task == CLASSIFICATION_TASK) {
+                for (size_t c = 0; c < tree->n_classes; c++) file << node->counters[c] << " ";
+            } else {
+                file << node->mean << " ";
+            }
+            std::cout << "cccccc" << std::endl;
+
+            file << std::endl;
+        }
+    }
+}
+
+Tree* loadTree(std::ifstream& file, TreeConfig* config) {
+    Tree* tree = new Tree();
+    file >> tree->n_nodes;
+    file >> tree->n_classes;
+    file >> tree->n_features;
+    Node* nodes = static_cast<Node*>(malloc(tree->n_nodes * sizeof(Node)));
+    tree->root = &nodes[0];
+    tree->config = config;
+    for (int i = 0; i < tree->n_nodes; i++) {
+        size_t id;
+        file >> id;
+        nodes[id].id = id;
+        file >> nodes[id].feature_id;
+        file >> nodes[id].n_instances;
+        file >> nodes[id].split_value;
+        int left_child_id, right_child_id;
+        file >> left_child_id;
+        file >> right_child_id;
+        if (left_child_id != -1) nodes[id].left_child = &nodes[left_child_id];
+        if (right_child_id != -1) nodes[id].right_child = &nodes[right_child_id];
+
+        // if (tree->config->task == CLASSIFICATION_TASK) {
+        if (true) {
+            nodes[i].counters = static_cast<size_t*>(malloc(tree->n_classes * sizeof(size_t)));
+            for (int c = 0; c < tree->n_classes; c++) file >> nodes[i].counters[c];
+        } else {
+            file >> nodes[id].mean;
+        }
+    }
+    return tree;
+}
+
 } // namespace
