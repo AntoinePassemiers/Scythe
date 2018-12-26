@@ -14,8 +14,6 @@
 #include <limits>
 #include <cmath>
 #include <cstring>
-#include <iostream>
-#include <fstream>
 
 #include "opt.hpp"
 #include "../misc/sets.hpp"
@@ -114,13 +112,13 @@ struct Splitter {
 };
 
 struct Tree {
-    Node*          root;
-    size_t         n_nodes;
-    size_t         n_classes;
-    size_t         n_features;
-    TreeConfig*    config;
-    std::ptrdiff_t level;
-    SplitManager*  split_manager;
+    Node*         root;
+    size_t        n_nodes;
+    size_t        n_classes;
+    size_t        n_features;
+    TreeConfig*   config;
+    std::ptrdiff_t     level;
+    SplitManager* split_manager;
 
     explicit Tree();
     explicit Tree(Node* root, TreeConfig* config, size_t n_features);
@@ -142,10 +140,6 @@ void initRoot(Node* root, VirtualTargets* const targets, size_t n_instances, siz
 Tree* CART(VirtualDataset* dataset, VirtualTargets* const targets, TreeConfig* config, Density* densities);
 
 Tree* CART(VirtualDataset* dataset, VirtualTargets* const targets, TreeConfig* config, Density* densities, size_t* belongs_to);
-
-void saveTree(Tree* tree, std::ofstream& file);
-
-Tree* loadTree(std::ifstream& file, TreeConfig* config);
 
 float* classifyFromTree(VirtualDataset* data, size_t n_instances, size_t n_features,
                         Tree* const tree, TreeConfig* config);

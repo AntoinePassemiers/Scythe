@@ -19,7 +19,6 @@ private:
     size_t N;  // Number of instances
     size_t M;  // Instance height
     size_t P;  // Instance width
-    size_t nc; // Number of channels
     size_t kc; // Kernel width
     size_t kr; // Kernel height
     size_t sc; // Number of kernel positions per column
@@ -37,7 +36,7 @@ private:
     size_t _it_q;
 public:
     ScannedDataset2D(void* data, size_t N, size_t M, 
-        size_t P, size_t nc, size_t kc, size_t kr, int dtype);
+        size_t P, size_t kc, size_t kr, int dtype);
     ScannedDataset2D(const ScannedDataset2D& other) = default;
     ScannedDataset2D& operator=(const ScannedDataset2D& other) = default;
     ~ScannedDataset2D() override = default;
@@ -115,8 +114,7 @@ public:
 
 
 inline void ScannedDataset2D::inline_iterator_begin(const size_t j) {
-    size_t jj = j / nc;
-    _it_x = P * (jj % kc) + (jj / kr) + (j % nc);
+    _it_x = P * (j % kc) + (j / kr);
     _it_i = 0;
     _it_q = 0;
 }
@@ -128,7 +126,7 @@ inline void ScannedDataset2D::inline_iterator_inc() {
         _it_i = 0;
         if (_it_q == sr * M) {
             _it_q = 0;
-            _it_x += (M * P * nc);
+            _it_x += (M * P);
         }
     }
 }
@@ -136,9 +134,9 @@ inline void ScannedDataset2D::inline_iterator_inc() {
 inline data_t ScannedDataset2D::inline_iterator_deref() {
     switch (getDataType()) {
         case NPY_UINT8_NUM:
-            return static_cast<uint8_t*>(data)[_it_x + (_it_i + _it_q) * nc];
+            return static_cast<uint8_t*>(data)[_it_x + _it_i + _it_q];
         default:
-            return static_cast<data_t*>(data)[_it_x + (_it_i + _it_q) * nc];
+            return static_cast<data_t*>(data)[_it_x + _it_i + _it_q];
     }
 }
 

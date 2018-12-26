@@ -103,8 +103,6 @@ public:
     virtual void fit(VirtualDataset* dataset, VirtualTargets* targets) = 0;
     void preprocessDensities(VirtualDataset* dataset);
     virtual size_t getInstanceStride() = 0;
-    void save(std::ofstream& file);
-    void load(std::ifstream& file);
 
     std::vector<std::shared_ptr<Tree>>& getTrees() { return trees; }
 };
@@ -118,6 +116,6 @@ public:
     virtual size_t getInstanceStride() { return config.n_classes; }
 };
 
-} // namespace
+}
 
 #endif // FOREST_HPP_
